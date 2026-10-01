@@ -1,0 +1,30 @@
+/* DESIGN.md tokens. Light = paper (agent default), dark = ink (distributor/admin default). */
+:root {
+  --ink-950: #0a0f1f;
+  --ink-800: #1a2340;
+  --paper: #f7f3ea;
+  --paper-2: #efe8d8;
+  --upay-yellow: #ffc20e;
+  --pulse-blue: #2f5bff;
+  --float-cash: #7c5cff;
+  --float-emoney: #00b8d9;
+  --risk-green: #1fa971;
+  --risk-amber: #f2a900;
+  --risk-red: #e5484d;
+
+  --bg: var(--paper);
+  --surface: #fffdf8;
+  --surface-2: var(--paper-2);
+  --fg: var(--ink-950);
+  --muted: rgba(10, 15, 31, 0.62);
+  --line: rgba(10, 15, 31, 0.12);
+}
+
+[data-theme="dark"] {
+  --bg: var(--ink-950);
+  --surface: #111831;
+  --surface-2: var(--ink-800);
+  --fg: #eef1f8;
+  --muted: rgba(238, 241, 248, 0.64);
+  --line: rgba(238, 241, 248, 0.12);
+}
