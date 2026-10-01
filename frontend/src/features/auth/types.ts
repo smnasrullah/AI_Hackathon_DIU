@@ -1,5 +1,6 @@
 export type Role = "agent" | "distributor" | "admin";
 export type Lang = "bn" | "en";
+export type Theme = "light" | "dark" | "system";
 
 export interface AuthUser {
   id: string;
@@ -9,11 +10,13 @@ export interface AuthUser {
   agent_id: number | null;
   distributor_id: number | null;
   lang: Lang;
+  theme: Theme;
+  last_login_at: string | null;
 }
 
+/** The refresh token never reaches JS: it lives in an httpOnly cookie. */
 export interface TokenResponse {
   access_token: string;
-  refresh_token: string;
   token_type: "bearer";
   expires_in: number;
   user: AuthUser;

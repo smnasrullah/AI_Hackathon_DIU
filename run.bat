@@ -9,10 +9,15 @@ if errorlevel 1 (
   exit /b 1
 )
 
-if not exist .env (
-  copy /y .env.example .env >nul
-  echo Created .env from .env.example
+if exist .env goto envready
+rem Fresh .env: replace the JWT placeholder with a random 64-hex secret (two GUIDs).
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$s = [guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N'); $t = [IO.File]::ReadAllText((Join-Path (Get-Location) '.env.example')).Replace('__GENERATED_ON_FIRST_RUN__', $s); [IO.File]::WriteAllText((Join-Path (Get-Location) '.env'), $t, (New-Object Text.UTF8Encoding $false))"
+if errorlevel 1 (
+  echo Could not create .env from .env.example
+  exit /b 1
 )
+echo Created .env from .env.example with a random JWT secret
+:envready
 
 if /i "%~1"=="--reset" (
   echo Resetting: removing containers and database volume...

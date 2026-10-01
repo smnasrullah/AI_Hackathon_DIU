@@ -1,5 +1,10 @@
+import os
 from collections.abc import Iterator
 from pathlib import Path
+
+# Must precede app imports: skips the JWT secret length guard for unit tests.
+os.environ["APP_ENV"] = "test"
+
 
 import pytest
 from alembic import command

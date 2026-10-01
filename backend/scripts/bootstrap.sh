@@ -1,5 +1,6 @@
 #!/bin/sh
-# wait for db -> migrate -> seed if needed -> train if artifacts missing -> ready.
+# wait for db -> migrate -> seed if needed -> train if artifacts missing/invalid
+# -> register model + precompute forecast cache -> ready.
 # Progress is written to $BOOTSTRAP_STATE_FILE and reported by /api/v1/system/status.
 set -u
 
@@ -33,6 +34,8 @@ fi
 if python bootstrap.py needs-train; then
   step training python bootstrap.py train
 fi
+
+step precomputing python bootstrap.py precompute
 
 step finalizing python bootstrap.py mark-ready
 state ready

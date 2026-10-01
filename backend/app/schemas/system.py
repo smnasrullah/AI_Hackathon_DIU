@@ -9,6 +9,7 @@ BootstrapState = Literal[
     "migrating",
     "seeding",
     "training",
+    "precomputing",
     "finalizing",
     "ready",
     "failed",

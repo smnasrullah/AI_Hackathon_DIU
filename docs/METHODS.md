@@ -21,11 +21,26 @@ Principle: rules and ML compute every number; the LLM only words them; a human a
 
 | Item | Method | Implemented in |
 |---|---|---|
-| Model | LightGBM quantile regression, one model per quantile: q10 / q50 / q90 (low / expected / high) | `backend/ml/training/` |
-| Targets | Hourly demand per float (cash, e-money), horizon up to 72 h | `forecasts` (q_low, q_mid, q_high, horizon_h) |
-| Features | Lags, calendar, event, weather features | `backend/ml/features/` |
-| Split | Train on all history before the holdout; clean held-out last 14 days for backtest only | `backend/ml/training/` (backtest) |
-| Metrics | Pinball loss per quantile; MAE vs same-hour-last-week naive baseline; stockout recall on holdout | `model_runs.metrics`, `/admin/models` |
+| Model | LightGBM quantile regression, one booster per target and quantile: q10 / q50 / q90 (low / expected / high) = 6 boosters; 300 rounds, lr 0.05, 31 leaves, min 100 rows/leaf, `deterministic=true`, fixed seed | `backend/ml/training/train.py` |
+| Targets | Hourly **cash_out** and **cash_in** demand per agent (observed served BDT from `transactions`), trained separately. Cash float is drawn by cash_out, e-money float by cash_in; the API returns them as `float_type` cash / emoney | `forecasts` (q_low, q_mid, q_high, horizon_h) |
+| Multi-horizon | Direct: one row per (agent, origin t0, horizon h = 1..72); target hour t = t0 + h - 1; `horizon_h` is a feature. Only demand before t0 is read | `backend/ml/features/build.py` |
+| Features | Target-hour calendar: hour, day of week, day of month. Events at the target hour for the agent's district (from `events`): salary (1st-3rd), factory wage, Eid day number, holiday, hat-bazar, severe weather. Weather of the target day: rain_mm, temp_c. Agent: tier, area type, district, cash/e-money capacity. History (divided by `scale`): most recent observed same hour (lag 24 / 48 / 72 h depending on h), lag 168 h, lag 336 h, same-hour mean of last 4 weeks, rolling 24 h mean, last hour; plus log(scale) | `backend/ml/features/` |
+| Scaling | `scale` = agent's trailing 168 h mean hourly demand at t0. The model predicts demand / scale; inference multiplies back (quantiles are scale-equivariant), so one model serves tier 1 and tier 3 agents | `backend/ml/features/build.py` |
+| Quantile order | Predictions clipped at 0 and sorted per row so low <= expected <= high (no quantile crossing) | `backend/ml/inference/forecaster.py` |
+| Split | Training rows: origins from day 28 (4 weeks of lag history), 2 random origin hours per agent-day, 12 random horizons each, kept only if the target hour is before the holdout (2026-04-21) → 550,956 rows. The last 14 days are never trained on | `backend/ml/training/train.py` (`sample_rows`) |
+| Backtest | Origins every holdout day at 08:00 and 20:00, all 300 agents, every horizon 1..72 inside the holdout (536,400 rows per target). Baseline = same hour last week, y[t-168], used as the point forecast for every quantile | `backend/ml/training/evaluate.py` |
+| Metrics | MAE (q50) and pinball loss per quantile vs baseline; q10-q90 coverage; MAE by horizon bucket. Stored in `manifest.json` and `model_versions.metrics` | `backend/ml/artifacts/manifest.json`, `model_versions` |
+| Serving | Inference is separate from training: bootstrap verifies artifact sha256, registers the active `model_versions` row, then caches forecasts for every agent at SIM_NOW (300 agents x 2 floats x 72 h = 43,200 rows). The API only reads this cache | `backend/ml/inference/`, `backend/app/services/forecast.py`, `GET /agents/{id}/forecast?horizon_hours=24` |
+
+Held-out results (model `lgbq-1.0.0-56571e7f`, seed 42, data_version 1.0.0; BDT per agent-hour, all 24 hours incl. closed night hours):
+
+| Target | Mean demand | MAE model | MAE baseline | MAE skill | Pinball q10 / q50 / q90 (mean) model | Pinball q10 / q50 / q90 (mean) baseline | q10-q90 coverage |
+|---|---|---|---|---|---|---|---|
+| cash_out | 5,052 | 2,211 | 3,056 | 27.6% | 404 / 1,106 / 616 (708) | 1,234 / 1,528 / 1,822 (1,528) | 87.4% |
+| cash_in | 4,517 | 2,163 | 2,932 | 26.2% | 372 / 1,081 / 607 (687) | 1,303 / 1,466 / 1,630 (1,466) | 89.1% |
+
+MAE by horizon (model / baseline): cash_out 1-6 h 2,395 / 3,326, 7-24 h 2,078 / 2,921, 25-72 h 2,240 / 3,073; cash_in 1-6 h 2,344 / 3,200, 7-24 h 2,044 / 2,811, 25-72 h 2,186 / 2,944. The band is slightly wider than nominal (coverage 87-89% vs 80%), i.e. conservative. Hour-level demand is noisy by construction (Poisson ticket counts, see SYNTHETIC_ASSUMPTIONS.md), so the MAE floor is high relative to the mean.
+Limitations: the target is *served* demand, so hours where a float already hit zero are censored (under-stated); the target-day weather is taken as known (perfect weather forecast).
 | Time-to-stockout | Project current balance forward with quantile forecasts; first hour the float runs out = `stockout_at`, with a confidence value | `backend/ml/inference/`, `risk_snapshots.stockout_at`, `.confidence` |
 | Why LightGBM quantile | Fast on CPU, handles mixed tabular features, native quantile loss gives an uncertainty band without extra models, works with SHAP | - |
 | Explanation (F7) | SHAP on the forecast -> top factors list -> bn/en template sentence (LLM may reword, see §4) | `backend/ml/explain/`, `risk_snapshots.shap_top`, `GET /agents/{id}/explanation` |
@@ -77,7 +92,7 @@ Principle: rules and ML compute every number; the LLM only words them; a human a
 |---|---|---|
 | Seeds | Fixed seed for data generation and model training; recorded in `system_meta.seed` | `backend/ml/data_gen/`, `backend/ml/training/` |
 | Artifacts | Trained `*.joblib` + `manifest.json` (model_version, sha256) committed to git; fresh PC needs no training | `backend/ml/artifacts/` |
-| Startup check | Verify manifest sha256 + model_version, register in `model_runs` (artifact_sha256, metrics, is_active) | `backend/bootstrap.py` step 6 |
+| Startup check | Verify manifest sha256 + feature list, register in `model_versions` (artifact_sha256, metrics, is_active), then precompute the forecast cache (skipped when model, SIM_NOW and data are unchanged) | `backend/bootstrap.py` (`needs-train`, `precompute`) |
 | Retrain | Only if artifacts missing / hash mismatch: retrain from seed (slow path, logged); fail if still missing | `backend/bootstrap.py` step 6 |
 | Fixed demo state | Precompute at fixed `SIM_NOW`; replay answers keyed by evidence-pack hash | `backend/bootstrap.py` step 7, `demo_replay.json` |
 | Readiness | `GET /api/v1/system/status` reports db, migration head, seed/data_version, artifacts ok, model_version, llm mode, `ready` | `backend/app/api/v1/` (system) |
@@ -107,7 +122,7 @@ Shown on `/responsible-ai` (`GET /api/v1/responsible-ai`: model cards, metrics, 
 
 1. Seed value, number of distributors/agents, districts covered, length of generated history.
 2. Exact value of SIM_NOW and whether it falls inside the 14-day holdout.
-3. Forecast target: hourly net flow vs in/out separately vs balance; multi-horizon strategy (direct per horizon vs recursive).
+3. Decided (§2): cash_out and cash_in modelled separately; direct multi-horizon with horizon as a feature.
 4. How stockout `confidence` is computed from the quantiles (e.g. which quantile crosses zero, interpolation).
 5. Risk thresholds: exact stockout-hours / confidence cut-offs for green / amber / red at 6 / 24 / 72 h.
 6. Rebalance amount rule (target buffer, capacity cap) and when `van` is chosen over `swap`.
@@ -116,6 +131,6 @@ Shown on `/responsible-ai` (`GET /api/v1/responsible-ai`: model cards, metrics, 
 9. Fixed-threshold baseline parameters for F11, and impact targets ("set after P11 backtest").
 10. Fairness groups (area_type? district?) and the fairness metric.
 11. Drift metric shown on `/admin/models`.
-12. Is LightGBM retraining bit-identical across CPUs (deterministic flags, thread count)? If not, retrained artifacts will not match committed sha256.
+12. Partly decided: training uses `deterministic=true`, `force_row_wise=true`, 4 threads and a fixed seed, but bit-identity across CPUs is not guaranteed. The committed artifacts are therefore canonical; bootstrap retrains only if they are missing or fail the sha256 / feature-list check, and a retrain gets a new `model_version`.
 13. `llm_cache` TTL; whether a live-provider failure falls back to replay before template.
 14. Whether the evidence pack excludes volatile fields (e.g. `generated_at`) so replay hashes match on every PC.

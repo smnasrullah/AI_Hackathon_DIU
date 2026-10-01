@@ -16,7 +16,9 @@ from sqlalchemy.orm import Session
 from app.core.config import DATA_VERSION, get_settings
 from app.core.db import get_engine
 from app.models.system_meta import SystemMeta
+from app.services import forecast
 from app.services import seed as reference_seed
+from ml import registry
 from ml.data_gen import generate
 from ml.training import train
 
@@ -70,11 +72,22 @@ def seed_reference() -> int:
 
 
 def needs_train() -> int:
-    return 0 if not (get_settings().artifacts_dir / "manifest.json").is_file() else 1
+    ok, why = registry.verify(get_settings().artifacts_dir)
+    if not ok:
+        log.warning("artifacts need training: %s", why)
+    return 1 if ok else 0
 
 
 def run_train() -> int:
+    log.warning("training from seed (slow path; committed artifacts were missing or invalid)")
     train.run(artifacts_dir=get_settings().artifacts_dir, seed=get_settings().seed)
+    return 0
+
+
+def precompute() -> int:
+    """Register the active model and cache forecasts for every agent at SIM_NOW."""
+    with Session(get_engine()) as session, session.begin():
+        forecast.precompute(session, get_settings().artifacts_dir)
     return 0
 
 
@@ -91,6 +104,7 @@ COMMANDS = {
     "seed-reference": seed_reference,
     "needs-train": needs_train,
     "train": run_train,
+    "precompute": precompute,
     "mark-ready": mark_ready,
 }
 

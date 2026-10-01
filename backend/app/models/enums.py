@@ -98,6 +98,12 @@ class Lang(StrEnum):
     en = "en"
 
 
+class Theme(StrEnum):
+    light = "light"
+    dark = "dark"
+    system = "system"
+
+
 class ChatRole(StrEnum):
     user = "user"
     assistant = "assistant"
@@ -120,4 +126,5 @@ PG_ENUM_NAMES: dict[type[StrEnum], str] = {
     GuardResult: "guard_result",
     Lang: "lang_code",
     ChatRole: "chat_role",
+    Theme: "theme_pref",
 }

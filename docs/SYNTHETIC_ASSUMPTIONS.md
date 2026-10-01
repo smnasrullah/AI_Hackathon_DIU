@@ -13,6 +13,7 @@ Constants live in the module named in each section, so a change there must be mi
 | History | 120 days, hourly: 2026-01-05 00:00 to 2026-05-04 23:00 Asia/Dhaka (UTC+6, no DST); stored as UTC | `timeline.py` |
 | Holdout | Last 14 days (from 2026-04-21 00:00), `is_holdout = true` on snapshots and transactions; never trained on | `timeline.py` |
 | SIM_NOW | 2026-04-30 20:00 (Thursday), inside the holdout; the 72 h after it are in the data as ground truth | `timeline.py`, `system_meta.sim_now` |
+| Forecast inputs | Events (salary, wage, Eid, holiday, hat, severe weather) and daily weather for the target day are treated as known in advance (a perfect weather forecast); demand history is read only before the forecast origin | `ml/features/` |
 | Data version | `DATA_VERSION` in `app/core/config.py`; bootstrap regenerates when it changes | `load.py` |
 | Ground-truth labels | `system_meta.synthetic_labels` = anomalous agents (kind, window) + demo summary | `load.py` |
 

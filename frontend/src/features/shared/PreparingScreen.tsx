@@ -7,6 +7,7 @@ const STEPS: ReadonlyArray<{ state: BootstrapState; label: string }> = [
   { state: "migrating", label: "Updating the database schema" },
   { state: "seeding", label: "Generating synthetic demo data" },
   { state: "training", label: "Checking forecast models" },
+  { state: "precomputing", label: "Preparing forecasts for every agent" },
   { state: "finalizing", label: "Final checks" },
 ];
 

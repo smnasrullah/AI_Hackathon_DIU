@@ -1,5 +1,18 @@
 {
   "permissions": {
+    "allow": [
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(docker compose:*)",
+      "Bash(docker ps:*)",
+      "Bash(powershell -File scripts/check.ps1:*)",
+      "Bash(powershell.exe -File scripts/check.ps1:*)",
+      "Bash(bash scripts/check.sh:*)",
+      "Bash(./scripts/check.sh:*)"
+    ],
     "deny": [
       "Read(./.env)",
       "Read(./**/.env)",

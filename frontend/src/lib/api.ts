@@ -5,12 +5,13 @@ import type { TokenResponse } from "../features/auth/types";
 
 const BASE_URL = "/api/v1";
 const TIMEOUT_MS = 10_000;
+const REFRESH_LOCK = "agentpulse-refresh";
 
 export const api = axios.create({ baseURL: BASE_URL, timeout: TIMEOUT_MS });
-/** No interceptors: used for the refresh call itself so a 401 there cannot loop. */
+/** No interceptors: used for refresh/logout so a 401 there cannot loop. */
 export const authClient = axios.create({ baseURL: BASE_URL, timeout: TIMEOUT_MS });
 
-const NO_REFRESH_PATHS = ["/auth/login", "/auth/refresh"];
+const NO_REFRESH_PATHS = ["/auth/login", "/auth/refresh", "/auth/logout"];
 
 interface RetriableConfig extends InternalAxiosRequestConfig {
   _retried?: boolean;
@@ -24,29 +25,35 @@ api.interceptors.request.use((config) => {
 
 let inflight: Promise<string | null> | null = null;
 
-/** One shared refresh for all requests that hit 401 at the same time. */
+/** One shared refresh for all requests in this tab that hit 401 at the same time. */
 export function refreshAccessToken(): Promise<string | null> {
-  inflight ??= doRefresh().finally(() => {
+  inflight ??= withCrossTabLock(doRefresh).finally(() => {
     inflight = null;
   });
   return inflight;
 }
 
+/**
+ * Tabs share the refresh cookie. Rotating it from two tabs at once would look like token reuse
+ * and end the session, so refreshes are serialised across tabs when the browser allows it.
+ */
+function withCrossTabLock<T>(fn: () => Promise<T>): Promise<T> {
+  const locks = typeof navigator !== "undefined" ? navigator.locks : undefined;
+  return locks ? locks.request(REFRESH_LOCK, fn) : fn();
+}
+
 async function doRefresh(): Promise<string | null> {
-  const { refreshToken, setSession, clear } = useAuthStore.getState();
-  if (!refreshToken) {
-    clear();
-    return null;
-  }
+  const { status, setSession, signOut } = useAuthStore.getState();
   try {
-    const res = await authClient.post<TokenResponse>("/auth/refresh", {
-      refresh_token: refreshToken,
-    });
+    const res = await authClient.post<TokenResponse>("/auth/refresh");
     setSession(res.data);
     return res.data.access_token;
   } catch (err) {
-    // Only a definite rejection ends the session; a network blip keeps it.
-    if (axios.isAxiosError(err) && err.response?.status === 401) clear();
+    const rejected = axios.isAxiosError(err) && err.response?.status === 401;
+    // A network blip keeps a live session; a rejection (or no session yet) ends it.
+    if (rejected || status === "checking") {
+      signOut(status === "signedIn" && rejected ? "session_expired" : null);
+    }
     return null;
   }
 }

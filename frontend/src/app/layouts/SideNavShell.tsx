@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import { NavLink, Outlet } from "react-router-dom";
 
+import { AccountActions } from "../../features/auth/AccountActions";
 import { Notices } from "../../features/shared/Notices";
 
 export interface SideNavItem {
@@ -35,6 +36,9 @@ export function SideNavShell({ area, items }: { area: string; items: SideNavItem
         </nav>
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
+        <header className="flex items-center justify-end border-b border-line px-6 py-2">
+          <AccountActions />
+        </header>
         <main className="flex-1 p-6">
           <Outlet />
         </main>

@@ -16,7 +16,9 @@ services:
       retries: 30
 
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      target: runtime
     env_file:
       - path: .env
         required: false
@@ -29,11 +31,49 @@ services:
       - "${BACKEND_PORT:-8000}:8000"
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      target: runtime
     depends_on:
       - backend
     ports:
       - "${FRONTEND_PORT:-5173}:80"
+
+  # --- Dev tools (scripts/check.ps1 | scripts/check.sh). Not started by `docker compose up`. ---
+  # Source is mounted so checks see the working tree; dependencies come from the image.
+  backend-tools:
+    profiles: ["tools"]
+    build:
+      context: ./backend
+      target: dev
+    environment:
+      APP_ENV: test
+      RUFF_CACHE_DIR: /tmp/ruff_cache
+    volumes:
+      - ./backend:/app
+
+  frontend-tools:
+    profiles: ["tools"]
+    build:
+      context: ./frontend
+      target: dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  # --- Playwright e2e (scripts/check.ps1 -E2E). Starts the stack it needs; not part of `up`. ---
+  e2e:
+    profiles: ["e2e"]
+    build:
+      context: ./e2e
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      E2E_BASE_URL: http://frontend
+    depends_on:
+      - frontend
+    ipc: host
 
 volumes:
   pgdata:

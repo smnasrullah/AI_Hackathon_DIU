@@ -1,7 +1,10 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
+import { AxiosError, type AxiosResponse } from "axios";
 import { RouterProvider, createMemoryRouter } from "react-router-dom";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
+import { authClient } from "../../lib/api";
+import { useAuthStore } from "./authStore";
 import { ForbiddenPage } from "./ForbiddenPage";
 import { HomeRedirect } from "./HomeRedirect";
 import { RoleGuard } from "./RoleGuard";
@@ -26,8 +29,43 @@ function renderAt(path: string) {
   return router;
 }
 
+const originalAuthAdapter = authClient.defaults.adapter;
+
 describe("RoleGuard", () => {
   beforeEach(() => signOut());
+  afterEach(() => {
+    authClient.defaults.adapter = originalAuthAdapter;
+  });
+
+  it("renders nothing while the session check is running", () => {
+    useAuthStore.setState({ status: "checking" });
+    const router = renderAt("/agent");
+    expect(router.state.location.pathname).toBe("/agent");
+    expect(screen.queryByText("Agent home")).not.toBeInTheDocument();
+  });
+
+  it("re-checks the session when the page is restored from the back/forward cache", async () => {
+    signIn("agent");
+    authClient.defaults.adapter = (config) => {
+      const response: AxiosResponse = {
+        data: { detail: "invalid_refresh_token" },
+        status: 401,
+        statusText: "Unauthorized",
+        headers: {},
+        config,
+      };
+      return Promise.reject(new AxiosError("401", "ERR_BAD_REQUEST", config, null, response));
+    };
+    const router = renderAt("/agent");
+    expect(screen.getByText("Agent home")).toBeInTheDocument();
+    const restored = new Event("pageshow");
+    Object.defineProperty(restored, "persisted", { value: true });
+    act(() => {
+      window.dispatchEvent(restored);
+    });
+    await waitFor(() => expect(router.state.location.pathname).toBe("/login"));
+    expect(useAuthStore.getState().notice).toBe("session_expired");
+  });
 
   it("sends signed-out users to login and remembers the page", () => {
     const router = renderAt("/distributor");

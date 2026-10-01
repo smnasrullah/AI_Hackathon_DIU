@@ -2,8 +2,8 @@ import { AxiosError, type AxiosAdapter, type AxiosResponse, type InternalAxiosRe
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { useAuthStore } from "../features/auth/authStore";
-import { makeUser, signIn } from "../features/auth/testUtils";
-import { api, authClient } from "./api";
+import { signIn, tokensFor } from "../features/auth/testUtils";
+import { api, authClient, refreshAccessToken } from "./api";
 
 function respond(config: InternalAxiosRequestConfig, status: number, data: unknown): Promise<AxiosResponse> {
   const response: AxiosResponse = { data, status, statusText: String(status), headers: {}, config };
@@ -45,13 +45,10 @@ describe("api client", () => {
     api.defaults.adapter = protectedEndpoint("access-2");
     authClient.defaults.adapter = (config) => {
       refreshCalls += 1;
-      return respond(config, 200, {
-        access_token: "access-2",
-        refresh_token: "refresh-2",
-        token_type: "bearer",
-        expires_in: 900,
-        user: makeUser("agent"),
-      });
+      // The refresh token rides in the httpOnly cookie, never in the body.
+      expect(config.url).toBe("/auth/refresh");
+      expect(config.data).toBeUndefined();
+      return respond(config, 200, tokensFor("agent"));
     };
 
     const [a, b] = await Promise.all([api.get("/agents/1"), api.get("/agents/1/risk")]);
@@ -59,7 +56,7 @@ describe("api client", () => {
     expect(b.data).toEqual({ ok: true });
     expect(refreshCalls).toBe(1);
     expect(seenAuth).toContain("Bearer access-1");
-    expect(useAuthStore.getState().refreshToken).toBe("refresh-2");
+    expect(useAuthStore.getState().accessToken).toBe("access-2");
   });
 
   it("signs out when the refresh token is rejected", async () => {
@@ -68,6 +65,30 @@ describe("api client", () => {
 
     await expect(api.get("/agents/1")).rejects.toMatchObject({ response: { status: 401 } });
     expect(useAuthStore.getState().user).toBeNull();
+    expect(useAuthStore.getState().notice).toBe("session_expired");
+  });
+
+  it("silent refresh on load restores the session from the cookie", async () => {
+    useAuthStore.setState({ status: "checking", accessToken: null, user: null });
+    authClient.defaults.adapter = (config) => respond(config, 200, tokensFor("distributor"));
+    await expect(refreshAccessToken()).resolves.toBe("access-2");
+    expect(useAuthStore.getState().status).toBe("signedIn");
+    expect(useAuthStore.getState().user?.role).toBe("distributor");
+  });
+
+  it("silent refresh without a cookie ends quietly signed out", async () => {
+    useAuthStore.setState({ status: "checking", accessToken: null, user: null });
+    authClient.defaults.adapter = (config) => respond(config, 401, { detail: "invalid_refresh_token" });
+    await expect(refreshAccessToken()).resolves.toBeNull();
+    expect(useAuthStore.getState().status).toBe("signedOut");
+    expect(useAuthStore.getState().notice).toBeNull();
+  });
+
+  it("keeps the session on a network error", async () => {
+    authClient.defaults.adapter = (config) =>
+      Promise.reject(new AxiosError("Network Error", "ERR_NETWORK", config));
+    await expect(refreshAccessToken()).resolves.toBeNull();
+    expect(useAuthStore.getState().status).toBe("signedIn");
   });
 
   it("does not refresh on a failed login", async () => {

@@ -33,13 +33,14 @@ All prediction responses include `model_version` + `generated_at`. All LLM respo
 
 | Module | Method | Route | Purpose | Role |
 |---|---|---|---|---|
-| auth | POST | `/auth/login` | Issue access + refresh JWT | P |
-| auth | POST | `/auth/refresh` | Rotate refresh token | P (refresh token) |
-| auth | POST | `/auth/logout` | Revoke refresh token | A, D, Ad |
-| auth | GET | `/auth/me` | Current user, role, agent_id/distributor_id | A, D, Ad |
+| auth | POST | `/auth/login` | Access JWT in body, refresh in httpOnly cookie (path /api/v1/auth); lockout 5 fails per email+IP / 15 min | P |
+| auth | POST | `/auth/refresh` | Rotate refresh cookie; reuse of a rotated token revokes its family | P (refresh cookie) |
+| auth | POST | `/auth/logout` | Revoke refresh token + clear cookie | P (refresh cookie) |
+| auth | POST | `/auth/change-password` | Verify old, min 8 chars, revoke other sessions | A, D, Ad |
+| auth | GET | `/auth/me` | Current user, role, lang, theme, agent_id/distributor_id, last_login_at | A, D, Ad |
 | agents | GET | `/agents` | List agents (filters: risk, district, q) | D, Ad |
 | agents | GET | `/agents/{id}` | Agent profile + current floats | A(self), D, Ad |
-| forecast | GET | `/agents/{id}/forecast` | Dual-float hourly q10/q50/q90, `?float=&hours=72` (F1) | A(self), D, Ad |
+| forecast | GET | `/agents/{id}/forecast` | Dual-float hourly q10/q50/q90 demand (cash <- cash_out, emoney <- cash_in), `?horizon_hours=24` (1..72), read from the bootstrap cache; 503 `forecast_not_ready` before precompute (F1) | A(self), D, Ad |
 | forecast | GET | `/agents/{id}/stockout` | Time-to-stockout + confidence per float (F2) | A(self), D, Ad |
 | risk | GET | `/agents/{id}/risk` | G/Y/R at 6/24/72h per float (F3) | A(self), D, Ad |
 | whatif | POST | `/agents/{id}/whatif` | Recompute runway for `{float_type, delta_amount, at}` (F8) | A(self), D |
@@ -78,8 +79,9 @@ Money = `NUMERIC(14,2)` BDT. Times = `TIMESTAMPTZ` (Asia/Dhaka on display). Enum
 
 | Table | Columns (type) | Keys | Indexes |
 |---|---|---|---|
-| users | id uuid, email text, full_name text, password_hash text, role enum(agent,distributor,admin), agent_id int null, distributor_id int null, lang enum(bn,en), is_active bool, created_at | PK id; FK agent_id, distributor_id; CHECK role scope | UQ email |
-| refresh_tokens | id uuid, user_id uuid, token_hash text, expires_at, revoked_at null, created_at | PK id; FK user_id | UQ token_hash; (user_id) |
+| users | id uuid, email text, full_name text, password_hash text, role enum(agent,distributor,admin), agent_id int null, distributor_id int null, lang enum(bn,en), theme enum(light,dark,system), is_active bool, last_login_at null, created_at | PK id; FK agent_id, distributor_id; CHECK role scope | UQ email |
+| refresh_tokens | id uuid, user_id uuid, token_hash text, expires_at, revoked_at null, replaced_by uuid null, user_agent text null, created_at | PK id; FK user_id, replaced_by -> refresh_tokens | UQ token_hash; (user_id) |
+| login_failures | id, email text, ip text, created_at | PK id | (email, ip, created_at) |
 | distributors | id int, code text, name text, region text, district text, hub_lat float8, hub_lng float8, created_at | PK id | UQ code |
 | agents | id int, code text, name text, distributor_id int, region text, district text, upazila text null, urban_rural enum(urban,peri_urban,rural), tier smallint(1-3), lat float8, lng float8, cash_capacity numeric, emoney_capacity numeric, opened_on date null, is_active bool, created_at | PK id; FK distributor_id | UQ code; (distributor_id); (region, district) |
 | float_snapshots | id bigint, agent_id int, ts, cash_balance numeric, emoney_balance numeric, is_holdout bool | PK id; FK agent_id | UQ (agent_id, ts); (ts) |

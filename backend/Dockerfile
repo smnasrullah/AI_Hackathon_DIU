@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.11-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -7,9 +7,22 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-COPY requirements.txt requirements-dev.txt ./
-RUN pip install -r requirements-dev.txt
+# LightGBM needs the OpenMP runtime.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
 
+COPY requirements.txt ./
+RUN pip install -r requirements.txt
+
+# Dev/tools target (ruff, pytest): used by the compose "tools" profile and scripts/check.*
+FROM base AS dev
+ENV APP_ENV=test
+COPY requirements-dev.txt ./
+RUN pip install -r requirements-dev.txt
+COPY . .
+
+FROM base AS runtime
 COPY . .
 # Guard against CRLF checkouts on Windows hosts.
 RUN sed -i 's/\r$//' entrypoint.sh scripts/bootstrap.sh \

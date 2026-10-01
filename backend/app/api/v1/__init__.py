@@ -1,9 +1,10 @@
 from fastapi import APIRouter
 
-from app.api.v1 import agents, auth, system, users
+from app.api.v1 import agents, auth, forecast, system, users
 
 api_router = APIRouter(prefix="/api/v1")
 api_router.include_router(system.router)
 api_router.include_router(auth.router)
 api_router.include_router(users.router)
 api_router.include_router(agents.router)
+api_router.include_router(forecast.router)

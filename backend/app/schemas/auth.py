@@ -1,9 +1,12 @@
 import uuid
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.models.enums import Lang, UserRole
+from app.models.enums import Lang, Theme, UserRole
+
+PASSWORD_MIN = 8
 
 
 class LoginRequest(BaseModel):
@@ -13,10 +16,15 @@ class LoginRequest(BaseModel):
     password: str = Field(min_length=1, max_length=128)
 
 
-class RefreshRequest(BaseModel):
+class ChangePasswordRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    refresh_token: str = Field(min_length=16, max_length=256)
+    old_password: str = Field(min_length=1, max_length=128)
+    new_password: str = Field(min_length=PASSWORD_MIN, max_length=128)
+
+
+class ChangePasswordResponse(BaseModel):
+    other_sessions_revoked: int
 
 
 class UserOut(BaseModel):
@@ -29,11 +37,14 @@ class UserOut(BaseModel):
     agent_id: int | None
     distributor_id: int | None
     lang: Lang
+    theme: Theme
+    last_login_at: datetime | None
 
 
 class TokenResponse(BaseModel):
+    """The refresh token is never in the body: it travels only in the httpOnly cookie."""
+
     access_token: str
-    refresh_token: str
     token_type: Literal["bearer"] = "bearer"
     expires_in: int
     user: UserOut

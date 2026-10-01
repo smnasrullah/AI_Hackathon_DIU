@@ -1,7 +1,7 @@
 from app.models.actions import AuditLog, Recommendation, SwapSuggestion
 from app.models.base import Base
 from app.models.llm import CopilotMessage, KnowledgeDoc, LlmCache, LlmCallLog
-from app.models.org import Agent, Distributor, RefreshToken, User
+from app.models.org import Agent, Distributor, LoginFailure, RefreshToken, User
 from app.models.predictions import (
     Anomaly,
     Forecast,
@@ -27,6 +27,7 @@ __all__ = [
     "KnowledgeDoc",
     "LlmCache",
     "LlmCallLog",
+    "LoginFailure",
     "ModelVersion",
     "Recommendation",
     "RefreshToken",

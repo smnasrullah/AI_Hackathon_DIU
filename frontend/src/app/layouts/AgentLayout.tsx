@@ -1,6 +1,7 @@
-import { ArrowLeftRight, ChartLine, House, MessageCircle, Settings } from "lucide-react";
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { ArrowLeftRight, ChartLine, House, MessageCircle } from "lucide-react";
+import { NavLink, Outlet } from "react-router-dom";
 
+import { AccountActions } from "../../features/auth/AccountActions";
 import { Notices } from "../../features/shared/Notices";
 
 const NAV = [
@@ -15,9 +16,7 @@ export function AgentLayout() {
     <div data-theme="light" className="mx-auto flex min-h-screen max-w-md flex-col bg-bg text-fg">
       <header className="flex items-center justify-between px-4 py-4">
         <span className="font-display text-lg font-bold">AgentPulse</span>
-        <Link to="/agent/settings" aria-label="Settings" className="grid size-11 place-items-center rounded-full">
-          <Settings className="size-5" aria-hidden />
-        </Link>
+        <AccountActions settingsTo="/agent/settings" compact />
       </header>
       <main className="flex-1 px-4 pb-6">
         <Outlet />

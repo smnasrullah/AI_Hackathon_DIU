@@ -6,8 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { login } from "./authApi";
 import { useAuthStore } from "./authStore";
 import { LoginPage } from "./LoginPage";
-import { makeUser, signOut } from "./testUtils";
-import type { Role } from "./types";
+import { signOut, tokensFor } from "./testUtils";
 
 vi.mock("./authApi", () => ({ login: vi.fn() }));
 
@@ -31,22 +30,12 @@ function submit(email: string, password: string) {
   fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
 }
 
-function tokensFor(role: Role) {
-  return {
-    access_token: "a",
-    refresh_token: "r",
-    token_type: "bearer" as const,
-    expires_in: 900,
-    user: makeUser(role),
-  };
-}
-
-function unauthorized(): AxiosError {
+function httpError(status: number, detail: string): AxiosError {
   const headers = new AxiosHeaders();
-  return new AxiosError("401", "ERR_BAD_REQUEST", { headers }, null, {
-    status: 401,
-    statusText: "Unauthorized",
-    data: { detail: "invalid_credentials" },
+  return new AxiosError(String(status), "ERR_BAD_REQUEST", { headers }, null, {
+    status,
+    statusText: detail,
+    data: { detail },
     headers: {},
     config: { headers },
   });
@@ -59,7 +48,7 @@ describe("LoginPage", () => {
   });
 
   it("shows an error for a wrong password and stays signed out", async () => {
-    vi.mocked(login).mockRejectedValue(unauthorized());
+    vi.mocked(login).mockRejectedValue(httpError(401, "invalid_credentials"));
     renderLogin();
     submit("admin@agentpulse.demo", "wrong");
     expect(await screen.findByRole("alert")).toHaveTextContent("Email or password is incorrect.");
@@ -78,7 +67,8 @@ describe("LoginPage", () => {
     const router = renderLogin();
     submit(`${role}@agentpulse.demo`, "pw");
     await waitFor(() => expect(router.state.location.pathname).toBe(`/${role}`));
-    expect(useAuthStore.getState().refreshToken).toBe("r");
+    expect(useAuthStore.getState().accessToken).toBe("access-2");
+    expect(useAuthStore.getState().status).toBe("signedIn");
   });
 
   it("returns to the requested page only inside the role's own area", async () => {
@@ -86,6 +76,19 @@ describe("LoginPage", () => {
     const router = renderLogin("/admin/users");
     submit("agent@agentpulse.demo", "pw");
     await waitFor(() => expect(router.state.location.pathname).toBe("/agent"));
+  });
+
+  it("shows the lockout message after too many attempts", async () => {
+    vi.mocked(login).mockRejectedValue(httpError(429, "too_many_attempts"));
+    renderLogin();
+    submit("admin@agentpulse.demo", "wrong");
+    expect(await screen.findByRole("alert")).toHaveTextContent("Too many failed attempts");
+  });
+
+  it("shows the session expired notice", () => {
+    useAuthStore.setState({ notice: "session_expired" });
+    renderLogin();
+    expect(screen.getByRole("status")).toHaveTextContent("Your session expired");
   });
 
   it("demo chip fills the email", () => {

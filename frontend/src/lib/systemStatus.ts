@@ -6,6 +6,7 @@ export type BootstrapState =
   | "migrating"
   | "seeding"
   | "training"
+  | "precomputing"
   | "finalizing"
   | "ready"
   | "failed";

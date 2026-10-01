@@ -1,24 +1,32 @@
-"""Login, refresh-token rotation (with reuse detection) and logout."""
+"""Login with lockout, refresh rotation with family reuse detection, logout, password change."""
 
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import select, update
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings
 from app.core.security import (
     burn_password_check,
     create_access_token,
+    hash_password,
     hash_refresh_token,
     new_refresh_token,
     verify_password,
 )
-from app.models import RefreshToken, User
+from app.models import LoginFailure, RefreshToken, User
+
+USER_AGENT_MAX = 256
+# Bound on the rotation chain walked when a reused token revokes its family.
+FAMILY_WALK_LIMIT = 10_000
 
 
 class AuthError(Exception):
+    """`code`: invalid_credentials, too_many_attempts, invalid_refresh_token,
+    wrong_password or same_password."""
+
     def __init__(self, code: str) -> None:
         super().__init__(code)
         self.code = code
@@ -30,6 +38,7 @@ class IssuedTokens:
     access_token: str
     refresh_token: str
     expires_in: int
+    refresh_max_age: int
 
 
 def _aware(ts: datetime) -> datetime:
@@ -37,68 +46,126 @@ def _aware(ts: datetime) -> datetime:
     return ts if ts.tzinfo is not None else ts.replace(tzinfo=UTC)
 
 
-def _issue(session: Session, user: User, settings: Settings, now: datetime) -> IssuedTokens:
+def _find(session: Session, raw_token: str) -> RefreshToken | None:
+    return session.scalar(
+        select(RefreshToken).where(RefreshToken.token_hash == hash_refresh_token(raw_token))
+    )
+
+
+def _issue(
+    session: Session, user: User, settings: Settings, now: datetime, user_agent: str | None
+) -> tuple[IssuedTokens, RefreshToken]:
     access, expires_in = create_access_token(user.id, user.role.value, settings, now)
     raw_refresh = new_refresh_token()
-    session.add(
-        RefreshToken(
-            user_id=user.id,
-            token_hash=hash_refresh_token(raw_refresh),
-            expires_at=now + timedelta(days=settings.jwt_refresh_ttl_days),
-        )
+    ttl = timedelta(days=settings.jwt_refresh_ttl_days)
+    row = RefreshToken(
+        id=uuid.uuid4(),
+        user_id=user.id,
+        token_hash=hash_refresh_token(raw_refresh),
+        expires_at=now + ttl,
+        user_agent=(user_agent or "")[:USER_AGENT_MAX] or None,
     )
-    return IssuedTokens(user, access, raw_refresh, expires_in)
+    session.add(row)
+    tokens = IssuedTokens(user, access, raw_refresh, expires_in, int(ttl.total_seconds()))
+    return tokens, row
 
 
-def login(session: Session, email: str, password: str, settings: Settings) -> IssuedTokens:
-    user = session.scalar(select(User).where(User.email == email.strip().lower()))
+def _recent_failures(session: Session, email: str, ip: str, since: datetime) -> int:
+    count = session.scalar(
+        select(func.count())
+        .select_from(LoginFailure)
+        .where(LoginFailure.email == email, LoginFailure.ip == ip, LoginFailure.created_at >= since)
+    )
+    return int(count or 0)
+
+
+def login(
+    session: Session,
+    email: str,
+    password: str,
+    ip: str,
+    user_agent: str | None,
+    settings: Settings,
+) -> IssuedTokens:
+    """Lockout is per (email, ip) and applies to unknown emails too, so it reveals nothing."""
+    now = datetime.now(UTC)
+    email = email.strip().lower()
+    window_start = now - timedelta(minutes=settings.login_lockout_min)
+    if _recent_failures(session, email, ip, window_start) >= settings.login_max_failures:
+        raise AuthError("too_many_attempts")
+    user = session.scalar(select(User).where(User.email == email))
     if user is None:
         burn_password_check(password)
+    ok = user is not None and verify_password(password, user.password_hash) and user.is_active
+    if user is None or not ok:
+        session.add(LoginFailure(email=email, ip=ip, created_at=now))
+        session.commit()
         raise AuthError("invalid_credentials")
-    if not verify_password(password, user.password_hash) or not user.is_active:
-        raise AuthError("invalid_credentials")
-    tokens = _issue(session, user, settings, datetime.now(UTC))
+    session.execute(delete(LoginFailure).where(LoginFailure.email == email, LoginFailure.ip == ip))
+    user.last_login_at = now
+    tokens, _ = _issue(session, user, settings, now, user_agent)
     session.commit()
     return tokens
 
 
-def _revoke_all(session: Session, user_id: uuid.UUID, now: datetime) -> None:
-    session.execute(
-        update(RefreshToken)
-        .where(RefreshToken.user_id == user_id, RefreshToken.revoked_at.is_(None))
-        .values(revoked_at=now)
-    )
+def _revoke_family_from(session: Session, start: RefreshToken, now: datetime) -> None:
+    """Revoke `start` and every token it was rotated into."""
+    row: RefreshToken | None = start
+    for _ in range(FAMILY_WALK_LIMIT):
+        if row is None:
+            return
+        if row.revoked_at is None:
+            row.revoked_at = now
+        row = session.get(RefreshToken, row.replaced_by) if row.replaced_by else None
 
 
-def refresh(session: Session, raw_token: str, settings: Settings) -> IssuedTokens:
+def refresh(
+    session: Session, raw_token: str | None, user_agent: str | None, settings: Settings
+) -> IssuedTokens:
     now = datetime.now(UTC)
-    row = session.scalar(
-        select(RefreshToken).where(RefreshToken.token_hash == hash_refresh_token(raw_token))
-    )
+    row = _find(session, raw_token) if raw_token else None
     if row is None:
         raise AuthError("invalid_refresh_token")
     if row.revoked_at is not None:
-        # A rotated token came back: assume theft, end every session of this user.
-        _revoke_all(session, row.user_id, now)
-        session.commit()
+        if row.replaced_by is not None:
+            # A rotated token came back: assume theft and end that whole session family.
+            _revoke_family_from(session, row, now)
+            session.commit()
         raise AuthError("invalid_refresh_token")
     user = session.get(User, row.user_id)
     if _aware(row.expires_at) <= now or user is None or not user.is_active:
         raise AuthError("invalid_refresh_token")
+    tokens, successor = _issue(session, user, settings, now, user_agent or row.user_agent)
+    session.flush()
     row.revoked_at = now
-    tokens = _issue(session, user, settings, now)
+    row.replaced_by = successor.id
     session.commit()
     return tokens
 
 
-def logout(session: Session, user: User, raw_token: str) -> None:
-    """Revoke one refresh token of this user; unknown tokens are ignored."""
-    row = session.scalar(
-        select(RefreshToken).where(
-            RefreshToken.token_hash == hash_refresh_token(raw_token),
-            RefreshToken.user_id == user.id,
-        )
-    )
+def logout(session: Session, raw_token: str | None) -> None:
+    """Revoke the presented refresh token; unknown or missing tokens are ignored."""
+    row = _find(session, raw_token) if raw_token else None
     if row is not None and row.revoked_at is None:
         row.revoked_at = datetime.now(UTC)
         session.commit()
+
+
+def change_password(
+    session: Session, user: User, old: str, new: str, current_refresh: str | None
+) -> int:
+    """Verify `old`, store `new`, revoke every other session. Returns sessions revoked."""
+    if not verify_password(old, user.password_hash):
+        raise AuthError("wrong_password")
+    if old == new:
+        raise AuthError("same_password")
+    user.password_hash = hash_password(new)
+    keep = _find(session, current_refresh) if current_refresh else None
+    query = update(RefreshToken).where(
+        RefreshToken.user_id == user.id, RefreshToken.revoked_at.is_(None)
+    )
+    if keep is not None and keep.user_id == user.id:
+        query = query.where(RefreshToken.id != keep.id)
+    result = session.execute(query.values(revoked_at=datetime.now(UTC)))
+    session.commit()
+    return int(getattr(result, "rowcount", 0) or 0)

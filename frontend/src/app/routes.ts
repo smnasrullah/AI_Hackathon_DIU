@@ -40,6 +40,13 @@ export const responsibleAiPage: PageDef = {
   features: "F12",
 };
 
+export const settingsPage: PageDef = {
+  path: "/settings",
+  title: "Settings",
+  summary: "Account settings and password change.",
+  features: "—",
+};
+
 export const loginPage: PageDef = {
   path: "/login",
   title: "Sign in",

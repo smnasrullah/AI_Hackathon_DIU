@@ -11,8 +11,13 @@ if ! docker info >/dev/null 2>&1; then
 fi
 
 if [ ! -f .env ]; then
-  cp .env.example .env
-  echo "Created .env from .env.example"
+  if command -v openssl >/dev/null 2>&1; then
+    secret="$(openssl rand -hex 32)"
+  else
+    secret="$(od -An -N32 -tx1 /dev/urandom | tr -d ' \n')"
+  fi
+  sed "s/__GENERATED_ON_FIRST_RUN__/$secret/" .env.example > .env
+  echo "Created .env from .env.example with a random JWT secret"
 fi
 
 if [ "${1:-}" = "--reset" ]; then

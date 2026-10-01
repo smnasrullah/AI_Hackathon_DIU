@@ -1,13 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { CircleAlert, Eye, EyeOff, LogIn } from "lucide-react";
+import { CircleAlert, Eye, EyeOff, Info, LogIn } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 import { login } from "./authApi";
-import { useAuthStore } from "./authStore";
+import { useAuthStore, type SessionNotice } from "./authStore";
 import { ROLE_HOME, landingPath } from "./types";
 
 const schema = z.object({
@@ -22,10 +22,15 @@ const DEMO_ACCOUNTS = [
   { label: "Admin", email: "admin@agentpulse.demo" },
 ] as const;
 
+const NOTICE_TEXT: Record<SessionNotice, string> = {
+  session_expired: "Your session expired. Sign in again to continue.",
+  idle_logout: "You were signed out after a period of inactivity.",
+};
+
 function errorMessage(err: unknown): string {
-  if (axios.isAxiosError(err) && err.response?.status === 401) {
-    return "Email or password is incorrect.";
-  }
+  const status = axios.isAxiosError(err) ? err.response?.status : undefined;
+  if (status === 401) return "Email or password is incorrect.";
+  if (status === 429) return "Too many failed attempts. Wait 15 minutes, then try again.";
   return "Can't reach the server right now. Try again.";
 }
 
@@ -35,6 +40,7 @@ const fieldClass =
 export function LoginPage() {
   const user = useAuthStore((s) => s.user);
   const setSession = useAuthStore((s) => s.setSession);
+  const notice = useAuthStore((s) => s.notice);
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: string } | null)?.from;
@@ -65,6 +71,13 @@ export function LoginPage() {
     <section className="mx-auto mt-6 max-w-md rounded-[var(--radius-card)] border border-line bg-surface p-6 shadow-sm md:p-8">
       <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">Liquidity runway</p>
       <h1 className="mt-2 font-display text-3xl font-bold">Sign in</h1>
+
+      {notice ? (
+        <p role="status" className="mt-4 flex items-center gap-2 rounded-xl border border-line bg-surface-2 px-3 py-2 text-sm">
+          <Info className="size-4 shrink-0 text-pulse" aria-hidden />
+          {NOTICE_TEXT[notice]}
+        </p>
+      ) : null}
 
       <div className="mt-5 flex flex-wrap gap-2" aria-label="Demo accounts">
         {DEMO_ACCOUNTS.map((demo) => (

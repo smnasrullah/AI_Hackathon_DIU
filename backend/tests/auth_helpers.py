@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+from httpx import Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -22,6 +23,18 @@ def login(client: TestClient, email: str) -> dict[str, object]:
     assert res.status_code == 200, res.text
     body: dict[str, object] = res.json()
     return body
+
+
+def refresh_cookie(client: TestClient) -> str:
+    """Raw refresh token the last login/refresh put in the client's cookie jar."""
+    raw = client.cookies.get("ap_refresh")
+    assert raw, "no refresh cookie set"
+    return raw
+
+
+def post_refresh(client: TestClient, raw: str) -> Response:
+    # An explicit Cookie header wins over the jar, so old tokens can be replayed.
+    return client.post("/api/v1/auth/refresh", headers={"Cookie": f"ap_refresh={raw}"})
 
 
 def bearer(client: TestClient, email: str) -> dict[str, str]:
