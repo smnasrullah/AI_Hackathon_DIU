@@ -1,5 +1,11 @@
-import { Navigate, createBrowserRouter, type RouteObject } from "react-router-dom";
+import type { ReactNode } from "react";
+import { createBrowserRouter, type RouteObject } from "react-router-dom";
 
+import { ForbiddenPage } from "../features/auth/ForbiddenPage";
+import { HomeRedirect } from "../features/auth/HomeRedirect";
+import { LoginPage } from "../features/auth/LoginPage";
+import { RoleGuard } from "../features/auth/RoleGuard";
+import { ALL_ROLES, type Role } from "../features/auth/types";
 import { PlaceholderPage } from "../features/shared/PlaceholderPage";
 import { AdminLayout } from "./layouts/AdminLayout";
 import { AgentLayout } from "./layouts/AgentLayout";
@@ -22,19 +28,31 @@ function children(pages: PageDef[]): RouteObject[] {
   );
 }
 
+function guarded(roles: readonly Role[], element: ReactNode): ReactNode {
+  return <RoleGuard roles={roles}>{element}</RoleGuard>;
+}
+
 export const routes: RouteObject[] = [
-  { path: "/", element: <Navigate to="/login" replace /> },
+  { path: "/", element: <HomeRedirect /> },
   {
     element: <PublicLayout />,
     children: [
-      { path: loginPage.path, element: <PlaceholderPage page={loginPage} /> },
-      { path: responsibleAiPage.path, element: <PlaceholderPage page={responsibleAiPage} /> },
+      { path: loginPage.path, element: <LoginPage /> },
+      { path: "/403", element: <ForbiddenPage /> },
+      {
+        path: responsibleAiPage.path,
+        element: guarded(ALL_ROLES, <PlaceholderPage page={responsibleAiPage} />),
+      },
     ],
   },
-  { path: "/agent", element: <AgentLayout />, children: children(agentPages) },
-  { path: "/distributor", element: <DistributorLayout />, children: children(distributorPages) },
-  { path: "/admin", element: <AdminLayout />, children: children(adminPages) },
-  { path: "*", element: <Navigate to="/login" replace /> },
+  { path: "/agent", element: guarded(["agent"], <AgentLayout />), children: children(agentPages) },
+  {
+    path: "/distributor",
+    element: guarded(["distributor"], <DistributorLayout />),
+    children: children(distributorPages),
+  },
+  { path: "/admin", element: guarded(["admin"], <AdminLayout />), children: children(adminPages) },
+  { path: "*", element: <HomeRedirect /> },
 ];
 
 export const router = createBrowserRouter(routes);

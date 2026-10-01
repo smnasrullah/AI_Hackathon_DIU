@@ -2,11 +2,15 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
+from alembic import command
+from alembic.config import Config
 from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
 
-from app.core.config import get_settings
+from app.core.config import BACKEND_DIR, get_settings
 from app.core.db import get_engine
 from app.main import create_app
+from app.services import seed
 
 
 @pytest.fixture
@@ -28,3 +32,21 @@ def env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
 @pytest.fixture
 def client(env: Path) -> TestClient:
     return TestClient(create_app())
+
+
+DEMO_PASSWORDS = {"admin": "test-admin-pw", "distributor": "test-dist-pw", "agent": "test-agent-pw"}
+
+
+@pytest.fixture
+def seeded(env: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Migrated DB with the reference seed (3 distributors, 3 agents, 7 demo users)."""
+    for role, password in DEMO_PASSWORDS.items():
+        monkeypatch.setenv(f"DEMO_{role.upper()}_PASSWORD", password)
+    monkeypatch.setenv("JWT_SECRET", "test-secret-with-at-least-32-bytes!!")
+    get_settings.cache_clear()
+    cfg = Config(str(BACKEND_DIR / "alembic.ini"))
+    cfg.attributes["database_url"] = get_settings().database_url
+    command.upgrade(cfg, "head")
+    with Session(get_engine()) as session, session.begin():
+        seed.run(session, get_settings())
+    return env
