@@ -9,7 +9,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 BACKEND_DIR = Path(__file__).resolve().parents[2]
 
 # Bump when the synthetic generator changes; bootstrap regenerates data on mismatch.
-DATA_VERSION = "0.1.0"
+DATA_VERSION = "1.0.0"
 
 LlmProvider = Literal["auto", "anthropic", "openai_compatible", "replay", "template"]
 

@@ -59,6 +59,8 @@ LLM: Agent Copilot (Bangla/English chat + voice, grounded), natural explanation 
 - Backend lint: cd backend; .venv\Scripts\python -m ruff check .
 - Migration tests on Postgres too: set $env:TEST_POSTGRES_URL="postgresql+psycopg://user:pw@localhost:5432/scratch_db" before pytest (DB is wiped)
 - Re-seed demo users/distributors only: docker compose exec backend python bootstrap.py seed-reference
+- Regenerate + load synthetic data (seed from SEED): docker compose exec backend python -m ml.data_gen.run
+- Re-apply demo story (AGT-0001 stockout 15:40 tomorrow, donor AGT-0004, anomaly AGT-0005): docker compose exec backend python -m ml.data_gen.demo_scenario
 - New migration: cd backend; .venv\Scripts\alembic revision -m "msg"  (DATABASE_URL must point at a db)
 - Frontend setup: cd frontend; npm ci
 - Frontend dev (proxies /api to :8000): cd frontend; npm run dev
