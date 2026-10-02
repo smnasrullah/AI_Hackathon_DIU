@@ -61,6 +61,10 @@ export type SwapDecisionIn = S["SwapDecisionIn"];
 export type SwapRespondIn = S["SwapRespondIn"];
 export type SwapParty = S["SwapParty"];
 
+export type MapAgents = S["MapAgents"];
+export type MapAgent = S["MapAgent"];
+export type MapSwap = S["MapSwap"];
+
 export type AnomalyPage = S["AnomalyPage"];
 export type AnomalyDetail = S["AnomalyDetail"];
 export type AnomalyReviewIn = S["AnomalyReviewIn"];
@@ -80,6 +84,17 @@ export type ImpactSummary = S["ImpactSummary"];
 export type SearchResponse = S["SearchResponse"];
 export type SearchHit = S["SearchHit"];
 export type ModelCard = S["ModelCard"];
+export type ImpactComparison = S["ImpactComparison"];
+export type ImpactDay = S["ImpactDay"];
+export type ScenarioTotals = S["ScenarioTotals"];
+export type FairnessReport = S["FairnessReport"];
+export type FairnessGroup = S["FairnessGroup"];
+export type GroupBy = S["GroupBy"];
+export type AnomalyItem = S["AnomalyItem"];
+export type AnomalyStatus = S["AnomalyStatus"];
+export type PeerFeature = S["PeerFeature"];
+export type SwapStatus = S["SwapStatus"];
+export type RiskSort = NonNullable<RiskListQuery["sort"]>;
 
 export type RiskListQuery = QueryOf<"list_risk_api_v1_agents_risk_get">;
 export type SwapListQuery = QueryOf<"list_swaps_api_v1_swaps_get">;
@@ -90,3 +105,4 @@ export type ExplanationQuery = QueryOf<"get_explanations_api_v1_agents__agent_id
 export type ForecastQuery = QueryOf<"get_forecast_api_v1_agents__agent_id__forecast_get">;
 export type ImpactQuery = QueryOf<"get_summary_api_v1_impact_summary_get">;
 export type EventListQuery = QueryOf<"list_events_api_v1_events_get">;
+export type ImpactComparisonQuery = QueryOf<"get_comparison_api_v1_impact_comparison_get">;

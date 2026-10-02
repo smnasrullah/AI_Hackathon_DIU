@@ -39,6 +39,15 @@ const agentWhatIf = page(() => import("../features/agent/whatif/WhatIfPage").the
 const agentExplain = page(() => import("../features/agent/explain/ExplainPage").then((m) => m.ExplainPage));
 const agentCopilot = page(() => import("../features/agent/copilot/CopilotPage").then((m) => m.CopilotPage));
 
+const controlRoom = page(() => import("../features/distributor/controlRoom/ControlRoomPage").then((m) => m.ControlRoomPage));
+const agentsTable = page(() => import("../features/distributor/agents/AgentsPage").then((m) => m.AgentsPage));
+const agentDetail = page(() => import("../features/distributor/detail/AgentDetailPage").then((m) => m.AgentDetailPage));
+const swapQueue = page(() => import("../features/distributor/swaps/SwapsPage").then((m) => m.SwapsPage));
+const anomalies = page(() => import("../features/distributor/anomalies/AnomaliesPage").then((m) => m.AnomaliesPage));
+const impact = page(() => import("../features/distributor/impact/ImpactPage").then((m) => m.ImpactPage));
+const briefing = page(() => import("../features/distributor/briefing/BriefingPage").then((m) => m.BriefingPage));
+const responsibleAi = page(() => import("../features/responsibleAi/ResponsibleAiPage").then((m) => m.ResponsibleAiPage));
+
 /** Pages built so far, keyed by role-relative path; the rest render a placeholder. */
 const BUILT: Record<string, Lazy> = { settings };
 const AGENT_BUILT: Record<string, Lazy> = {
@@ -50,6 +59,16 @@ const AGENT_BUILT: Record<string, Lazy> = {
   explain: agentExplain,
   copilot: agentCopilot,
   settings,
+};
+const DISTRIBUTOR_BUILT: Record<string, Lazy> = {
+  "": controlRoom,
+  agents: agentsTable,
+  "agents/:id": agentDetail,
+  swaps: swapQueue,
+  anomalies,
+  "anomalies/:id": anomalies,
+  impact,
+  briefing,
 };
 
 function children(pages: PageDef[], built: Record<string, Lazy> = BUILT): RouteObject[] {
@@ -81,9 +100,9 @@ const appRoutes: RouteObject[] = [
     element: guarded(ALL_ROLES, <AppShell />),
     children: [
       { path: "/agent", element: guarded(["agent"], <Outlet />), children: children(agentPages, AGENT_BUILT) },
-      { path: "/distributor", element: guarded(["distributor"], <Outlet />), children: children(distributorPages) },
+      { path: "/distributor", element: guarded(["distributor"], <Outlet />), children: children(distributorPages, DISTRIBUTOR_BUILT) },
       { path: "/admin", element: guarded(["admin"], <Outlet />), children: children(adminPages) },
-      { path: responsibleAiPage.path, element: <PlaceholderPage page={responsibleAiPage} /> },
+      { path: responsibleAiPage.path, lazy: responsibleAi },
       { path: "/settings", lazy: settings },
       { path: "/profile", lazy: profile },
       { path: "/help", lazy: help },

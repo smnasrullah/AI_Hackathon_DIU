@@ -54,7 +54,8 @@ function AsOfLine({ agentId }: { agentId: number }) {
   );
 }
 
-function ForecastBody({ agentId, floatType }: { agentId: number; floatType: FloatType }) {
+/** Fan chart + hourly list for one agent's float (also used on the distributor agent detail). */
+export function ForecastBody({ agentId, floatType }: { agentId: number; floatType: FloatType }) {
   const { t } = useTranslation();
   const summary = useAgentSummary(agentId);
   const events = useRunwayEvents(summary.data);

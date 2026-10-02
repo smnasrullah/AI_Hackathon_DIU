@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 
 import { fetchSystemStatus, systemStatusKey } from "../../lib/systemStatus";
 import { qk } from "../keys";
-import { getFreshness, getImpactSummary, getLlmStatus, getModelCard } from "../services/system";
-import type { ImpactQuery, Lang } from "../types";
+import { getFairness, getFreshness, getImpactComparison, getImpactSummary, getLlmStatus, getModelCard } from "../services/system";
+import type { GroupBy, ImpactComparisonQuery, ImpactQuery, Lang } from "../types";
 
 export function useFreshness() {
   return useQuery({ queryKey: qk.system.freshness, queryFn: getFreshness, refetchInterval: 60_000 });
@@ -15,6 +15,14 @@ export function useLlmStatus() {
 
 export function useImpactSummary(q: ImpactQuery = {}) {
   return useQuery({ queryKey: qk.impact(q), queryFn: () => getImpactSummary(q) });
+}
+
+export function useImpactComparison(q: ImpactComparisonQuery = {}) {
+  return useQuery({ queryKey: qk.impactComparison(q), queryFn: () => getImpactComparison(q) });
+}
+
+export function useFairness(groupBy: GroupBy) {
+  return useQuery({ queryKey: qk.fairness(groupBy), queryFn: () => getFairness(groupBy), staleTime: 5 * 60_000 });
 }
 
 export function useModelCard(lang: Lang) {

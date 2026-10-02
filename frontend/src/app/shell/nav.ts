@@ -32,6 +32,7 @@ export interface NavItem {
 export const SIDE_NAV: Record<Exclude<Role, "agent">, NavItem[]> = {
   distributor: [
     { to: "/distributor", page: "controlRoom", icon: MapIcon, end: true },
+    { to: "/distributor/agents", page: "agents", icon: Users },
     { to: "/distributor/swaps", page: "swapQueue", icon: ArrowLeftRight },
     { to: "/distributor/anomalies", page: "anomalies", icon: ScanSearch },
     { to: "/distributor/impact", page: "impact", icon: TrendingUp },
@@ -82,8 +83,10 @@ const PAGES: PageMeta[] = [
   { pattern: "/agent/swap", page: "agentSwap", parent: "/agent", prediction: true },
   { pattern: "/agent/copilot", page: "agentCopilot", parent: "/agent" },
   { pattern: "/agent/settings", page: "settings", parent: "/agent" },
-  { pattern: "/distributor", page: "controlRoom", prediction: true },
-  { pattern: "/distributor/agents/:id", page: "agentDetail", parent: "/distributor", prediction: true },
+  // The control room shows freshness in its own bottom stripe.
+  { pattern: "/distributor", page: "controlRoom" },
+  { pattern: "/distributor/agents", page: "agents", parent: "/distributor", prediction: true },
+  { pattern: "/distributor/agents/:id", page: "agentDetail", parent: "/distributor/agents", prediction: true },
   { pattern: "/distributor/swaps", page: "swapQueue", parent: "/distributor", prediction: true },
   { pattern: "/distributor/anomalies", page: "anomalies", parent: "/distributor" },
   { pattern: "/distributor/anomalies/:id", page: "investigation", parent: "/distributor/anomalies" },

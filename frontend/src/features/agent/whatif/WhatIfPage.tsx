@@ -51,7 +51,8 @@ export function WhatIfPage() {
   );
 }
 
-function WhatIfBody({ agentId, floatType }: { agentId: number; floatType: FloatType }) {
+/** What-if simulator for one agent's float (also used on the distributor agent detail). */
+export function WhatIfBody({ agentId, floatType }: { agentId: number; floatType: FloatType }) {
   const { t } = useTranslation();
   const base = useRunway(agentId, floatType);
 

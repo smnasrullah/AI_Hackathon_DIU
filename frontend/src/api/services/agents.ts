@@ -1,4 +1,5 @@
 import { api } from "../../lib/api";
+import { downloadFile } from "../../lib/download";
 import type {
   AgentExplanation,
   AgentForecast,
@@ -62,6 +63,11 @@ export async function postNarrate(body: NarrateIn): Promise<LlmText> {
 /** Agent asks the distributor to act on a recommendation. A repeat returns the existing request. */
 export async function requestRecommendation(recommendationId: number): Promise<RequestItem> {
   return (await api.post<RequestItem>(`/recommendations/${recommendationId}/request`)).data;
+}
+
+/** Same filters as the list, every page, as CSV (server escapes formula-like cells). */
+export function exportRiskCsv(params: Omit<RiskListQuery, "page" | "page_size">): Promise<void> {
+  return downloadFile("/agents/risk/export.csv", params, `agent-risk-${params.horizon ?? 24}h.csv`);
 }
 
 export async function listRisk(params: RiskListQuery = {}): Promise<AgentRiskPage> {

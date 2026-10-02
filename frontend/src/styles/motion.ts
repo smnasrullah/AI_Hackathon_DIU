@@ -9,6 +9,11 @@ export const DUR = { fast: 0.12, base: 0.2, slow: 0.32, reveal: 0.6, draw: 0.7 }
 /** Milliseconds, for timers and count-ups. */
 export const MS = { fast: 120, base: 200, slow: 320, reveal: 600, draw: 700, countUp: 600, hold: 1000 } as const;
 
+/** Map loops (ms, 6s+): risk dots breathe (Act now quickest), droplets flow, the selected ring ripples. */
+export const MAP_LOOP_MS = { breatheRed: 6000, breatheAmber: 8000, breatheGreen: 10000, flow: 6000, ripple: 6000 } as const;
+/** The map's loop redraws at most this often (about 30 fps). */
+export const MAP_FRAME_MS = 33;
+
 export const STAGGER = 0.04;
 export const PRESS_SCALE = 0.97;
 export const TILT_MAX_DEG = 6;

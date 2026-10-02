@@ -12,6 +12,7 @@ import { useAuthStore } from "../../features/auth/authStore";
 import { translateKey } from "../../i18n/dynamic";
 import { useDebounced } from "../../lib/useDebounced";
 import { navFor, type PageKey } from "./nav";
+import { usePageActionsStore } from "./pageActions";
 import { useShellStore } from "./shellStore";
 import { usePaletteActions } from "./usePaletteActions";
 
@@ -42,7 +43,9 @@ export function CommandPalette() {
   const [query, setQuery] = useState("");
   const term = useDebounced(query.trim(), 200);
   const results = useSearch(open ? term : "");
-  const actions = usePaletteActions();
+  const pageActions = usePageActionsStore((s) => s.actions);
+  const globalActions = usePaletteActions();
+  const actions = [...pageActions, ...globalActions];
 
   function change(next: boolean): void {
     setOpen(next);

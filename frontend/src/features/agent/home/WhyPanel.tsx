@@ -15,10 +15,12 @@ import { WordingBlock } from "./WordingBlock";
 interface WhyPanelProps {
   agentId: number;
   initialFloat: FloatType;
+  /** Where the empty state's "see forecast" goes (default: the agent's own forecast page). */
+  forecastPath?: string;
 }
 
 /** "Why?": model reasons (SHAP, template sentences) first, then the LLM's plain-words summary. */
-export function WhyPanel({ agentId, initialFloat }: WhyPanelProps) {
+export function WhyPanel({ agentId, initialFloat, forecastPath = "/agent/forecast" }: WhyPanelProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { lang } = useLocale();
@@ -48,7 +50,7 @@ export function WhyPanel({ agentId, initialFloat }: WhyPanelProps) {
           illustration="quiet-pulse"
           title={t("why.empty.title")}
           body={t("why.empty.body")}
-          action={{ label: t("why.empty.action"), icon: ChartLine, onClick: () => navigate(`/agent/forecast?float=${target}`) }}
+          action={{ label: t("why.empty.action"), icon: ChartLine, onClick: () => navigate(`${forecastPath}?float=${target}`) }}
         />
       ) : (
         <>

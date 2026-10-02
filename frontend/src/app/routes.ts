@@ -21,6 +21,7 @@ export const agentPages: PageDef[] = [
 
 export const distributorPages: PageDef[] = [
   { path: "", title: "Control room", summary: "Map of agents by risk, swap droplets and the inspector.", features: "F3, F10" },
+  { path: "agents", title: "Agents", summary: "Every agent with risk, URL-synced filters, column chooser and CSV export.", features: "F3" },
   { path: "agents/:id", title: "Agent detail", summary: "Forecast, risk, reasons and recommendation for one agent.", features: "F1–F4, F7" },
   { path: "swaps", title: "Swap queue", summary: "Approve or reject proposed swaps with a note.", features: "F5" },
   { path: "anomalies", title: "Anomalies", summary: "Isolation Forest flags for human review.", features: "F9" },

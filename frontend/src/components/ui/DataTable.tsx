@@ -1,5 +1,5 @@
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
-import { useMemo, useState, type ReactNode } from "react";
+import { Fragment, useMemo, useState, type KeyboardEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "../../lib/cn";
@@ -34,7 +34,24 @@ interface DataTableProps<T> {
   sort?: SortState | null;
   onSortChange?: (sort: SortState) => void;
   onRowClick?: (row: T) => void;
+  /** Row expand: the open row's id and what to show under it. */
+  expandedId?: string | number | null;
+  renderExpanded?: (row: T) => ReactNode;
   maxHeight?: number;
+}
+
+/** Arrow keys move between clickable rows; Enter / Space opens the focused one. */
+function onRowKey(e: KeyboardEvent<HTMLTableRowElement>, open: () => void): void {
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    open();
+    return;
+  }
+  if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+  e.preventDefault();
+  const rows = Array.from(e.currentTarget.closest("tbody")?.querySelectorAll<HTMLElement>("tr[data-row]") ?? []);
+  const next = rows[rows.indexOf(e.currentTarget) + (e.key === "ArrowDown" ? 1 : -1)];
+  next?.focus();
 }
 
 /** Sticky header, row hover glow, sortable columns; skeleton / empty / error states built in. */
@@ -50,6 +67,8 @@ export function DataTable<T>({
   sort: sortProp,
   onSortChange,
   onRowClick,
+  expandedId = null,
+  renderExpanded,
   maxHeight = 480,
 }: DataTableProps<T>) {
   const { t } = useTranslation();
@@ -124,25 +143,42 @@ export function DataTable<T>({
               </td>
             </tr>
           ) : (
-            sorted.map((row) => (
-              <tr
-                key={getRowId(row)}
-                onClick={onRowClick ? () => onRowClick(row) : undefined}
-                className={cn(
-                  "transition-[background-color,box-shadow] duration-200 hover:bg-surface-2 hover:shadow-[inset_3px_0_0_var(--pulse-blue)]",
-                  onRowClick && "cursor-pointer",
-                )}
-              >
-                {columns.map((col) => (
-                  <td
-                    key={col.key}
-                    className={cn("border-b border-line px-4 py-3", col.align === "right" && "text-right", col.className)}
+            sorted.map((row) => {
+              const id = getRowId(row);
+              const open = renderExpanded !== undefined && expandedId === id;
+              return (
+                <Fragment key={id}>
+                  <tr
+                    data-row
+                    tabIndex={onRowClick ? 0 : undefined}
+                    aria-expanded={renderExpanded ? open : undefined}
+                    onClick={onRowClick ? () => onRowClick(row) : undefined}
+                    onKeyDown={onRowClick ? (e) => onRowKey(e, () => onRowClick(row)) : undefined}
+                    className={cn(
+                      "outline-none transition-[background-color,box-shadow] duration-200 hover:bg-surface-2 hover:shadow-[inset_3px_0_0_var(--pulse-blue)] focus-visible:bg-surface-2 focus-visible:shadow-[inset_3px_0_0_var(--pulse-blue)]",
+                      onRowClick && "cursor-pointer",
+                      open && "bg-surface-2",
+                    )}
                   >
-                    {col.cell(row)}
-                  </td>
-                ))}
-              </tr>
-            ))
+                    {columns.map((col) => (
+                      <td
+                        key={col.key}
+                        className={cn("border-b border-line px-4 py-3", col.align === "right" && "text-right", col.className)}
+                      >
+                        {col.cell(row)}
+                      </td>
+                    ))}
+                  </tr>
+                  {open ? (
+                    <tr>
+                      <td colSpan={columns.length} className="border-b border-line bg-surface-2/60 px-4 py-4">
+                        {renderExpanded(row)}
+                      </td>
+                    </tr>
+                  ) : null}
+                </Fragment>
+              );
+            })
           )}
         </tbody>
       </table>

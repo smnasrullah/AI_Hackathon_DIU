@@ -12,7 +12,9 @@ export function useDecideSwap() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: ({ id, body }: { id: number; body: SwapDecisionIn }) => decideSwap(id, body),
-    onSettled: () => client.invalidateQueries({ queryKey: qk.swaps.all }),
+    // The map draws swap arrows by status, so it refreshes too.
+    onSettled: () =>
+      Promise.all([client.invalidateQueries({ queryKey: qk.swaps.all }), client.invalidateQueries({ queryKey: qk.map.all })]),
   });
 }
 

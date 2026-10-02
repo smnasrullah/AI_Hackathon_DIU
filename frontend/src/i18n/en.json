@@ -85,7 +85,11 @@
     "errorBody": "Check your connection, then try again."
   },
   "table": {
-    "sortBy": "Sort by {{column}}"
+    "sortBy": "Sort by {{column}}",
+    "pagination": "Pages",
+    "range": "{{from}}–{{to}} of {{total}}",
+    "prev": "Previous page",
+    "next": "Next page"
   },
   "dialog": {
     "note": "Note",
@@ -134,7 +138,8 @@
     "agentStockout": "Stockout time",
     "agentRebalance": "Rebalance",
     "agentWhatIf": "What if",
-    "agentExplain": "Why?"
+    "agentExplain": "Why?",
+    "agents": "Agents"
   },
   "nav": {
     "home": "Home",
@@ -733,5 +738,397 @@
     "lead": "The reasons the model sees, each with how much it moves demand.",
     "modelChip": "Numbers and reasons from the forecasting model.",
     "aiChip": "Plain-language wording written by AI. Its numbers are checked against the model."
+  },
+  "scrubber": {
+    "label": "Time ahead",
+    "offset": "+{{hours}}h",
+    "play": "Play the next 72 hours",
+    "pause": "Pause"
+  },
+  "controlRoom": {
+    "kpi": {
+      "label": "Agents by risk, swaps and anomalies",
+      "atHour": "agents at {{at}} · tap to filter",
+      "pendingSwaps": "Pending swaps",
+      "swapsHint": "Waiting for your approval",
+      "openAnomalies": "Open anomalies",
+      "anomaliesHint": "Flags to review"
+    },
+    "filters": {
+      "search": "Search name, code or area",
+      "levels": "Filter by risk",
+      "district": "District",
+      "allDistricts": "All districts",
+      "float": "Float",
+      "allFloats": "All",
+      "count": "{{shown}} of {{total}} agents",
+      "reset": "Clear filters"
+    },
+    "list": {
+      "title": "Agents",
+      "label": "Agents, riskiest first. Use the arrow keys to move."
+    },
+    "map": {
+      "title": "Risk map",
+      "legend": "Map legend",
+      "swapFlow": "Swap flow",
+      "tilesOn": "Online map on",
+      "tilesOff": "Offline map",
+      "tilesHint": "Street tiles need internet. The offline map always works.",
+      "summary": "Map at +{{hours}}h: {{total}} agents, {{red}} act now, {{amber}} watch, {{green}} safe.",
+      "failTitle": "The map could not start",
+      "failBody": "This browser could not draw the map (WebGL). The agent list and inspector still work."
+    },
+    "empty": {
+      "title": "No agents match",
+      "body": "Change the filters or clear them to see every agent again."
+    },
+    "inspector": {
+      "title": "Inspector",
+      "emptyTitle": "Pick an agent",
+      "emptyBody": "Choose a dot on the map or a row in the list to see its runway, reasons and swaps.",
+      "riskiest": "Show the riskiest agent",
+      "back": "Back to the list",
+      "odds": "{{probability}} chance {{float}} runs out by +{{hours}}h",
+      "swaps": "Swap suggestions",
+      "noSwaps": "No swap suggested for this agent right now.",
+      "gives": "Gives to {{name}}",
+      "gets": "Gets from {{name}}",
+      "detail": "Open agent detail",
+      "queue": "Swap queue"
+    },
+    "swapStatus": {
+      "pending": "Waiting for approval",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "stripe": {
+      "checked": "Map checked {{ago}}",
+      "poll": "refreshes every {{seconds}} s",
+      "refresh": "Refresh now"
+    },
+    "palette": {
+      "red": "Control room: show Act now agents only",
+      "all": "Control room: show all agents",
+      "riskiest": "Control room: inspect the riskiest agent",
+      "play": "Control room: play the time scrubber",
+      "pause": "Control room: pause the time scrubber",
+      "now": "Control room: jump to now",
+      "day": "Control room: jump to +24h",
+      "tilesOn": "Control room: turn online map tiles on",
+      "tilesOff": "Control room: use the offline map only",
+      "swaps": "Open the swap queue"
+    }
+  },
+  "source": {
+    "model": "Model prediction",
+    "rule": "Rule / assumption",
+    "ai": "AI-generated wording"
+  },
+  "agentsTable": {
+    "title": "Agents",
+    "lead": "Every agent you serve, riskiest first. Select a row to see its 72-hour trend.",
+    "search": "Search name, code or area",
+    "horizon": "Risk window",
+    "hours": "{{hours}}h",
+    "level": "Filter by risk",
+    "allLevels": "All",
+    "columns": "Columns",
+    "columnsHint": "Show or hide columns",
+    "export": "Export CSV",
+    "exported": "CSV downloaded",
+    "exportFailed": "Could not export the CSV. Try again.",
+    "col": {
+      "agent": "Agent",
+      "area": "Area",
+      "level": "Risk",
+      "probability": "Chance",
+      "stockout": "Runs out",
+      "float": "Float",
+      "tier": "Tier"
+    },
+    "none": "Not in 72h",
+    "inHours": "in {{duration}}",
+    "asOf": "Risk within {{hours}}h · model {{model}}",
+    "caption": "Agents with their stockout risk in the chosen window",
+    "trend": "{{float}} balance, next 72 hours",
+    "trendLabel": "Expected {{float}} balance over the next 72 hours, from {{from}} to {{to}}",
+    "open": "Open agent detail",
+    "empty": {
+      "title": "No agents match",
+      "body": "Change the search or the risk filter.",
+      "action": "Clear filters"
+    }
+  },
+  "detail": {
+    "tier": "Tier {{tier}}",
+    "area": {
+      "urban": "Urban",
+      "peri_urban": "Peri-urban",
+      "rural": "Rural"
+    },
+    "whatifLead": "Try a top-up or a pull-back and see how the runway changes.",
+    "whatifNotice": "A simulation only. Nothing moves until a person approves a real top-up.",
+    "refresh": "Check again",
+    "tabs": {
+      "label": "Agent sections",
+      "overview": "Overview",
+      "forecast": "Forecast",
+      "swaps": "Swaps",
+      "anomalies": "Anomalies",
+      "activity": "Activity"
+    },
+    "missing": {
+      "title": "Agent not found",
+      "body": "This agent does not exist or is not one of yours.",
+      "action": "Back to agents"
+    },
+    "swaps": {
+      "emptyTitle": "No swaps for this agent",
+      "emptyBody": "Swap suggestions for this agent appear here.",
+      "queue": "Open the swap queue"
+    },
+    "anomalies": {
+      "emptyTitle": "Nothing unusual",
+      "emptyBody": "No anomaly flags for this agent.",
+      "all": "See all anomalies"
+    },
+    "activity": {
+      "emptyTitle": "No activity yet",
+      "emptyBody": "Requests, swaps and reviews for this agent show here.",
+      "request_requested": "Asked for {{amount}} {{float}}",
+      "request_approved": "Request for {{amount}} {{float}} approved",
+      "request_declined": "Request for {{amount}} {{float}} declined",
+      "request_fulfilled": "{{amount}} {{float}} delivered",
+      "request_cancelled": "Request for {{amount}} {{float}} withdrawn",
+      "swap_gives": "Swap suggested: give {{amount}} {{float}} to {{partner}}",
+      "swap_gets": "Swap suggested: get {{amount}} {{float}} from {{partner}}",
+      "swap_approved": "Swap with {{partner}} approved",
+      "swap_rejected": "Swap with {{partner}} rejected",
+      "anomaly_flagged": "Flagged as unusual",
+      "anomaly_confirmed": "Flag confirmed after review",
+      "anomaly_dismissed": "Flag dismissed after review"
+    }
+  },
+  "swaps": {
+    "title": "Swap queue",
+    "lead": "Agents who can balance each other nearby. You decide; every decision is logged with your note.",
+    "role": {
+      "donor": "Gives",
+      "receiver": "Gets"
+    },
+    "response": {
+      "accepted": "Agreed",
+      "declined": "Declined",
+      "none": "No answer yet"
+    },
+    "distance": "{{km}} km apart",
+    "vanSaved": "Saves a van trip",
+    "note": "Note: {{note}}",
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "empty": {
+      "pending": "Nothing waiting for you",
+      "approved": "No approved swaps yet",
+      "rejected": "No rejected swaps"
+    },
+    "refresh": "Check again",
+    "more": "Showing {{shown}} of {{total}}. Export the CSV for all.",
+    "vanTrips": "Van trips avoided",
+    "export": "Export CSV",
+    "exported": "CSV downloaded",
+    "exportFailed": "Could not export the CSV. Try again.",
+    "handshake": {
+      "title": "Approve this swap?",
+      "lead": "Check both agents and the amount, write why, then hold to approve.",
+      "hold": "Hold to approve swap",
+      "reject": "Reject",
+      "declined": "One of the agents declined this swap, so it cannot be approved. You can still reject it.",
+      "notice": "Advisory only. Approving records your decision; no money moves in this app."
+    },
+    "done": {
+      "approve": "Swap approved",
+      "reject": "Swap rejected",
+      "body": "Saved to the audit log with your note."
+    },
+    "error": {
+      "already": "Someone already decided this swap.",
+      "declined": "An agent declined this swap, so it cannot be approved.",
+      "failed": "Your decision was not saved. Try again."
+    },
+    "reject": {
+      "title": "Reject this swap?",
+      "body": "{{donor}} and {{receiver}} will see it was rejected. This cannot be undone.",
+      "action": "Reject swap"
+    }
+  },
+  "anomalies": {
+    "title": "Anomalies",
+    "lead": "Agents whose pattern looks unusual next to similar agents. A flag is a question, not a verdict.",
+    "listTitle": "Flags",
+    "filter": "Filter by review state",
+    "allStatuses": "All",
+    "status": {
+      "open": "Open",
+      "confirmed": "Confirmed",
+      "dismissed": "Dismissed"
+    },
+    "feature": {
+      "cash_out_growth": "Cash-out growth",
+      "hour_shift": "Busy-hour shift",
+      "refills_per_day": "Refills per day",
+      "out_in_log_ratio": "Cash-out vs cash-in"
+    },
+    "empty": {
+      "title": "No flags here",
+      "body": "Nothing matches this filter.",
+      "refresh": "Check again",
+      "all": "Show all flags"
+    },
+    "pick": {
+      "title": "Pick a flag",
+      "body": "Choose a flag to see the peer comparison, the AI note and your review.",
+      "first": "Open the first flag"
+    },
+    "back": "Back to the flags",
+    "missing": {
+      "title": "Flag not found",
+      "body": "This flag does not exist or is not in your area.",
+      "action": "Back to the flags"
+    },
+    "score": "Score {{score}} · flagged above {{threshold}}",
+    "context": {
+      "cashOut": "Cash-out",
+      "usual": "Usual cash-out",
+      "cashIn": "Cash-in",
+      "refills": "Refills"
+    },
+    "narrative": "Investigation note",
+    "peers": {
+      "title": "Compared with {{count}} similar agents ({{group}})",
+      "row": "{{feature}}: this agent {{value}}; most peers between {{low}} and {{high}}; higher than {{percentile}} of peers.",
+      "agent": "This agent {{value}}",
+      "legendBox": "Most peers (middle half; line: 10th to 90th percentile)",
+      "legendDot": "This agent, red when outside the peer range"
+    },
+    "review": {
+      "title": "Your review",
+      "lead": "Confirm if this needs follow-up, or dismiss it with a reason.",
+      "confirm": "Confirm",
+      "dismiss": "Dismiss",
+      "notice": "Your review and note go to the audit log. Nothing else happens automatically.",
+      "already": "Someone already reviewed this flag.",
+      "failed": "Your review was not saved. Try again.",
+      "done": {
+        "confirmed": "Flag confirmed",
+        "dismissed": "Flag dismissed"
+      },
+      "dialog": {
+        "confirmed": {
+          "title": "Confirm this flag?",
+          "body": "You confirm that {{name}} needs follow-up.",
+          "action": "Confirm flag"
+        },
+        "dismissed": {
+          "title": "Dismiss this flag?",
+          "body": "You record that {{name}}'s pattern has a normal reason.",
+          "action": "Dismiss flag"
+        }
+      }
+    }
+  },
+  "briefing": {
+    "title": "Daily briefing",
+    "lead": "Today in a few lines, written from your agents' forecasts. Numbers come from the model and are checked.",
+    "refresh": "Refresh",
+    "written": "Written",
+    "fallback": "AI wording was not available, so this is the template text with the same numbers.",
+    "cited": "Based on:",
+    "notice": "Advisory only. You decide what to do.",
+    "next": "Next steps"
+  },
+  "impact": {
+    "title": "Impact",
+    "lead": "The AI plan against a fixed-threshold rule, replayed over days the model never trained on.",
+    "period": "{{start}} to {{end}} · {{days}} held-out days · {{agents}} agents",
+    "tile": {
+      "hours": "Stockout hours avoided",
+      "hoursPct": "fewer than the rule",
+      "value": "Transactions kept (৳)",
+      "trips": "Van trips avoided",
+      "vanCost": "Van cost saved",
+      "fee": "Fees kept"
+    },
+    "noDaily": "The day-by-day trend did not load; totals are still correct.",
+    "compareTitle": "AI plan vs the rule",
+    "compareLead": "Every bar is a cost, so shorter is better.",
+    "metric": {
+      "stockout_hours": "Stockout hours",
+      "value_lost_bdt": "Transactions lost",
+      "fee_lost_bdt": "Fees lost",
+      "van_trips": "Van trips",
+      "van_cost_bdt": "Van cost"
+    },
+    "same": "Same as the rule",
+    "less": "{{value}} less with AI",
+    "more": "{{value}} more with AI",
+    "ai": "AI plan",
+    "baseline": "Rule",
+    "assume": {
+      "title": "Assumptions",
+      "vanCost": "Van cost per trip",
+      "vanLead": "Van lead time",
+      "topup": "Top-up arrives in",
+      "emergency": "Emergency trip arrives in",
+      "horizon": "Plan ahead",
+      "fee": "Cash-out fee",
+      "note": "Both plans use the same assumptions and the same synthetic days."
+    },
+    "equal": {
+      "title": "Same service, fewer trips",
+      "body": "To reach the AI plan's {{hours}} of stockouts, the rule would need {{trips}} van trips instead of {{ai}}."
+    }
+  },
+  "rai": {
+    "title": "Responsible AI",
+    "lead": "How fair the model is across groups, what it is for, and where it falls short.",
+    "noticesLabel": "Standing notices",
+    "fairness": "Fairness by group",
+    "fairnessLead": "Measured on the held-out days only.",
+    "groupBy": "Group agents by",
+    "group": {
+      "urban_rural": "Urban / rural",
+      "tier": "Tier",
+      "region": "Region"
+    },
+    "agents": "{{n}} agents",
+    "target": {
+      "cash_out": "Cash-out",
+      "cash_in": "Cash-in"
+    },
+    "error": {
+      "title": "Forecast error (lower is better)",
+      "lead": "Mean absolute error divided by mean demand (nMAE)."
+    },
+    "recall": {
+      "title": "Stockouts caught (higher is better)",
+      "lead": "Share of real stockouts flagged in time."
+    },
+    "caught": "{{caught}} of {{events}} caught",
+    "overallTick": "All agents together",
+    "gap": "Largest gap between groups: nMAE {{nmae}}; recall {{recall}}",
+    "method": "Held out {{start}} to {{end}} · {{hours}}h horizon · {{paths}} simulated paths",
+    "cardTitle": "Model card",
+    "card": {
+      "models": "Models",
+      "data": "Data",
+      "source": "Source",
+      "size": "Size",
+      "sizeValue": "{{agents}} agents, {{distributors}} distributors",
+      "oversight": "Human oversight"
+    }
   }
 }

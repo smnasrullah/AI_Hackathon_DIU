@@ -67,4 +67,11 @@ export const ROUTES: E2ERoute[] = [
   { path: "/agent/rebalance", as: "agent" },
   { path: "/agent/what-if", as: "agent" },
   { path: "/agent/explain", as: "agent" },
+
+  // Distributor control room: /distributor is listed above (Distributor); no new paths.
+
+  // Distributor pages (agent detail, swaps, anomalies, impact, briefing are listed above)
+  { path: "/distributor/agents", as: "distributor" },
+  { path: "/responsible-ai", as: "admin" },
+  { path: "/responsible-ai", as: "agent" },
 ];

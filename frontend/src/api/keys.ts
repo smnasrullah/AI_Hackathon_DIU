@@ -5,6 +5,8 @@ import type {
   ExplanationQuery,
   FloatType,
   ForecastQuery,
+  GroupBy,
+  ImpactComparisonQuery,
   Lang,
   ImpactQuery,
   NotificationListQuery,
@@ -29,6 +31,7 @@ export const qk = {
   events: (q: EventListQuery = {}) => ["events", q] as const,
   copilotSuggestions: (lang: Lang) => ["copilot", "suggestions", lang] as const,
   riskList: (q: RiskListQuery = {}) => ["risk-list", q] as const,
+  map: { all: ["map"] as const, agents: (atHour: number) => ["map", "agents", atHour] as const },
   requests: { all: ["requests"] as const, list: (q: RequestListQuery = {}) => ["requests", q] as const },
   swaps: { all: ["swaps"] as const, list: (q: SwapListQuery = {}) => ["swaps", q] as const },
   anomalies: {
@@ -45,4 +48,8 @@ export const qk = {
   search: (q: string) => ["search", q] as const,
   profile: ["users", "me", "profile"] as const,
   impact: (q: ImpactQuery = {}) => ["impact", "summary", q] as const,
+  impactComparison: (q: ImpactComparisonQuery = {}) => ["impact", "comparison", q] as const,
+  fairness: (groupBy: GroupBy) => ["responsible-ai", "fairness", groupBy] as const,
+  briefing: (lang: Lang) => ["llm", "distributor-briefing", lang] as const,
+  anomalyNarrative: (id: number, lang: Lang) => ["llm", "anomaly-narrative", id, lang] as const,
 };
