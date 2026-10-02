@@ -4,7 +4,15 @@ import pytest
 
 from app.core.config import get_settings
 from app.models.enums import RiskLevelCode
-from app.rules.risk_rules import Cut, build_config, level_confidence, level_for, worst
+from app.rules.risk_rules import (
+    Cut,
+    build_config,
+    cut_at,
+    level_at,
+    level_confidence,
+    level_for,
+    worst,
+)
 
 G, A, R = RiskLevelCode.green, RiskLevelCode.amber, RiskLevelCode.red
 
@@ -16,6 +24,19 @@ G, A, R = RiskLevelCode.green, RiskLevelCode.amber, RiskLevelCode.red
 ])
 def test_default_cut_offs(p: float, horizon: int, level: RiskLevelCode) -> None:
     assert level_for(p, horizon, build_config()) == level
+
+
+def test_cut_at_any_hour_interpolates_between_horizons() -> None:
+    cfg = build_config()
+    for h, cut in cfg.cuts.items():
+        assert cut_at(h, cfg) == cut
+    assert cut_at(0, cfg) == cut_at(3, cfg) == cfg.cuts[6]
+    assert cut_at(15, cfg).amber == pytest.approx(0.15)
+    assert cut_at(15, cfg).red == pytest.approx(0.40)
+    assert cut_at(48, cfg).amber == pytest.approx(0.275)
+    assert cut_at(80, cfg) == cfg.cuts[72]
+    assert level_at(0.12, 3, cfg) == A and level_at(0.12, 15, cfg) == G
+    assert level_at(0.6, 24, cfg) == level_for(0.6, 24, cfg) == R
 
 
 def test_worst_and_confidence() -> None:

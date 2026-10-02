@@ -46,13 +46,37 @@ def build_config(overrides: Mapping[int, Sequence[float]] | None = None) -> Risk
     return RiskConfig(cuts)
 
 
-def level_for(probability: float, horizon_h: int, cfg: RiskConfig) -> RiskLevelCode:
-    cut = cfg.cuts[horizon_h]
+def _grade(probability: float, cut: Cut) -> RiskLevelCode:
     if probability >= cut.red:
         return RiskLevelCode.red
     if probability >= cut.amber:
         return RiskLevelCode.amber
     return RiskLevelCode.green
+
+
+def level_for(probability: float, horizon_h: int, cfg: RiskConfig) -> RiskLevelCode:
+    return _grade(probability, cfg.cuts[horizon_h])
+
+
+def cut_at(hour: float, cfg: RiskConfig) -> Cut:
+    """Cut-offs for any hour (map time scrubber): linear between the configured horizons,
+    held flat before the first and after the last. Equals cfg.cuts[h] at h in HORIZONS."""
+    if hour in cfg.cuts:
+        return cfg.cuts[int(hour)]
+    hs = sorted(cfg.cuts)
+    if hour <= hs[0]:
+        return cfg.cuts[hs[0]]
+    for lo, hi in zip(hs, hs[1:], strict=False):
+        if hour <= hi:
+            w = (hour - lo) / (hi - lo)
+            a, b = cfg.cuts[lo], cfg.cuts[hi]
+            return Cut(a.amber + w * (b.amber - a.amber), a.red + w * (b.red - a.red))
+    return cfg.cuts[hs[-1]]
+
+
+def level_at(probability: float, hour: float, cfg: RiskConfig) -> RiskLevelCode:
+    """Level of P(stockout by `hour`) against the interpolated cut-offs."""
+    return _grade(probability, cut_at(hour, cfg))
 
 
 def level_confidence(probability: float) -> float:

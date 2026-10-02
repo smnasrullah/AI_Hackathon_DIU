@@ -19,7 +19,7 @@ from ml.registry import FORECAST_MODEL
 
 log = logging.getLogger(__name__)
 CACHE_KEY = "risk_cache"
-METHOD = "mc-copula-1"
+METHOD = "mc-copula-2"  # 2: + prob_by_hour
 FLOAT_INDEX = {FloatType.cash: 0, FloatType.emoney: 1}
 # Forecasts are stored per float as the demand that drains it (cash <- cash_out,
 # e-money <- cash_in); the other float's drain is this float's inflow.
@@ -28,13 +28,20 @@ INFLOW_OF = {FloatType.cash: FloatType.emoney, FloatType.emoney: FloatType.cash}
 Quantiles = dict[tuple[int, FloatType], np.ndarray]
 
 
-def load_quantiles(session: Session, model_version_id: int, horizon: int) -> Quantiles:
-    found = session.execute(
-        select(Forecast.agent_id, Forecast.float_type, Forecast.q_low, Forecast.q_mid,
-               Forecast.q_high)
-        .where(Forecast.model_version_id == model_version_id, Forecast.horizon_h <= horizon)
-        .order_by(Forecast.agent_id, Forecast.float_type, Forecast.horizon_h)
-    ).all()
+def path_rng(seed: int, agent_id: int, float_type: FloatType) -> np.random.Generator:
+    """Seeded per (seed, agent, float): what-if replays exactly the cached paths."""
+    return np.random.default_rng([seed, agent_id, FLOAT_INDEX[float_type]])
+
+
+def load_quantiles(session: Session, model_version_id: int, horizon: int,
+                   agent_id: int | None = None) -> Quantiles:
+    query = (select(Forecast.agent_id, Forecast.float_type, Forecast.q_low, Forecast.q_mid,
+                    Forecast.q_high)
+             .where(Forecast.model_version_id == model_version_id, Forecast.horizon_h <= horizon)
+             .order_by(Forecast.agent_id, Forecast.float_type, Forecast.horizon_h))
+    if agent_id is not None:
+        query = query.where(Forecast.agent_id == agent_id)
+    found = session.execute(query).all()
     grouped: dict[tuple[int, FloatType], list[tuple[float, float, float]]] = {}
     for agent_id, float_type, lo, mid, hi in found:
         grouped.setdefault((agent_id, float_type), []).append((float(lo), float(mid), float(hi)))
@@ -72,12 +79,11 @@ def precompute(session: Session, cfg: RiskConfig, seed: int, force: bool = False
     risks: list[dict[str, Any]] = []
     agents = sorted({a for a, _ in quantiles} & set(balances))
     for agent_id in agents:
-        for ft, idx in FLOAT_INDEX.items():
+        for ft in FLOAT_INDEX:
             drain, inflow = quantiles.get((agent_id, ft)), quantiles.get((agent_id, INFLOW_OF[ft]))
             if drain is None or inflow is None:
                 continue
-            rng = np.random.default_rng([seed, agent_id, idx])
-            res = project(balances[agent_id][ft], drain, inflow, sc, rng)
+            res = project(balances[agent_id][ft], drain, inflow, sc, path_rng(seed, agent_id, ft))
             base = {"model_version_id": mv.id, "agent_id": agent_id, "float_type": ft,
                     "ts": now, "generated_at": generated_at}
             stockouts.append({
@@ -85,6 +91,7 @@ def precompute(session: Session, cfg: RiskConfig, seed: int, force: bool = False
                 "stockout_at": None if res.hours is None else now + timedelta(hours=res.hours),
                 "hours_to_stockout": None if res.hours is None else round(res.hours, 2),
                 "confidence": round(res.confidence, 4),
+                "prob_by_hour": [round(p, 4) for p in res.by_hour()],
             })
             for h in HORIZONS:
                 p = round(res.prob_within(h), 4)

@@ -28,9 +28,14 @@ class StockoutResult:
     cdf: np.ndarray  # (H,) P(stockout by the end of hour h), h = 1..H
     hours: float | None  # median first-passage time; None = more likely no stockout within H
     confidence: float
+    p_now: float = 0.0  # P(already at or below the floor at hour 0)
 
     def prob_within(self, horizon_h: int) -> float:
         return float(self.cdf[horizon_h - 1])
+
+    def by_hour(self) -> list[float]:
+        """P(stockout by hour h) for h = 0..H (index = hour)."""
+        return [self.p_now, *(float(p) for p in self.cdf)]
 
 
 def demand_quantile(q: np.ndarray, u: np.ndarray) -> np.ndarray:
@@ -65,17 +70,31 @@ def first_passage(b0: float, drain: np.ndarray, inflow: np.ndarray, floor: float
     return np.where(any_hit, k + frac, np.inf)
 
 
-def project(b0: float, drain_q: np.ndarray, inflow_q: np.ndarray, cfg: StockoutConfig,
-            rng: np.random.Generator) -> StockoutResult:
-    """Stockout distribution of one float. drain_q / inflow_q: (H, 3) hourly BDT quantiles."""
+def sample_paths(drain_q: np.ndarray, inflow_q: np.ndarray, cfg: StockoutConfig,
+                 rng: np.random.Generator) -> tuple[np.ndarray, np.ndarray]:
+    """(N, H) hourly drain and inflow paths. drain_q / inflow_q: (H, 3) hourly BDT quantiles."""
     horizon = drain_q.shape[0]
     drain = demand_quantile(drain_q, _copula(rng, cfg.n_paths, horizon, cfg.rho))
     inflow = demand_quantile(inflow_q, _copula(rng, cfg.n_paths, horizon, cfg.rho))
+    return drain, inflow
+
+
+def from_paths(b0: float, drain: np.ndarray, inflow: np.ndarray, cfg: StockoutConfig
+               ) -> StockoutResult:
+    """Stockout distribution of one float starting at b0 over already-sampled paths."""
+    n, horizon = drain.shape
     t = np.sort(first_passage(b0, drain, inflow, cfg.floor_bdt))
-    cdf = np.searchsorted(t, np.arange(1, horizon + 1), side="right") / cfg.n_paths
-    median = float(t[(cfg.n_paths + 1) // 2 - 1])  # earliest t with P(T <= t) >= 0.5
+    cdf = np.searchsorted(t, np.arange(1, horizon + 1), side="right") / n
+    p_now = float(np.mean(t <= 0))
+    median = float(t[(n + 1) // 2 - 1])  # earliest t with P(T <= t) >= 0.5
     if not np.isfinite(median):
-        return StockoutResult(cdf, None, float(1.0 - cdf[-1]))
+        return StockoutResult(cdf, None, float(1.0 - cdf[-1]), p_now)
     window = max(cfg.min_window_h, cfg.window_share * median)
     confidence = float(np.mean(np.abs(t - median) <= window))
-    return StockoutResult(cdf, median, confidence)
+    return StockoutResult(cdf, median, confidence, p_now)
+
+
+def project(b0: float, drain_q: np.ndarray, inflow_q: np.ndarray, cfg: StockoutConfig,
+            rng: np.random.Generator) -> StockoutResult:
+    """Stockout distribution of one float. drain_q / inflow_q: (H, 3) hourly BDT quantiles."""
+    return from_paths(b0, *sample_paths(drain_q, inflow_q, cfg, rng), cfg)

@@ -93,6 +93,8 @@ class StockoutPrediction(Base):
     stockout_at: Mapped[datetime | None] = mapped_column(TsTz)
     hours_to_stockout: Mapped[Decimal | None] = mapped_column(Numeric(6, 2))
     confidence: Mapped[Decimal] = mapped_column(Ratio)
+    # P(stockout by hour h), index h = 0..72 (map time scrubber); NULL in caches built before it.
+    prob_by_hour: Mapped[list[float] | None] = mapped_column(JsonDoc)
     generated_at: Mapped[datetime] = mapped_column(TsTz)
 
 

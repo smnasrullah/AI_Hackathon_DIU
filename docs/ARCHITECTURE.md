@@ -45,7 +45,7 @@ All prediction responses include `model_version` + `generated_at`. All LLM respo
 | risk | GET | `/agents/{id}/summary` | Profile, balances, time-to-stockout, risk per float and horizon, agent level (worst float) | A(self), D, Ad |
 | risk | GET | `/agents/{id}/stockout` | Most likely time-to-stockout + confidence per float, no-refill projection; 503 `risk_not_ready` before precompute (F2) | A(self), D, Ad |
 | risk | GET | `/agents/{id}/risk` | Stockout probability + green/amber/red at 6/24/72h per float (F3) | A(self), D, Ad |
-| whatif | POST | `/agents/{id}/whatif` | Recompute runway for `{float_type, delta_amount, at}` (F8) | A(self), D |
+| whatif | POST | `/agents/{id}/whatif` | `{float_type, delta_amount}`: re-project the cached quantile paths with balance + delta (same seeded paths as the risk cache, so `before` = cache); before/after stockout, risk 6/24/72 h and hourly balance p10/p50/p90 series (runway ghost); 422 `delta_out_of_bounds` outside 0..capacity; <300 ms (F8) | A(self), D |
 | explanations | GET | `/agents/{id}/explanations` | `?target=cash\|emoney&lang=bn\|en` (lang defaults to the user's): top TreeSHAP drivers of the next 24 h demand -> `reasons[]` (factor, impact BDT, direction, share, template sentence) + `evidence` pack; `generated_by: template`; 503 `explanations_not_ready` before precompute (F7) | A(self), D, Ad |
 | explanations | POST | `/explanations/narrate` | LLM rewrite of template sentence (F7, LLM) | A(self), D |
 | events | GET | `/events` | Salary/Eid/hat-bazar/weather/holiday overlapping `?from&to`, `&type&district` (district keeps nationwide), paginated (F6) | A, D, Ad |
@@ -63,6 +63,7 @@ All prediction responses include `model_version` + `generated_at`. All LLM respo
 | anomalies | GET | `/anomalies/{id}` | Evidence (features, scores) | D, Ad |
 | anomalies | POST | `/anomalies/{id}/review` | confirmed/dismissed + note -> audit_log | D, Ad |
 | anomalies | GET | `/anomalies/{id}/narrative` | LLM investigation narrative (LLM) | D, Ad |
+| map | GET | `/map/agents` | `?at_hour=0..72`: scoped agents' lat/lng + level/probability at that hour (cached P(stockout by h), cut-offs interpolated between 6/24/72) + pending/approved swaps with coordinates and `relevant` (receiver amber/red) for the TimeScrubber (F10) | D, Ad |
 | distributor | GET | `/distributor/overview` | Map points, risk counts, open swaps (F10) | D |
 | impact | GET | `/impact` | Model vs baseline: stockout h, BDT saved, van trips; `?from&to&van_cost` (F11) | D, Ad |
 | responsible-ai | GET | `/responsible-ai` | Model cards, metrics, fairness by group, limitations (F12) | A, D, Ad |
