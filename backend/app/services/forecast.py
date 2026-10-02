@@ -1,5 +1,9 @@
-"""Forecast cache: precomputed at bootstrap for every agent at SIM_NOW, read by the API."""
+"""Forecast cache: precomputed at bootstrap for every agent at SIM_NOW, read by the API.
 
+The same pass writes the TreeSHAP explanations (services/explanation.py) from the same panel.
+"""
+
+import hashlib
 import logging
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -8,9 +12,10 @@ from typing import Any
 from sqlalchemy import delete, func, insert, select
 from sqlalchemy.orm import Session
 
-from app.models import Forecast, SystemMeta, Transaction
-from app.models.enums import FloatType, TxnType
+from app.models import Event, Forecast, SystemMeta, Transaction
+from app.models.enums import FLOAT_DEMAND
 from app.schemas.forecast import AgentForecast, FloatForecast, ForecastPoint
+from app.services import explanation
 from app.services.model_registry import active_model, register_forecast_model
 from ml.data_gen.timeline import SIM_NOW
 from ml.features.build import MAX_HORIZON_H
@@ -19,9 +24,8 @@ from ml.inference.forecaster import Forecaster
 from ml.registry import FORECAST_MODEL
 
 log = logging.getLogger(__name__)
-FLOAT_DEMAND: dict[FloatType, TxnType] = {FloatType.cash: TxnType.cash_out,
-                                          FloatType.emoney: TxnType.cash_in}
 CACHE_KEY = "forecast_cache"
+EXPLAIN_METHOD = "treeshap-q50-24h-1"
 
 
 def _utc(ts: datetime) -> datetime:
@@ -33,10 +37,20 @@ def sim_now(session: Session) -> datetime:
     return _utc(datetime.fromisoformat(row.value)) if row and row.value else _utc(SIM_NOW)
 
 
+def events_fingerprint(session: Session) -> str:
+    """Changes whenever an event row is added, edited or deleted (admin events CRUD)."""
+    rows = session.execute(select(Event.id, Event.type, Event.starts_at, Event.ends_at,
+                                  Event.district, Event.intensity).order_by(Event.id)).all()
+    text = "|".join(f"{i},{t},{_utc(s).isoformat()},{_utc(e).isoformat()},{d},{float(x)}"
+                    for i, t, s, e, d, x in rows)
+    return hashlib.sha256(text.encode()).hexdigest()[:16]
+
+
 def _cache_key(session: Session, version: str, now: datetime) -> dict[str, Any]:
     count, max_id = session.execute(
         select(func.count(), func.max(Transaction.id)).select_from(Transaction)).one()
-    return {"model_version": version, "sim_now": now.isoformat(), "txn": [count, max_id]}
+    return {"model_version": version, "sim_now": now.isoformat(), "txn": [count, max_id],
+            "events": events_fingerprint(session), "explain": EXPLAIN_METHOD}
 
 
 def precompute(session: Session, artifacts_dir: Path, force: bool = False) -> int:
@@ -49,7 +63,8 @@ def precompute(session: Session, artifacts_dir: Path, force: bool = False) -> in
         log.info("forecast cache current (%s)", mv.version)
         return 0
     panel = load_panel(session, end=hour_of(now))
-    preds = Forecaster.load(artifacts_dir).predict_origin(panel, hour_of(now), MAX_HORIZON_H)
+    forecaster = Forecaster.load(artifacts_dir)
+    preds = forecaster.predict_origin(panel, hour_of(now), MAX_HORIZON_H)
     generated_at = datetime.now(UTC)
     rows: list[dict[str, Any]] = []
     for i, agent_id in enumerate(panel.agent_ids.tolist()):
@@ -65,6 +80,7 @@ def precompute(session: Session, artifacts_dir: Path, force: bool = False) -> in
     session.execute(delete(Forecast))
     if rows:
         session.execute(insert(Forecast), rows)
+    explanation.write_cache(session, mv, forecaster, panel, hour_of(now), now, generated_at)
     session.merge(SystemMeta(key=CACHE_KEY, value=key))
     log.info("forecast cache: %d rows at %s (%s)", len(rows), now.isoformat(), mv.version)
     return len(rows)

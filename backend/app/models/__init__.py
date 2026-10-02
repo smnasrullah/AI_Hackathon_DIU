@@ -1,10 +1,11 @@
-from app.models.actions import AuditLog, Recommendation, SwapSuggestion
+from app.models.actions import AuditLog, Recommendation, RecommendationRequest, SwapSuggestion
 from app.models.base import Base
 from app.models.llm import CopilotMessage, KnowledgeDoc, LlmCache, LlmCallLog
 from app.models.org import Agent, Distributor, LoginFailure, RefreshToken, User
 from app.models.predictions import (
     Anomaly,
     Forecast,
+    ForecastExplanation,
     ImpactResult,
     ModelVersion,
     RiskLevel,
@@ -23,6 +24,7 @@ __all__ = [
     "Event",
     "FloatSnapshot",
     "Forecast",
+    "ForecastExplanation",
     "ImpactResult",
     "KnowledgeDoc",
     "LlmCache",
@@ -30,6 +32,7 @@ __all__ = [
     "LoginFailure",
     "ModelVersion",
     "Recommendation",
+    "RecommendationRequest",
     "RefreshToken",
     "RiskLevel",
     "StockoutPrediction",

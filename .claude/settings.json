@@ -1,5 +1,6 @@
 {
   "permissions": {
+    "defaultMode": "acceptEdits",
     "allow": [
       "Bash(git status)",
       "Bash(git diff:*)",
@@ -8,10 +9,15 @@
       "Bash(git commit:*)",
       "Bash(docker compose:*)",
       "Bash(docker ps:*)",
+      "Bash(docker logs:*)",
       "Bash(powershell -File scripts/check.ps1:*)",
       "Bash(powershell.exe -File scripts/check.ps1:*)",
       "Bash(bash scripts/check.sh:*)",
-      "Bash(./scripts/check.sh:*)"
+      "Bash(./scripts/check.sh:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(python -m ruff:*)",
+      "Bash(npm run:*)",
+      "Bash(npm test:*)"
     ],
     "deny": [
       "Read(./.env)",
@@ -22,7 +28,11 @@
       "Read(./**/__pycache__/**)",
       "Read(./**/*.joblib)",
       "Read(./**/*.lock)",
-      "Read(./**/package-lock.json)"
+      "Read(./**/package-lock.json)",
+      "Bash(git push:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(rm -rf:*)",
+      "Bash(docker system prune:*)"
     ]
   }
 }

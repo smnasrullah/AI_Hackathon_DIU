@@ -1,15 +1,23 @@
-"""Advisory actions and human decisions: recommendations, swap suggestions, audit log."""
+"""Advisory actions and human decisions: recommendations, requests, swaps, audit log."""
 
 import uuid
 from datetime import datetime
 from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import Boolean, CheckConstraint, ForeignKey, Index, Numeric, Text, false
+from sqlalchemy import Boolean, CheckConstraint, ForeignKey, Index, Numeric, Text, false, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base, BigIntPK, JsonDoc, Money, TsTz, created_at_col, db_enum
-from app.models.enums import FloatType, RecommendationKind, RecommendationStatus, SwapStatus
+from app.models.enums import (
+    FloatType,
+    RecommendationChannel,
+    RecommendationKind,
+    RecommendationStatus,
+    RequestStatus,
+    SwapResponse,
+    SwapStatus,
+)
 
 
 class Recommendation(Base):
@@ -26,11 +34,46 @@ class Recommendation(Base):
     float_type: Mapped[FloatType] = mapped_column(db_enum(FloatType))
     amount_bdt: Mapped[Decimal] = mapped_column(Money)
     deadline_at: Mapped[datetime] = mapped_column(TsTz)
+    # NULL only on rows written before the channel rule (migration 0006).
+    channel: Mapped[RecommendationChannel | None] = mapped_column(db_enum(RecommendationChannel))
+    van_route_id: Mapped[str | None] = mapped_column(Text)  # one van trip per cluster
     rationale: Mapped[dict[str, Any]] = mapped_column(JsonDoc, default=dict)
     status: Mapped[RecommendationStatus] = mapped_column(
         db_enum(RecommendationStatus), default=RecommendationStatus.open, server_default="open"
     )
     created_at: Mapped[datetime] = created_at_col()
+
+
+ACTIVE_REQUEST = "status IN ('requested', 'approved', 'fulfilled')"
+
+
+class RecommendationRequest(Base):
+    """Agent asks the distributor to act on a recommendation; the distributor decides.
+
+    requested -> approved -> fulfilled; requested -> declined | cancelled. At most one active
+    (requested / approved / fulfilled) request per recommendation.
+    """
+
+    __tablename__ = "recommendation_requests"
+    __table_args__ = (
+        Index("ix_recommendation_requests_status", "status"),
+        Index("uq_recommendation_requests_active", "recommendation_id", unique=True,
+              postgresql_where=text(ACTIVE_REQUEST), sqlite_where=text(ACTIVE_REQUEST)),
+    )
+
+    id: Mapped[int] = mapped_column(BigIntPK, primary_key=True)
+    recommendation_id: Mapped[int] = mapped_column(
+        ForeignKey("recommendations.id", ondelete="CASCADE"))
+    requested_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    channel: Mapped[RecommendationChannel | None] = mapped_column(db_enum(RecommendationChannel))
+    amount_bdt: Mapped[Decimal] = mapped_column(Money)
+    status: Mapped[RequestStatus] = mapped_column(
+        db_enum(RequestStatus), default=RequestStatus.requested, server_default="requested"
+    )
+    decided_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    note: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = created_at_col()
+    decided_at: Mapped[datetime | None] = mapped_column(TsTz)
 
 
 class SwapSuggestion(Base):
@@ -56,6 +99,9 @@ class SwapSuggestion(Base):
     status: Mapped[SwapStatus] = mapped_column(
         db_enum(SwapStatus), default=SwapStatus.pending, server_default="pending"
     )
+    # Each agent's own answer; advisory input to the distributor's decision.
+    donor_response: Mapped[SwapResponse | None] = mapped_column(db_enum(SwapResponse))
+    receiver_response: Mapped[SwapResponse | None] = mapped_column(db_enum(SwapResponse))
     decided_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
     decided_at: Mapped[datetime | None] = mapped_column(TsTz)
     note: Mapped[str | None] = mapped_column(Text)

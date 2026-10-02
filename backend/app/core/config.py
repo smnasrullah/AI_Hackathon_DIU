@@ -46,6 +46,24 @@ class Settings(BaseSettings):
 
     # Optional override of app/rules/risk_rules.DEFAULT_CUTS: {"6": [amber, red], ...}.
     risk_thresholds: dict[int, list[float]] = {}
+    # app/rules/rebalance_rules.py + swap_rules.py; defaults mirror the rule dataclasses.
+    rebalance_horizon_h: int = 24
+    rebalance_lead_time_h: float = 3.0
+    rebalance_buffer_share: float = 0.10
+    rebalance_buffer_min_bdt: float = 2_000.0
+    swap_radius_km: float = 5.0
+    swap_min_amount_bdt: float = 5_000.0
+    # app/rules/channel_rules.py (van vs top-up vs self-fetch); assumptions in docs/METHODS.md.
+    van_min_batch_amount_bdt: float = 100_000.0
+    van_lead_time_h: float = 4.0
+    van_cluster_radius_km: float = 10.0
+    van_cost_per_trip_bdt: float = 1_500.0
+    topup_fee_pct: float = 0.5
+    topup_eta_h: float = 0.25
+    self_fetch_max_km: float = 10.0
+    self_fetch_speed_kmh: float = 15.0
+    travel_cost_per_km_bdt: float = 10.0
+    urgent_manual_cost_bdt: float = 2_500.0
 
     llm_provider: LlmProvider = "auto"
     llm_model: str = "claude-haiku-4-5-20251001"

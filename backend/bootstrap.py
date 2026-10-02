@@ -17,7 +17,7 @@ from app.core.config import DATA_VERSION, get_settings
 from app.core.db import get_engine
 from app.models.system_meta import SystemMeta
 from app.rules.risk_rules import build_config
-from app.services import forecast, risk
+from app.services import forecast, rebalance, risk
 from app.services import seed as reference_seed
 from ml import registry
 from ml.data_gen import generate
@@ -86,11 +86,12 @@ def run_train() -> int:
 
 
 def precompute() -> int:
-    """Register the active model; cache forecasts, then stockout + risk, for every agent."""
+    """Register the active model; cache forecasts, stockout + risk, then rebalance + swaps."""
     settings = get_settings()
     with Session(get_engine()) as session, session.begin():
         forecast.precompute(session, settings.artifacts_dir)
         risk.precompute(session, build_config(settings.risk_thresholds), settings.seed)
+        rebalance.precompute(session, *rebalance.configs(settings))
     return 0
 
 

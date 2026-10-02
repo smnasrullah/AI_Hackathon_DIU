@@ -46,15 +46,19 @@ All prediction responses include `model_version` + `generated_at`. All LLM respo
 | risk | GET | `/agents/{id}/stockout` | Most likely time-to-stockout + confidence per float, no-refill projection; 503 `risk_not_ready` before precompute (F2) | A(self), D, Ad |
 | risk | GET | `/agents/{id}/risk` | Stockout probability + green/amber/red at 6/24/72h per float (F3) | A(self), D, Ad |
 | whatif | POST | `/agents/{id}/whatif` | Recompute runway for `{float_type, delta_amount, at}` (F8) | A(self), D |
-| explanations | GET | `/agents/{id}/explanation` | Top SHAP factors + template bn/en text (F7) | A(self), D, Ad |
+| explanations | GET | `/agents/{id}/explanations` | `?target=cash\|emoney&lang=bn\|en` (lang defaults to the user's): top TreeSHAP drivers of the next 24 h demand -> `reasons[]` (factor, impact BDT, direction, share, template sentence) + `evidence` pack; `generated_by: template`; 503 `explanations_not_ready` before precompute (F7) | A(self), D, Ad |
 | explanations | POST | `/explanations/narrate` | LLM rewrite of template sentence (F7, LLM) | A(self), D |
-| events | GET | `/events` | Salary/Eid/hat-bazar/weather in window (F6) | A, D, Ad |
-| recommendations | GET | `/agents/{id}/recommendations` | Rebalance recommendation (F4) | A(self), D |
-| recommendations | POST | `/recommendations/{id}/request` | Agent asks distributor to act (no money moves) | A(self) |
-| swaps | GET | `/swaps` | Swap proposals `?status=` (A sees own) (F5) | A, D |
-| swaps | POST | `/swaps/match` | Run rules + scipy optimiser on current forecasts | D |
-| swaps | POST | `/swaps/{id}/approve` | Approve + note -> audit_log | D |
-| swaps | POST | `/swaps/{id}/reject` | Reject + note -> audit_log | D |
+| events | GET | `/events` | Salary/Eid/hat-bazar/weather/holiday overlapping `?from&to`, `&type&district` (district keeps nationwide), paginated (F6) | A, D, Ad |
+| events | POST/PUT/DELETE | `/events`, `/events/{id}` | Admin create (201) / replace / delete (204) -> audit_log; 422 `unknown_district`; applied at next precompute (F6) | Ad |
+| recommendations | GET | `/agents/{id}/recommendation` | Rebalance recommendation per float: amount, deadline, rationale (F4) | A(self), D, Ad |
+| recommendations | POST | `/recommendations/{id}/request` | Agent asks distributor to act (no money moves); idempotent: 201 new, 200 existing | A(self) |
+| recommendations | GET | `/recommendation-requests` | Requests `?status=&page=&page_size=` (A own, D own agents) | A, D, Ad |
+| recommendations | POST | `/recommendation-requests/{id}/decision` | `approve`/`decline` + required note -> audit_log | D |
+| recommendations | POST | `/recommendation-requests/{id}/fulfil` | Approved -> fulfilled (+ note) -> audit_log | D |
+| recommendations | POST | `/recommendation-requests/{id}/cancel` | Requested -> cancelled -> audit_log | A(self) |
+| swaps | GET | `/swaps` | Swap suggestions `?status=&page=&page_size=`, est. van trips avoided (A sees own) (F5) | A, D, Ad |
+| swaps | POST | `/swaps/{id}/decision` | `approve`/`reject` + required note -> audit_log | D |
+| swaps | POST | `/swaps/{id}/respond` | Donor/receiver agent `accept`/`decline` (+ note) -> audit_log; a decline blocks approval | A |
 | anomalies | GET | `/anomalies` | Isolation Forest flags (F9) | D, Ad |
 | anomalies | GET | `/anomalies/{id}` | Evidence (features, scores) | D, Ad |
 | anomalies | POST | `/anomalies/{id}/review` | confirmed/dismissed + note -> audit_log | D, Ad |
@@ -92,9 +96,11 @@ Money = `NUMERIC(14,2)` BDT. Times = `TIMESTAMPTZ` (Asia/Dhaka on display). Enum
 | weather_daily | district text, date date, rain_mm numeric, temp_c numeric, severe bool | PK (district, date) | - |
 | model_versions | id int, model_name text, version text, trained_at, artifact_sha256 text, metrics jsonb, is_active bool, created_at | PK id | UQ (model_name, version); (is_active) |
 | forecasts | id bigint, model_version_id int, agent_id int, float_type enum(cash,emoney), ts (target), horizon_h smallint, q_low, q_mid, q_high numeric, generated_at | PK id; FK model_version_id, agent_id | (agent_id, ts); (agent_id, float_type, ts) |
+| forecast_explanations | id bigint, model_version_id int, agent_id int, float_type enum, ts (as-of), window_h smallint, usual_bdt numeric, drivers jsonb ([{factor, impact_bdt, share, facts}], all factors, largest first), generated_at | PK id; FK model_version_id, agent_id | (agent_id, ts) |
 | stockout_predictions | id bigint, model_version_id int, agent_id int, float_type enum, ts (as-of), stockout_at null, hours_to_stockout numeric null, confidence numeric, generated_at | PK id; FK model_version_id, agent_id | (agent_id, ts) |
 | risk_levels | id bigint, model_version_id int, agent_id int, float_type enum, ts (as-of), horizon_h smallint(6/24/72), level enum(green,amber,red), probability numeric, confidence numeric, shap_top jsonb, generated_at | PK id; FK model_version_id, agent_id | (agent_id, ts); (level) |
-| recommendations | id bigint, agent_id int, model_version_id int null, kind enum(add_cash,add_emoney,swap,van), float_type enum, amount_bdt numeric, deadline_at, rationale jsonb, status enum(open,requested,done,expired), created_at | PK id; FK agent_id, model_version_id | (agent_id, created_at); (agent_id, status) |
+| recommendations | id bigint, agent_id int, model_version_id int null, kind enum(add_cash,add_emoney,swap,van), channel enum(swap,top_up,van,self_fetch,urgent_manual) null, van_route_id text null, float_type enum, amount_bdt numeric, deadline_at, rationale jsonb, status enum(open,requested,done,expired), created_at | PK id; FK agent_id, model_version_id | (agent_id, created_at); (agent_id, status) |
+| recommendation_requests | id bigint, recommendation_id bigint, requested_by uuid, channel enum null, amount_bdt numeric, status enum(requested,approved,declined,fulfilled,cancelled), decided_by uuid null, note text null, created_at, decided_at null | PK id; FK recommendation_id, requested_by/decided_by -> users | (status); UQ (recommendation_id) WHERE status in (requested,approved,fulfilled) |
 | swap_suggestions | id bigint, model_version_id int null, donor_agent_id int, receiver_agent_id int, float_type enum, amount_bdt numeric, distance_km numeric, van_trip_saved bool, score numeric, status enum(pending,approved,rejected), decided_by uuid null, decided_at null, note text null, created_at | PK id; FK model_version_id, donor/receiver -> agents, decided_by -> users; CHECK donor <> receiver | (status); (donor_agent_id); (receiver_agent_id) |
 | anomalies | id bigint, model_version_id int, agent_id int, window_start, window_end, score numeric, features jsonb, status enum(open,confirmed,dismissed), reviewed_by uuid null, reviewed_at null, note text null, created_at | PK id; FK model_version_id, agent_id, reviewed_by | (agent_id, window_start); (status, score) |
 | impact_results | id int, model_version_id int, scenario enum(model,baseline), window_start, window_end, stockout_hours numeric, value_saved_bdt numeric, van_trips int, params jsonb, created_at | PK id; FK model_version_id | (model_version_id, scenario) |
@@ -132,7 +138,7 @@ TF-IDF index for RAG is built in memory at startup from knowledge_docs (no extra
 | `backend/ml/data_gen/` | Seeded synthetic generator (agents, hourly txns, events, weather) |
 | `backend/ml/features/` | Lags, calendar, event, weather features |
 | `backend/ml/training/` | LightGBM quantile, Isolation Forest, backtest (14-day holdout) |
-| `backend/ml/inference/` | Load artifacts, predict, stockout, swap optimiser (scipy) |
+| `backend/ml/inference/` | Load artifacts, predict, stockout |
 | `backend/ml/explain/` | SHAP -> factor list |
 | `backend/ml/artifacts/` | *.joblib + manifest.json (version, sha256) — committed |
 | `backend/bootstrap.py` | Idempotent seed/generate/precompute |

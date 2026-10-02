@@ -28,7 +28,7 @@ INFLOW_OF = {FloatType.cash: FloatType.emoney, FloatType.emoney: FloatType.cash}
 Quantiles = dict[tuple[int, FloatType], np.ndarray]
 
 
-def _quantiles(session: Session, model_version_id: int, horizon: int) -> Quantiles:
+def load_quantiles(session: Session, model_version_id: int, horizon: int) -> Quantiles:
     found = session.execute(
         select(Forecast.agent_id, Forecast.float_type, Forecast.q_low, Forecast.q_mid,
                Forecast.q_high)
@@ -41,7 +41,7 @@ def _quantiles(session: Session, model_version_id: int, horizon: int) -> Quantil
     return {k: np.array(v) for k, v in grouped.items() if len(v) == horizon}
 
 
-def _balances(session: Session, now: datetime) -> dict[int, dict[FloatType, float]]:
+def load_balances(session: Session, now: datetime) -> dict[int, dict[FloatType, float]]:
     found = session.execute(select(FloatSnapshot.agent_id, FloatSnapshot.cash_balance,
                                    FloatSnapshot.emoney_balance)
                             .where(FloatSnapshot.ts == now)).all()
@@ -65,8 +65,8 @@ def precompute(session: Session, cfg: RiskConfig, seed: int, force: bool = False
         log.info("risk cache current (%s)", mv.version)
         return 0
     horizon = max(HORIZONS)
-    quantiles = _quantiles(session, mv.id, horizon)
-    balances = _balances(session, now)
+    quantiles = load_quantiles(session, mv.id, horizon)
+    balances = load_balances(session, now)
     generated_at = datetime.now(UTC)
     stockouts: list[dict[str, Any]] = []
     risks: list[dict[str, Any]] = []

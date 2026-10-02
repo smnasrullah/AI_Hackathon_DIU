@@ -25,6 +25,11 @@ class TxnType(StrEnum):
     cash_out = "cash_out"
 
 
+# Demand that draws each float down: cash <- cash_out, e-money <- cash_in.
+FLOAT_DEMAND: dict[FloatType, TxnType] = {FloatType.cash: TxnType.cash_out,
+                                          FloatType.emoney: TxnType.cash_in}
+
+
 class EventType(StrEnum):
     salary = "salary"
     eid = "eid"
@@ -53,10 +58,33 @@ class RecommendationStatus(StrEnum):
     expired = "expired"
 
 
+class RecommendationChannel(StrEnum):
+    """How the money would reach the agent (app/rules/channel_rules.py)."""
+
+    swap = "swap"
+    top_up = "top_up"
+    van = "van"
+    self_fetch = "self_fetch"
+    urgent_manual = "urgent_manual"
+
+
+class RequestStatus(StrEnum):
+    requested = "requested"
+    approved = "approved"
+    declined = "declined"
+    fulfilled = "fulfilled"
+    cancelled = "cancelled"
+
+
 class SwapStatus(StrEnum):
     pending = "pending"
     approved = "approved"
     rejected = "rejected"
+
+
+class SwapResponse(StrEnum):
+    accepted = "accepted"
+    declined = "declined"
 
 
 class AnomalyStatus(StrEnum):
@@ -118,7 +146,10 @@ PG_ENUM_NAMES: dict[type[StrEnum], str] = {
     RiskLevelCode: "risk_level",
     RecommendationKind: "recommendation_kind",
     RecommendationStatus: "recommendation_status",
+    RecommendationChannel: "recommendation_channel",
+    RequestStatus: "request_status",
     SwapStatus: "swap_status",
+    SwapResponse: "swap_response",
     AnomalyStatus: "anomaly_status",
     ImpactScenario: "impact_scenario",
     LlmIntent: "llm_intent",

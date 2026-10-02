@@ -61,6 +61,24 @@ class Forecast(Base):
     generated_at: Mapped[datetime] = mapped_column(TsTz)
 
 
+class ForecastExplanation(Base):
+    """TreeSHAP drivers of one float's next `window_h` hours of demand, cached with the forecast."""
+
+    __tablename__ = "forecast_explanations"
+    __table_args__ = (Index("ix_forecast_explanations_agent_ts", "agent_id", "ts"),)
+
+    id: Mapped[int] = mapped_column(BigIntPK, primary_key=True)
+    model_version_id: Mapped[int] = mapped_column(ForeignKey("model_versions.id"))
+    agent_id: Mapped[int] = mapped_column(ForeignKey("agents.id", ondelete="CASCADE"))
+    float_type: Mapped[FloatType] = mapped_column(db_enum(FloatType))
+    ts: Mapped[datetime] = mapped_column(TsTz)  # as-of (simulated now)
+    window_h: Mapped[int] = mapped_column(SmallInteger)
+    usual_bdt: Mapped[Decimal] = mapped_column(Money)  # SHAP base value over the window
+    # [{factor, impact_bdt, share, facts}], largest |impact| first; usual + sum = model q50.
+    drivers: Mapped[list[dict[str, Any]]] = mapped_column(JsonDoc, default=list)
+    generated_at: Mapped[datetime] = mapped_column(TsTz)
+
+
 class StockoutPrediction(Base):
     __tablename__ = "stockout_predictions"
     __table_args__ = (Index("ix_stockout_predictions_agent_ts", "agent_id", "ts"),)

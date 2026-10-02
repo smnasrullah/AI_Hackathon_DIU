@@ -1,67 +1,27 @@
 """Forecast pipeline: train (tiny) -> register -> precompute cache -> GET /agents/{id}/forecast."""
 
 import shutil
-from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
 
 import numpy as np
-import pytest
-from alembic import command
-from alembic.config import Config
 from fastapi.testclient import TestClient
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.core.config import BACKEND_DIR, get_settings
 from app.core.db import get_engine
 from app.models import Forecast, ModelVersion, RiskLevel, StockoutPrediction
 from app.rules.risk_rules import build_config
 from app.services import forecast, risk
 from ml import registry
-from ml.data_gen import generate
 from ml.data_gen.timeline import HOLDOUT_START, SIM_NOW, hour_index
 from ml.features.build import FEATURES, MAX_HORIZON_H, build, grid
 from ml.features.panel import load_panel
 from ml.training import train
 from tests.auth_helpers import ADMIN, AGENT_MIRPUR, DIST_DHAKA, agent_id, bearer
+from tests.conftest import N_TRAINED_AGENTS as N_AGENTS
 
 API = "/api/v1"
-N_AGENTS = 8
-ROUNDS = 20
-
-
-@pytest.fixture(scope="session")
-def trained(tmp_path_factory: pytest.TempPathFactory) -> Iterator[tuple[Path, Path]]:
-    """One small synthetic DB + tiny trained artifacts, shared by every test here."""
-    root = tmp_path_factory.mktemp("forecast")
-    db, artifacts = root / "trained.db", root / "artifacts"
-    with pytest.MonkeyPatch.context() as mp:
-        mp.setenv("DATABASE_URL", f"sqlite+pysqlite:///{db.as_posix()}")
-        get_settings.cache_clear()
-        get_engine.cache_clear()
-        cfg = Config(str(BACKEND_DIR / "alembic.ini"))
-        cfg.attributes["database_url"] = get_settings().database_url
-        command.upgrade(cfg, "head")
-        generate.run(seed=42, n_agents=N_AGENTS)
-        train.run(artifacts, seed=42, rounds=ROUNDS)
-        get_engine().dispose()
-    get_settings.cache_clear()
-    get_engine.cache_clear()
-    yield db, artifacts
-
-
-@pytest.fixture
-def ready(env: Path, trained: tuple[Path, Path], request: pytest.FixtureRequest,
-          monkeypatch: pytest.MonkeyPatch) -> Path:
-    db, artifacts = trained
-    shutil.copy(db, env / "test.db")
-    monkeypatch.setenv("ARTIFACTS_DIR", str(artifacts))
-    get_settings.cache_clear()
-    request.getfixturevalue("seeded")
-    with Session(get_engine()) as session, session.begin():
-        assert forecast.precompute(session, artifacts) == N_AGENTS * 2 * MAX_HORIZON_H
-    return artifacts
 
 
 def test_manifest_and_holdout_metrics(trained: tuple[Path, Path]) -> None:
