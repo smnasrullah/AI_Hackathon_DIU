@@ -1,12 +1,13 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 
+from app.core.csv_export import CSV_RESPONSES, csv_response
 from app.core.deps import CurrentUser, SessionDep, require_roles
 from app.models import User
 from app.models.enums import SwapStatus, UserRole
 from app.schemas.swap import SwapDecisionIn, SwapItem, SwapPage, SwapRespondIn
-from app.services import swaps
+from app.services import exports, swaps
 from app.services.swaps import SwapError
 
 router = APIRouter(prefix="/swaps", tags=["swaps"])
@@ -32,6 +33,19 @@ def list_swaps(
     if not swaps.is_ready(session):
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, detail="swaps_not_ready")
     return swaps.swap_page(session, user, swap_status, page, page_size)
+
+
+@router.get("/export.csv", response_class=Response, responses=CSV_RESPONSES)
+def export_swaps(
+    user: CurrentUser,
+    session: SessionDep,
+    swap_status: Annotated[SwapStatus | None, Query(alias="status")] = None,
+) -> Response:
+    """The swap queue in scope as CSV (notes are user text: formula-escaped)."""
+    if not swaps.is_ready(session):
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, detail="swaps_not_ready")
+    return csv_response("swaps.csv", exports.SWAP_HEADER,
+                        exports.swap_rows(swaps.all_items(session, user, swap_status)))
 
 
 @router.post("/{swap_id}/decision", response_model=SwapItem)

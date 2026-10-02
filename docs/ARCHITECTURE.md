@@ -34,6 +34,7 @@ All prediction responses include `model_version` + `generated_at`. All LLM respo
 | Module | Method | Route | Purpose | Role |
 |---|---|---|---|---|
 | auth | POST | `/auth/login` | Access JWT in body, refresh in httpOnly cookie (path /api/v1/auth); lockout 5 fails per email+IP / 15 min | P |
+| auth | POST | `/auth/demo-login` | DEMO_MODE only (else 404): `{role}` signs in as that role's seeded demo account, same tokens as login | P |
 | auth | POST | `/auth/refresh` | Rotate refresh cookie; reuse of a rotated token revokes its family | P (refresh cookie) |
 | auth | POST | `/auth/logout` | Revoke refresh token + clear cookie | P (refresh cookie) |
 | auth | POST | `/auth/change-password` | Verify old, min 8 chars, revoke other sessions | A, D, Ad |

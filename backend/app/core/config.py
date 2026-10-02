@@ -43,6 +43,8 @@ class Settings(BaseSettings):
     demo_admin_password: SecretStr = SecretStr("")
     demo_distributor_password: SecretStr = SecretStr("")
     demo_agent_password: SecretStr = SecretStr("")
+    # Landing role cards + POST /auth/demo-login (one click, no password). Synthetic data only.
+    demo_mode: bool = True
 
     # Optional override of app/rules/risk_rules.DEFAULT_CUTS: {"6": [amber, red], ...}.
     risk_thresholds: dict[int, list[float]] = {}
@@ -74,6 +76,11 @@ class Settings(BaseSettings):
     llm_base_url: str = ""
     llm_api_key: SecretStr = SecretStr("")
     llm_timeout_s: float = 8.0
+    # Live provider calls (all users, UTC day) and per-user calls per minute; then template.
+    llm_daily_call_cap: int = 500
+    llm_user_calls_per_min: int = 10
+    llm_cache_ttl_h: int = 168
+    llm_replay_file: Path = BACKEND_DIR / "app" / "llm" / "cache" / "demo_replay.json"
 
     def model_post_init(self, __context: object) -> None:
         secret_bytes = len(self.jwt_secret.get_secret_value().encode())

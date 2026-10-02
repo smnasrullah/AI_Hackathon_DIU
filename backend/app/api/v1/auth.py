@@ -7,6 +7,7 @@ from app.core.deps import CurrentUser, SessionDep
 from app.schemas.auth import (
     ChangePasswordRequest,
     ChangePasswordResponse,
+    DemoLoginRequest,
     LoginRequest,
     TokenResponse,
     UserOut,
@@ -83,6 +84,24 @@ def login(
                 headers={"Retry-After": str(settings.login_lockout_min * 60)},
             ) from exc
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail=exc.code) from exc
+    _set_refresh_cookie(response, tokens, settings)
+    return _token_response(tokens)
+
+
+@router.post("/demo-login", response_model=TokenResponse)
+def demo_login(
+    body: DemoLoginRequest, request: Request, response: Response, session: SessionDep
+) -> TokenResponse:
+    """One-click sign-in as a seeded demo account. 404 unless DEMO_MODE is on."""
+    settings = get_settings()
+    try:
+        tokens = auth_service.demo_login(
+            session, body.role, request.headers.get("user-agent"), settings
+        )
+    except AuthError as exc:
+        off = exc.code == "demo_mode_off"
+        code = status.HTTP_404_NOT_FOUND if off else status.HTTP_409_CONFLICT
+        raise HTTPException(code, detail=exc.code) from exc
     _set_refresh_cookie(response, tokens, settings)
     return _token_response(tokens)
 

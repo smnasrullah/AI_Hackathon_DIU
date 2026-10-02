@@ -1,0 +1,120 @@
+/*
+ * CSS-only loops and backgrounds (DESIGN.md §1-§2). Loops animate transform/opacity only.
+ * Every loop carries .ap-loop so it stops under reduced motion and pauses when off-screen
+ * or the tab is hidden (data-paused, set by useLoopActive).
+ */
+
+@keyframes ap-drift-a {
+  0%, 100% { transform: translate3d(-8%, -6%, 0) scale(1); }
+  50% { transform: translate3d(10%, 8%, 0) scale(1.12); }
+}
+@keyframes ap-drift-b {
+  0%, 100% { transform: translate3d(6%, 4%, 0) scale(1.08); }
+  50% { transform: translate3d(-10%, -6%, 0) scale(0.94); }
+}
+@keyframes ap-drift-c {
+  0%, 100% { transform: translate3d(0, 10%, 0) scale(0.96); }
+  50% { transform: translate3d(-6%, -10%, 0) scale(1.1); }
+}
+@keyframes ap-scroll { to { transform: translateX(-200px); } }
+@keyframes ap-shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+@keyframes ap-risk-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.18); opacity: 0.7; }
+}
+@keyframes ap-ping {
+  0% { transform: scale(0.6); opacity: 0.8; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+@keyframes ap-drip {
+  0%, 55% { transform: translateY(0); opacity: 0; }
+  60% { opacity: 1; }
+  100% { transform: translateY(26px); opacity: 0; }
+}
+@keyframes ap-flow {
+  0% { transform: translateX(0); opacity: 0; }
+  15%, 85% { opacity: 1; }
+  100% { transform: translateX(calc(100% - 10px)); opacity: 0; }
+}
+@keyframes ap-blink {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+@keyframes ap-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ap-rise-in { from { opacity: 0; transform: translateY(12px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes ap-fade-out { from { opacity: 1; } to { opacity: 0; } }
+
+.ap-loop[data-paused="true"],
+[data-paused="true"] .ap-loop {
+  animation-play-state: paused;
+}
+
+[data-reduced-motion="true"] .ap-loop,
+.ap-loop[data-reduced-motion="true"] {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ap-loop { animation: none !important; }
+}
+
+/* Aurora mesh: three blurred blobs drifting 40-60s. */
+.ap-aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ap-aurora > span {
+  position: absolute;
+  width: 60%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: blur(60px);
+  will-change: transform;
+}
+.ap-aurora > span:nth-child(1) { left: -10%; top: -20%; background: radial-gradient(circle, var(--aurora-yellow), transparent 70%); animation: ap-drift-a 48s var(--ease-curve) infinite; }
+.ap-aurora > span:nth-child(2) { right: -15%; top: 10%; background: radial-gradient(circle, var(--aurora-blue), transparent 70%); animation: ap-drift-b 56s var(--ease-curve) infinite; }
+.ap-aurora > span:nth-child(3) { left: 20%; bottom: -30%; background: radial-gradient(circle, var(--aurora-cyan), transparent 70%); animation: ap-drift-c 42s var(--ease-curve) infinite; }
+[data-low-end="true"] .ap-aurora > span { filter: none; animation: none; opacity: 0.6; }
+
+/* Grain: a pre-rendered tiling PNG, no live filter. */
+.ap-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("../assets/grain.png");
+  background-size: 128px 128px;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: overlay;
+}
+
+.ap-scroll-x { animation: ap-scroll 3.2s linear infinite; }
+.ap-shimmer { animation: ap-shimmer 1.6s var(--ease-curve) infinite; }
+.ap-risk-pulse { animation: ap-risk-pulse 1.4s var(--ease-curve) infinite; transform-box: fill-box; transform-origin: center; }
+.ap-ping { animation: ap-ping 1.8s var(--ease-curve) infinite; transform-box: fill-box; transform-origin: center; }
+.ap-drip { animation: ap-drip 3.2s var(--ease-curve) infinite; }
+.ap-blink { animation: ap-blink 2.4s var(--ease-curve) infinite; }
+.ap-flow { animation: ap-flow 2.4s var(--ease-curve) infinite; }
+
+/* Radix dialog enter/exit: opacity + transform only. */
+.ap-overlay[data-state="open"] { animation: ap-fade-in 200ms var(--ease-curve); }
+.ap-overlay[data-state="closed"] { animation: ap-fade-out 120ms var(--ease-curve); }
+.ap-dialog[data-state="open"] { animation: ap-rise-in 220ms var(--ease-curve); }
+.ap-dialog[data-state="closed"] { animation: ap-fade-out 120ms var(--ease-curve); }
+
+/* Popovers and menus (bell panel): slide in from the trigger. */
+@keyframes ap-slide-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+.ap-sheet[data-state="open"] { animation: ap-slide-in 220ms var(--ease-curve); }
+.ap-sheet[data-state="closed"] { animation: ap-fade-out 120ms var(--ease-curve); }
+
+/* ThemeToggle: the new theme is revealed by a clip-path circle driven from JS. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+.ap-theme-fade,
+.ap-theme-fade * {
+  transition: background-color 320ms var(--ease-curve), color 320ms var(--ease-curve), border-color 320ms var(--ease-curve) !important;
+}

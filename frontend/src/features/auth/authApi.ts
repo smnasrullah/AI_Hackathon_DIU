@@ -1,8 +1,14 @@
 import { api, authClient } from "../../lib/api";
-import type { AuthUser, Lang, TokenResponse } from "./types";
+import type { AuthUser, Lang, Role, TokenResponse } from "./types";
 
 export async function login(email: string, password: string): Promise<TokenResponse> {
   const res = await api.post<TokenResponse>("/auth/login", { email, password });
+  return res.data;
+}
+
+/** DEMO_MODE only: one-click sign-in as the seeded demo account of `role`. */
+export async function demoLogin(role: Role): Promise<TokenResponse> {
+  const res = await api.post<TokenResponse>("/auth/demo-login", { role });
   return res.data;
 }
 

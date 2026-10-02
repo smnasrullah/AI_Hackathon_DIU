@@ -137,6 +137,20 @@ class ChatRole(StrEnum):
     assistant = "assistant"
 
 
+class NotificationType(StrEnum):
+    risk_change = "risk_change"
+    swap_offer = "swap_offer"
+    swap_decision = "swap_decision"
+    anomaly = "anomaly"
+    system = "system"
+
+
+class NotificationSeverity(StrEnum):
+    info = "info"
+    warning = "warning"
+    critical = "critical"
+
+
 PG_ENUM_NAMES: dict[type[StrEnum], str] = {
     UserRole: "user_role",
     UrbanRural: "urban_rural",
@@ -158,4 +172,6 @@ PG_ENUM_NAMES: dict[type[StrEnum], str] = {
     Lang: "lang_code",
     ChatRole: "chat_role",
     Theme: "theme_pref",
+    NotificationType: "notification_type",
+    NotificationSeverity: "notification_severity",
 }

@@ -1,30 +1,97 @@
-/* DESIGN.md tokens. Light = paper (agent default), dark = ink (distributor/admin default). */
+/* DESIGN.md §1 tokens. Light = Daylight (paper, agent default), dark = Control Room (ink, distributor/admin). */
 :root {
+  /* Palette */
   --ink-950: #0a0f1f;
+  --ink-900: #121a33;
   --ink-800: #1a2340;
+  --ink-600: #4a5578;
   --paper: #f7f3ea;
   --paper-2: #efe8d8;
+  --paper-3: #e4dac4;
   --upay-yellow: #ffc20e;
   --pulse-blue: #2f5bff;
   --float-cash: #7c5cff;
   --float-emoney: #00b8d9;
-  --risk-green: #1fa971;
-  --risk-amber: #f2a900;
-  --risk-red: #e5484d;
+  --risk-safe: #1fa971;
+  --risk-watch: #f2a900;
+  --risk-act: #e5484d;
+  /* Older names, kept for existing screens. */
+  --risk-green: var(--risk-safe);
+  --risk-amber: var(--risk-watch);
+  --risk-red: var(--risk-act);
 
+  /* Semantic (light) */
   --bg: var(--paper);
   --surface: #fffdf8;
   --surface-2: var(--paper-2);
+  --surface-3: var(--paper-3);
   --fg: var(--ink-950);
-  --muted: rgba(10, 15, 31, 0.62);
+  --muted: rgba(10, 15, 31, 0.64);
   --line: rgba(10, 15, 31, 0.12);
+  --line-strong: rgba(10, 15, 31, 0.22);
+  --on-brand: var(--ink-950);
+  --on-pulse: #ffffff;
+  /* Risk text on light paper needs darker tones for 4.5:1. */
+  --risk-safe-fg: #13774f;
+  --risk-watch-fg: #8a5d00;
+  --risk-act-fg: #b4272c;
+  --pulse-fg: #2448d8;
+
+  /* Glass: a light frosted card by day, the DESIGN.md glass by night. */
+  --glass-bg: rgba(255, 253, 248, 0.72);
+  --glass-line: rgba(10, 15, 31, 0.08);
+  --glass-blur: 18px;
+  --glow: 0 0 40px rgba(47, 91, 255, 0.12);
+
+  /* Shape and depth */
+  --radius-card: 20px;
+  --radius-input: 12px;
+  --radius-chip: 999px;
+  --elev-soft: 0 1px 0 var(--line), 0 8px 24px -12px rgba(10, 15, 31, 0.18);
+  --elev-lift: 0 1px 0 var(--line), 0 18px 40px -18px rgba(10, 15, 31, 0.28);
+
+  /* Aurora (hero + empty states only) */
+  --aurora-yellow: rgba(255, 194, 14, 0.12);
+  --aurora-blue: rgba(47, 91, 255, 0.14);
+  --aurora-cyan: rgba(0, 184, 217, 0.1);
+  --grain-opacity: 0.035;
+
+  /* Skeleton shimmer, brand tinted */
+  --skeleton-base: rgba(10, 15, 31, 0.07);
+  --skeleton-shine: rgba(255, 194, 14, 0.18);
+
+  /* Motion (mirrors src/styles/motion.ts for CSS-only loops) */
+  --ease-curve: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+  --dur-reveal: 600ms;
+
+  color-scheme: light;
 }
 
 [data-theme="dark"] {
   --bg: var(--ink-950);
   --surface: #111831;
   --surface-2: var(--ink-800);
+  --surface-3: #232d4f;
   --fg: #eef1f8;
-  --muted: rgba(238, 241, 248, 0.64);
+  --muted: rgba(238, 241, 248, 0.66);
   --line: rgba(238, 241, 248, 0.12);
+  --line-strong: rgba(238, 241, 248, 0.22);
+  --risk-safe-fg: #4fd39b;
+  --risk-watch-fg: #ffc94d;
+  --risk-act-fg: #ff8589;
+  --pulse-fg: #8ea6ff;
+
+  --glass-bg: rgba(18, 26, 51, 0.55);
+  --glass-line: rgba(255, 255, 255, 0.08);
+  --glow: 0 0 40px rgba(47, 91, 255, 0.18);
+  --elev-soft: inset 0 0 0 1px var(--glass-line), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  --elev-lift: inset 0 0 0 1px var(--glass-line), 0 0 40px rgba(47, 91, 255, 0.18);
+
+  --skeleton-base: rgba(238, 241, 248, 0.07);
+  --skeleton-shine: rgba(47, 91, 255, 0.22);
+
+  color-scheme: dark;
 }

@@ -8,7 +8,7 @@ LLM never: decides risk, approves/rejects swaps, sets amounts, computes numbers,
 
 ## 2. Evidence pack (grounding)
 Backend builds a compact JSON evidence pack deterministically from rules/ML services (forecast summary, stockout time + confidence, risk levels, recommendation, swap offer, top SHAP factors, events). The LLM receives ONLY this pack + the user question + retrieved playbook passages. Pack is role-scoped: agent -> own agent_id only; distributor -> own agents only.
-Allow-listed read-only tools the copilot may request (validated JSON, executed by backend): `get_whatif(float_type, delta_amount)`, `get_swap_status()`, `get_forecast_window(from, to)`.
+Allow-listed read-only tools the copilot may request (validated JSON, executed by backend): `get_whatif(float_type, delta_amount)`, `get_swap_status()`, `get_forecast_window(from_h, to_h)` (hours after the forecast as-of, 0..72). Copilot routing is deterministic (backend/app/llm/copilot/intents.py): injection / other-agent requests and off-topic questions are refused with no LLM call; the router builds the tool request, the LLM never picks one.
 
 ## 3. Providers (backend/app/llm/providers)
 `LLM_PROVIDER=auto|anthropic|openai_compatible|replay|template`

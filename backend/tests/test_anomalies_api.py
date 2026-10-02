@@ -182,3 +182,21 @@ def test_rescan_keeps_reviewed_flag_without_duplicate(client: TestClient, flagge
 def test_not_ready_without_scan(client: TestClient, seeded: Path) -> None:
     res = client.get(API, headers=bearer(client, ADMIN))
     assert (res.status_code, res.json()["detail"]) == (503, "anomalies_not_ready")
+
+
+def _anomaly_notes(client: TestClient, email: str) -> list[dict[str, Any]]:
+    res = client.get("/api/v1/notifications", headers=bearer(client, email))
+    assert res.status_code == 200, res.text
+    return [i for i in res.json()["items"] if i["type"] == "anomaly"]
+
+
+def test_new_flags_notify_own_distributor_once(client: TestClient, flagged: Path) -> None:
+    (note,) = _anomaly_notes(client, DIST_DHAKA)
+    assert note["title_key"] == "notifications.anomalies_new"
+    assert note["params"]["count"] == _page(client, DIST_DHAKA)["total"]
+    ctg = _anomaly_notes(client, DIST_CTG)
+    assert sum(int(n["params"]["count"]) for n in ctg) == _page(client, DIST_CTG)["total"]
+    assert _anomaly_notes(client, AGENT_MIRPUR) == []
+    with Session(get_engine()) as session, session.begin():
+        anomaly_scan.precompute(session, flagged, force=True)  # same flags: nothing new
+    assert len(_anomaly_notes(client, DIST_DHAKA)) == 1

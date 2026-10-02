@@ -11,6 +11,11 @@ export interface AuthUser {
   distributor_id: number | null;
   lang: Lang;
   theme: Theme;
+  digits: Lang;
+  notify_in_app: boolean;
+  tour_done: boolean;
+  display_name: string | null;
+  avatar_color: string | null;
   last_login_at: string | null;
 }
 

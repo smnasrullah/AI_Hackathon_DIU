@@ -53,6 +53,8 @@ step vitest $FE npm run -s test
 if [ "$E2E" -eq 1 ]; then
   if docker compose --profile e2e config --services | grep -qx e2e; then
     # Rebuild app images so e2e tests the working tree; `up -d` recreates changed containers.
+    # The e2e bundle includes the dev-only /dev/kit route.
+    export VITE_DEV_KIT=true
     [ "$BUILD" -eq 1 ] && step e2e-build compose --profile e2e build -q backend frontend e2e
     step e2e-up compose up -d --wait db frontend
     step e2e compose --profile e2e run --rm -T e2e

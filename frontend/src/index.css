@@ -1,26 +1,70 @@
 @import "tailwindcss";
 @import "./styles/tokens.css";
+@import "./styles/effects.css";
 
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
   --color-fg: var(--fg);
   --color-muted: var(--muted);
   --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-glass: var(--glass-bg);
+  --color-on-brand: var(--on-brand);
+  --color-on-pulse: var(--on-pulse);
+
+  --color-ink-950: var(--ink-950);
+  --color-ink-900: var(--ink-900);
+  --color-ink-800: var(--ink-800);
+  --color-ink-600: var(--ink-600);
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-paper-3: var(--paper-3);
+
   --color-brand: var(--upay-yellow);
   --color-pulse: var(--pulse-blue);
+  --color-pulse-fg: var(--pulse-fg);
   --color-cash: var(--float-cash);
   --color-emoney: var(--float-emoney);
-  --color-risk-green: var(--risk-green);
-  --color-risk-amber: var(--risk-amber);
-  --color-risk-red: var(--risk-red);
+  --color-safe: var(--risk-safe);
+  --color-watch: var(--risk-watch);
+  --color-act: var(--risk-act);
+  --color-safe-fg: var(--risk-safe-fg);
+  --color-watch-fg: var(--risk-watch-fg);
+  --color-act-fg: var(--risk-act-fg);
+  --color-risk-green: var(--risk-safe);
+  --color-risk-amber: var(--risk-watch);
+  --color-risk-red: var(--risk-act);
 
-  --font-display: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", "Inter", "Hind Siliguri", system-ui, sans-serif;
   --font-sans: "Inter", "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif;
+  --font-bangla: "Hind Siliguri", "Noto Sans Bengali", "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
+  --text-display-xl: 72px;
+  --text-display-xl--line-height: 0.95;
+  --text-display: 48px;
+  --text-display--line-height: 1;
+  --text-h1: 32px;
+  --text-h1--line-height: 1.15;
+  --text-h2: 24px;
+  --text-h2--line-height: 1.25;
+  --text-body: 16px;
+  --text-body--line-height: 1.5;
+  --text-small: 14px;
+  --text-small--line-height: 1.45;
+
   --radius-card: 20px;
+  --radius-input: 12px;
+  --radius-chip: 999px;
+
+  --shadow-soft: var(--elev-soft);
+  --shadow-lift: var(--elev-lift);
+  --shadow-glow: var(--glow);
+
+  --ease-brand: var(--ease-curve);
 }
 
 html,
@@ -38,7 +82,19 @@ body {
 }
 
 :lang(bn) {
+  font-family: var(--font-bangla);
   line-height: 1.6;
+}
+
+:lang(bn) body,
+body:lang(bn) {
+  font-size: 17px;
+}
+
+/* Numbers: JetBrains Mono, tabular, in every language. */
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 :focus-visible {
@@ -46,11 +102,22 @@ body {
   outline-offset: 2px;
 }
 
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  box-shadow: var(--elev-soft);
+}
+
+[data-low-end="true"] .glass {
+  backdrop-filter: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }

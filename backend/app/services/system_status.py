@@ -73,5 +73,6 @@ def build_status(settings: Settings, engine: Engine) -> SystemStatus:
         artifacts_ok=model_version is not None,
         model_version=model_version,
         llm_mode=resolve_mode(settings),
+        demo_mode=settings.demo_mode,
         generated_at=datetime.now(UTC),
     )

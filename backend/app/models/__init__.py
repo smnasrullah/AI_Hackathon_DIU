@@ -1,6 +1,7 @@
 from app.models.actions import AuditLog, Recommendation, RecommendationRequest, SwapSuggestion
 from app.models.base import Base
 from app.models.llm import CopilotMessage, KnowledgeDoc, LlmCache, LlmCallLog
+from app.models.notifications import Notification
 from app.models.org import Agent, Distributor, LoginFailure, RefreshToken, User
 from app.models.predictions import (
     Anomaly,
@@ -31,6 +32,7 @@ __all__ = [
     "LlmCallLog",
     "LoginFailure",
     "ModelVersion",
+    "Notification",
     "Recommendation",
     "RecommendationRequest",
     "RefreshToken",

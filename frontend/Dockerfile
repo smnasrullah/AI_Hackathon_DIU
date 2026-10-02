@@ -8,6 +8,8 @@ FROM deps AS dev
 COPY . .
 
 FROM dev AS build
+ARG VITE_DEV_KIT=false
+ENV VITE_DEV_KIT=$VITE_DEV_KIT
 RUN npm run build
 
 FROM nginx:1.27-alpine AS runtime

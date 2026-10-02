@@ -10,6 +10,7 @@ export interface PageDef {
 export const agentPages: PageDef[] = [
   { path: "", title: "Home", summary: "Cash and e-money runway, countdown, reasons and the next action.", features: "F1–F4, F7" },
   { path: "forecast", title: "72h forecast", summary: "Runway strip with event ribbons and the what-if slider.", features: "F1, F2, F6, F8" },
+  { path: "stockout", title: "Stockout time", summary: "When each float could run out, with confidence and 6/24/72h risk.", features: "F2, F3" },
   { path: "swap", title: "Swap offers", summary: "Nearby agent swap offers and recommendation status. Your distributor approves.", features: "F4, F5" },
   { path: "copilot", title: "Ask", summary: "Bangla/English chat and voice, grounded in your own data.", features: "LLM" },
   { path: "settings", title: "Settings", summary: "Language, digits and theme.", features: "—" },

@@ -1,0 +1,613 @@
+{
+  "common": {
+    "loading": "Loading",
+    "retry": "Try again",
+    "retrying": "Trying again",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "close": "Close",
+    "dismiss": "Dismiss",
+    "advisory": "Advisory only — a human approves",
+    "synthetic": "Synthetic data only"
+  },
+  "risk": {
+    "label": "Risk",
+    "green": "Safe",
+    "amber": "Watch",
+    "red": "Act now"
+  },
+  "float": {
+    "cash": "Cash",
+    "emoney": "e-money"
+  },
+  "gauge": {
+    "summary": "{{float}}: {{balance}} of {{capacity}} ({{percent}} full)",
+    "lowTide": "Low tide",
+    "highTide": "High tide",
+    "expand": "Show hourly forecast",
+    "collapse": "Hide hourly forecast",
+    "hourly": "Next {{count}} hours"
+  },
+  "runway": {
+    "title": "72-hour runway",
+    "now": "Now",
+    "before": "Before",
+    "hourTick": "{{hour}}h",
+    "noStockout": "No stockout expected in the next 72 hours.",
+    "stockoutAt": "Stockout likely around {{time}}, {{confidence}} confidence.",
+    "summary": "Expected balance over the next 72 hours, with a low-to-high band. {{stockout}}",
+    "event": {
+      "salary": "Salary",
+      "eid": "Eid",
+      "hat": "Hat-bazar",
+      "rain": "Rain",
+      "holiday": "Holiday"
+    }
+  },
+  "countdown": {
+    "lead": "{{float}} runs dry in",
+    "tail": "",
+    "safe": "{{float}} looks fine for the next 72 hours",
+    "confidence": "Confidence"
+  },
+  "confidence": {
+    "label": "Confidence {{value}}"
+  },
+  "why": {
+    "title": "Why?",
+    "model": "Model prediction",
+    "llm": "AI-generated wording",
+    "replay": "AI-generated wording (recorded)",
+    "template": "Template wording",
+    "up": "Pushes demand up",
+    "down": "Pulls demand down",
+    "share": "{{share}} of the change",
+    "float": "Explain which float",
+    "writing": "Writing it in plain words…",
+    "empty": {
+      "title": "A usual day",
+      "body": "No single factor is moving demand much right now.",
+      "action": "See the forecast"
+    }
+  },
+  "hold": {
+    "label": "Hold to approve",
+    "hint": "Press and hold for 1 second to approve.",
+    "early": "Keep holding until the ring fills.",
+    "done": "Approved"
+  },
+  "toast": {
+    "region": "Notifications"
+  },
+  "state": {
+    "emptyTitle": "Nothing here yet",
+    "errorTitle": "This did not load",
+    "errorBody": "Check your connection, then try again."
+  },
+  "table": {
+    "sortBy": "Sort by {{column}}"
+  },
+  "dialog": {
+    "note": "Note",
+    "notePlaceholder": "Why are you making this decision?",
+    "noteHint": "At least {{count}} characters. Saved to the audit log."
+  },
+  "theme": {
+    "toDark": "Switch to dark theme",
+    "toLight": "Switch to light theme"
+  },
+  "stat": {
+    "up": "up {{value}}",
+    "down": "down {{value}}"
+  },
+  "app": {
+    "name": "AgentPulse AI",
+    "titleSuffix": "AgentPulse AI"
+  },
+  "page": {
+    "agentHome": "Home",
+    "agentForecast": "72h forecast",
+    "agentSwap": "Swap offers",
+    "agentCopilot": "Ask",
+    "controlRoom": "Control room",
+    "agentDetail": "Agent detail",
+    "swapQueue": "Swap queue",
+    "anomalies": "Anomalies",
+    "investigation": "Investigation",
+    "impact": "Impact",
+    "briefing": "Daily briefing",
+    "systemStatus": "System status",
+    "users": "Users",
+    "models": "Models",
+    "llmLog": "LLM log",
+    "auditLog": "Audit log",
+    "settings": "Settings",
+    "profile": "Profile",
+    "help": "Help",
+    "about": "About",
+    "notifications": "Notifications",
+    "responsibleAi": "Responsible AI",
+    "forbidden": "No access",
+    "notFound": "Page not found",
+    "serverError": "Something went wrong",
+    "login": "Sign in",
+    "agentStockout": "Stockout time"
+  },
+  "nav": {
+    "home": "Home",
+    "forecast": "Forecast",
+    "swap": "Swap",
+    "ask": "Ask"
+  },
+  "role": {
+    "agent": "Agent",
+    "distributor": "Distributor",
+    "admin": "Admin"
+  },
+  "lang": {
+    "bn": "বাংলা",
+    "en": "English",
+    "toBn": "Switch language to Bangla",
+    "toEn": "Switch language to English"
+  },
+  "digits": {
+    "bn": "১২৩",
+    "en": "123"
+  },
+  "shell": {
+    "skip": "Skip to content",
+    "home": "AgentPulse home",
+    "breadcrumbs": "Breadcrumb",
+    "mainNav": "Main navigation",
+    "search": "Search",
+    "searchHint": "Search pages and agents",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar",
+    "account": "Account menu",
+    "logout": "Log out",
+    "loggingOut": "Logging out…",
+    "offline": "You are offline. Showing the last data that loaded.",
+    "backOnline": "Back online. Refreshing data.",
+    "routeLoading": "Loading page"
+  },
+  "footer": {
+    "privacy": "No real personal data",
+    "methodology": "Methodology"
+  },
+  "freshness": {
+    "label": "Updated {{ago}} · model {{model}}",
+    "noForecast": "No forecast yet · model {{model}}",
+    "unknown": "not trained",
+    "error": "Freshness unavailable",
+    "title": "Data freshness"
+  },
+  "palette": {
+    "title": "Command palette",
+    "placeholder": "Jump to a page or agent…",
+    "pages": "Pages",
+    "agents": "Agents",
+    "actions": "Actions",
+    "results": "Results",
+    "empty": "No match. Try an agent code such as AGT-0001.",
+    "searching": "Searching",
+    "error": "Search is unavailable right now. Pages and actions still work.",
+    "hint": "Enter to open · Esc to close",
+    "action": {
+      "theme": "Toggle light or dark theme",
+      "language": "Switch language",
+      "shortcuts": "Show keyboard shortcuts",
+      "tour": "Replay the guided tour",
+      "logout": "Log out"
+    }
+  },
+  "search": {
+    "page": {
+      "settings": "Settings",
+      "profile": "Profile",
+      "notifications": "Notifications",
+      "help": "Help",
+      "about": "About and methodology",
+      "responsible_ai": "Responsible AI",
+      "agent_home": "Home",
+      "agent_forecast": "72h forecast",
+      "agent_swap": "Swap offers",
+      "agent_copilot": "Ask",
+      "distributor_home": "Control room",
+      "distributor_swaps": "Swap queue",
+      "distributor_anomalies": "Anomalies",
+      "distributor_impact": "Impact",
+      "distributor_briefing": "Daily briefing",
+      "admin_home": "System status",
+      "admin_users": "Users",
+      "admin_models": "Models",
+      "admin_llm": "LLM log",
+      "admin_audit": "Audit log"
+    }
+  },
+  "inbox": {
+    "title": "Notifications",
+    "open": "Notifications, {{count}} unread",
+    "markRead": "Mark as read",
+    "markAll": "Mark all read",
+    "viewAll": "View all notifications",
+    "emptyTitle": "All caught up",
+    "emptyBody": "Risk changes, swap offers and anomaly flags appear here.",
+    "emptyAction": "Go to home",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "unread": "Unread",
+    "markedAll": "All notifications marked as read",
+    "failed": "Could not update notifications. Try again.",
+    "mutedTitle": "In-app notifications are off",
+    "mutedBody": "Turn them on in Settings to get risk changes and swap offers here.",
+    "mutedAction": "Open settings",
+    "severity": {
+      "info": "Info",
+      "warning": "Warning",
+      "critical": "Critical"
+    },
+    "filter": {
+      "status": "Show",
+      "all": "All",
+      "unread": "Unread",
+      "read": "Read",
+      "severity": "Severity",
+      "anySeverity": "Any"
+    },
+    "pageOf": "Page {{page}} of {{pages}}",
+    "prev": "Previous page",
+    "next": "Next page"
+  },
+  "notifications": {
+    "risk_change": "{{agent_code}}: risk moved from {{from}} to {{to}} for the next {{horizon_h}}h",
+    "red_count_change": "Act-now agents in your area: {{previous}} → {{current}} (next {{horizon_h}}h)",
+    "swap_offer": {
+      "donor": "Swap offer: send {{amount_bdt}} {{float_type}} to {{counterpart_code}} ({{distance_km}} km)",
+      "receiver": "Swap offer: receive {{amount_bdt}} {{float_type}} from {{counterpart_code}} ({{distance_km}} km)"
+    },
+    "swaps_pending": "New swaps waiting for your approval: {{count}}",
+    "swap_decision": "Your {{amount_bdt}} {{float_type}} swap with {{counterpart_code}} was {{status}}",
+    "anomalies_new": "New anomaly flags to review: {{count}}",
+    "fallback": "New update"
+  },
+  "swapStatus": {
+    "pending": "pending",
+    "approved": "approved",
+    "rejected": "rejected"
+  },
+  "profile": {
+    "eyebrow": "Account",
+    "displayName": "Display name",
+    "displayNameHint": "Shown in the top bar. No phone numbers or e-mail addresses.",
+    "displayNameInvalid": "Use 1 to 40 characters, without @ or long digit runs.",
+    "save": "Save",
+    "saved": "Profile saved",
+    "saveFailed": "Could not save. Check the name and try again.",
+    "role": "Role",
+    "agent": "Linked agent",
+    "distributor": "Linked distributor",
+    "none": "None",
+    "lastLogin": "Last sign-in",
+    "never": "This is the first sign-in",
+    "memberSince": "Account created",
+    "login": "Demo login",
+    "avatar": "Avatar colour",
+    "privacy": "Demo account. No real personal data is stored.",
+    "color": {
+      "teal": "Teal",
+      "indigo": "Indigo",
+      "amber": "Amber",
+      "rose": "Rose",
+      "emerald": "Emerald",
+      "sky": "Sky",
+      "violet": "Violet",
+      "slate": "Slate"
+    }
+  },
+  "settings": {
+    "eyebrow": "Preferences",
+    "display": "Display",
+    "language": "Language",
+    "digits": "Digits",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "preview": "Live preview",
+    "previewLead": "Cash may run out around {{time}}",
+    "previewBalance": "Balance {{amount}}",
+    "alerts": "Notifications",
+    "notifyInApp": "In-app notifications",
+    "notifyInAppHint": "Risk changes, swap offers and anomaly flags in the bell.",
+    "tour": "Onboarding tour",
+    "tourHint": "Walk through the main parts of the screen again.",
+    "tourReplay": "Replay tour",
+    "security": "Security",
+    "saved": "Preference saved",
+    "saveFailed": "Could not save your preference. It was undone."
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "palette": "Open the command palette",
+    "help": "Show keyboard shortcuts",
+    "home": "Go to home",
+    "notifications": "Go to notifications",
+    "settings": "Go to settings",
+    "sidebar": "Collapse or expand the sidebar",
+    "close": "Close a dialog or menu",
+    "then": "then"
+  },
+  "help": {
+    "eyebrow": "Support",
+    "faqTitle": "Questions people ask",
+    "faq": {
+      "q1": "Does AgentPulse move money?",
+      "a1": "No. It only advises. Every swap and rebalance needs a person to approve it, and that decision is written to the audit log.",
+      "q2": "Where do the numbers come from?",
+      "a2": "From forecasting models trained on synthetic transactions. The AI writes wording only; it never computes or changes a number.",
+      "q3": "How sure is a prediction?",
+      "a3": "Each forecast shows a low-to-high band and a confidence value. A wide band means less certainty, so check before acting.",
+      "q4": "What do Safe, Watch and Act now mean?",
+      "a4": "They are risk levels for running out of cash or e-money within the next 6, 24 or 72 hours. They always come with an icon and a word, not colour alone.",
+      "q5": "Why do I see Bangla digits?",
+      "a5": "Digits follow your preference. Change them under Settings, Digits.",
+      "q6": "Is any of this real customer data?",
+      "a6": "No. Every agent, balance and transaction is synthetic, generated for this demo."
+    },
+    "readTitle": "How to read the screens",
+    "read": {
+      "gaugeTitle": "Vessel gauge",
+      "gaugeBody": "The liquid level is today's balance against capacity. The low and high tide marks show the safe range. Cash has stripes, e-money has dots.",
+      "runwayTitle": "72-hour runway",
+      "runwayBody": "The line is the expected balance, the band is the low-to-high range. The flag marks the likely stockout time; event ribbons show salary days, Eid, hat-bazar and rain.",
+      "countdownTitle": "Countdown",
+      "countdownBody": "Time until the float likely runs dry, with a confidence ring. The card border follows the risk level.",
+      "whyTitle": "Why?",
+      "whyBody": "Reasons behind the prediction, strongest first. The model chip marks numbers; the AI-generated chip marks wording only."
+    },
+    "tourTitle": "Guided tour",
+    "tourBody": "A short walk through search, notifications, navigation and your account menu.",
+    "tourButton": "Replay the tour",
+    "contactTitle": "Contact",
+    "contactBody": "In a live rollout this connects to your distributor's help desk. This demo shows no real contact details.",
+    "methodLink": "How the forecast works"
+  },
+  "about": {
+    "eyebrow": "Methodology",
+    "lead": "AgentPulse AI predicts when an MFS agent's cash or e-money will run out, explains why, and suggests a fix that a person approves.",
+    "syntheticTitle": "The data is synthetic",
+    "syntheticBody": "Agents, balances and transactions are generated with a fixed seed. They follow realistic patterns such as salary days, Eid, hat-bazar days and rain, but no real person or account is involved.",
+    "forecastTitle": "How the forecast works",
+    "step1": "Hourly cash-in and cash-out are forecast for the next 72 hours with quantile gradient boosting (low, expected, high).",
+    "step2": "Balances are rolled forward from the current float to find the likely stockout time and its confidence.",
+    "step3": "Risk at 6, 24 and 72 hours comes from fixed business rules over those numbers.",
+    "step4": "SHAP values explain each prediction; an AI model may polish the wording, but numbers always come from the backend and are checked.",
+    "gateNote": "The last 14 days are held out from training. A model ships only if it beats the same-hour-last-week baseline on them.",
+    "modelCardTitle": "Model card summary",
+    "models": "Models",
+    "version": "Version",
+    "trained": "Trained",
+    "intended": "Intended use",
+    "outOfScope": "Out of scope",
+    "limitsTitle": "Limits",
+    "limitsStatic": "Forecasts are less certain for new agents, rare events and days unlike the training data. Always check the band before acting.",
+    "raiTitle": "Responsible AI",
+    "raiBody": "The system is advisory only. A person approves anything that moves money, every decision is logged with a note, and fairness is checked across urban and rural groups.",
+    "raiLink": "Open the Responsible AI panel",
+    "versionTitle": "Version info",
+    "appVersion": "App",
+    "dataVersion": "Data version",
+    "modelVersion": "Model version",
+    "llmMode": "Language layer",
+    "seed": "Seed",
+    "dataWindow": "Data window",
+    "holdout": "Held out from"
+  },
+  "llmMode": {
+    "anthropic": "Claude (Anthropic)",
+    "openai_compatible": "OpenAI-compatible",
+    "replay": "Recorded replay",
+    "template": "Templates only"
+  },
+  "status": {
+    "forbiddenTitle": "This page is not for your role",
+    "forbiddenBody": "You are signed in as {{role}}. Each role sees only its own agents and tools.",
+    "forbiddenSignedOut": "Sign in to continue.",
+    "notFoundTitle": "This runway ends here",
+    "notFoundBody": "The page you asked for does not exist or has moved.",
+    "errorTitle": "Something broke on this page",
+    "errorBody": "The rest of the app still works. Try again, or go back home.",
+    "goHome": "Go to my home",
+    "signIn": "Sign in",
+    "retry": "Try again",
+    "back": "Go back"
+  },
+  "tour": {
+    "label": "Guided tour",
+    "step": "Step {{n}} of {{total}}",
+    "next": "Next",
+    "back": "Back",
+    "skip": "Skip tour",
+    "done": "Finish",
+    "brandTitle": "Your liquidity pulse",
+    "brandBody": "The line beats calm when floats are safe and faster as risk rises.",
+    "searchTitle": "Find anything",
+    "searchBody": "Search pages and agents, or press Ctrl+K from anywhere.",
+    "bellTitle": "Notifications",
+    "bellBody": "Risk changes, swap offers and anomaly flags land here.",
+    "navTitle": "Move around",
+    "navBody": "Your main pages live here.",
+    "accountTitle": "Your account",
+    "accountBody": "Profile, settings, help and log out. Press ? for shortcuts."
+  },
+  "landing": {
+    "eyebrow": "Liquidity runway for MFS agents",
+    "headline": "Cash may run out around {{clock}}",
+    "headlineDry": "Cash ran out at {{clock}}",
+    "leftLine": "{{duration}} of cash left · {{confidence}} confidence",
+    "dryLine": "A swap before {{clock}} would have kept this counter open.",
+    "lede": "AgentPulse forecasts every agent's cash and e-money hour by hour, explains why, and suggests a swap with a nearby agent before the counter runs dry.",
+    "scrubHint": "Move across the runway to change the time of day",
+    "scrubLabel": "Time of day",
+    "scrubValue": "{{clock}}: cash {{balance}}, {{risk}}",
+    "now": "Now {{clock}}",
+    "stockout": "Dry {{clock}} · {{confidence}}",
+    "salary": "Salary day",
+    "demoTag": "Demo agent · synthetic numbers",
+    "ctaPrimary": "Sign in",
+    "ctaSecondary": "See how it works",
+    "story": {
+      "title": "From a warning to a fix in three steps",
+      "predictKicker": "1 · Predict",
+      "predictTitle": "See the runway, not just the balance",
+      "predictBody": "Quantile forecasts for cash and e-money over 72 hours, with time to stockout and an honest confidence.",
+      "explainKicker": "2 · Explain",
+      "explainTitle": "Know why",
+      "explainBody": "Every prediction comes with its reasons — salary day, hat-bazar, weather — in plain Bangla or English.",
+      "swapKicker": "3 · Swap",
+      "swapTitle": "Fix it with a neighbour",
+      "swapBody": "An agent short on cash is matched with a nearby agent who has too much. The distributor approves every swap.",
+      "swapFrom": "Mirpur-10 agent",
+      "swapTo": "Mirpur-2 agent",
+      "swapDistance": "{{km}} km apart",
+      "swapPending": "Waiting for distributor approval",
+      "swapSummary": "Swap of {{amount}} cash from the Mirpur-2 agent to the Mirpur-10 agent, waiting for distributor approval."
+    },
+    "reasons": {
+      "salary": "Salary day: cash-out is running {{pct}} above a normal Thursday",
+      "hat": "Hat-bazar tomorrow morning: farmers cash out early",
+      "refill": "No cash refill since Tuesday"
+    },
+    "roles": {
+      "title": "Try it as",
+      "demoNote": "Demo accounts with synthetic data. One click, no password.",
+      "loginNote": "Sign in with a demo account to look around.",
+      "agentBody": "Your countdown, reasons and swap offers on a phone-sized screen.",
+      "distributorBody": "Control room map, swap approvals and anomaly reviews.",
+      "adminBody": "System status, models and the LLM call log.",
+      "try": "Try as {{role}}",
+      "signIn": "Sign in as {{role}}",
+      "error": "Demo sign-in failed. Try again, or sign in with a password."
+    },
+    "rai": {
+      "title": "Responsible by design",
+      "advisoryTitle": "Advisory only",
+      "advisoryBody": "A human approves anything that moves money.",
+      "syntheticTitle": "Synthetic data only",
+      "syntheticBody": "No real agents, customers or transactions.",
+      "numbersTitle": "Numbers are checked",
+      "numbersBody": "AI writes the words; every number comes from the model and is verified.",
+      "explainedTitle": "Explained, and benchmarked",
+      "explainedBody": "Reasons for every prediction, and a simple baseline the model must beat."
+    }
+  },
+  "login": {
+    "eyebrow": "Liquidity runway",
+    "title": "Sign in",
+    "subtitle": "Welcome back. Your runway is waiting.",
+    "email": "Email",
+    "password": "Password",
+    "show": "Show password",
+    "hide": "Hide password",
+    "capsLock": "Caps Lock is on",
+    "submit": "Sign in",
+    "submitting": "Signing in…",
+    "demoTitle": "Demo accounts",
+    "demoHint": "One click signs you in with synthetic data.",
+    "passwordHint": "Demo passwords are in .env (DEMO_*_PASSWORD; defaults in .env.example).",
+    "panelTitle": "Know when the cash runs dry — before it does.",
+    "panelBody": "Forecasts, reasons and swaps for every agent counter.",
+    "back": "Back to home",
+    "err": {
+      "emailRequired": "Enter your email",
+      "emailInvalid": "Enter a valid email",
+      "passwordRequired": "Enter your password",
+      "invalid": "Email or password is incorrect.",
+      "locked": "Too many failed attempts. Try again in {{time}}.",
+      "network": "Can't reach the server right now. Try again.",
+      "demo": "Demo sign-in is not available. Sign in with a password."
+    },
+    "notice": {
+      "session_expired": "Your session expired. Sign in again to continue.",
+      "idle_logout": "You were signed out after a period of inactivity."
+    }
+  },
+  "agent": {
+    "floats": "Your floats",
+    "stockoutLink": "When exactly?",
+    "noAgent": {
+      "title": "No agent linked to this account",
+      "body": "Ask your distributor to link your agent profile.",
+      "action": "Open help"
+    },
+    "noData": {
+      "title": "No prediction yet",
+      "body": "Predictions appear after the next model run.",
+      "action": "Check again"
+    }
+  },
+  "action": {
+    "title": "What to do next",
+    "add": "Add {{amount}} to {{float}}",
+    "by": "by {{time}}",
+    "urgent": "Needed now",
+    "channel": {
+      "swap": "Swap with a nearby agent",
+      "top_up": "e-money top-up from your distributor",
+      "van": "Distributor van run",
+      "self_fetch": "Collect it yourself from the distributor",
+      "urgent_manual": "Call your distributor now"
+    },
+    "ask": "Ask my distributor",
+    "requested": "Request sent. Your distributor decides.",
+    "done": "Done",
+    "expired": "This suggestion expired",
+    "seeSwaps": "See swap offers",
+    "sent": "Request sent to your distributor",
+    "failed": "Could not send the request. Try again.",
+    "clear": {
+      "title": "Nothing to do right now",
+      "body": "Both floats cover the next 72 hours.",
+      "action": "See the forecast"
+    }
+  },
+  "forecast": {
+    "asOf": "Forecast from {{time}} · model {{model}}",
+    "floatLabel": "Float",
+    "readout": "{{time}} · expected {{expected}}",
+    "range": "Likely {{low}} – {{high}}",
+    "scrubHint": "Drag, or use the arrow keys, to read any hour",
+    "chartLabel": "Projected {{float}} balance, next 72 hours",
+    "hourly": "Hour by hour",
+    "hour": "Hour",
+    "demand": {
+      "cash": "Cash-out demand",
+      "emoney": "Cash-in demand"
+    },
+    "balanceAfter": "Balance after",
+    "showAll": "Show all 72 hours",
+    "showLess": "Show the first 24 hours",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "stockoutRow": "May run out this hour",
+    "empty": {
+      "title": "No forecast yet",
+      "body": "The hourly forecast appears after the next model run.",
+      "action": "Check again"
+    }
+  },
+  "stockout": {
+    "title": "When could it run out?",
+    "lead": "Counted from {{time}}",
+    "around": "Around {{time}}",
+    "in": "in {{duration}}",
+    "none": "Not expected in the next 72 hours",
+    "noneConfidence": "{{value}} sure it lasts",
+    "confidence": "{{value}} confidence",
+    "balance": "{{balance}} of {{capacity}}",
+    "horizons": "Risk by time window",
+    "horizon": "Next {{hours}} hours",
+    "probability": "{{value}} chance of running out",
+    "seeForecast": "See the {{float}} forecast"
+  }
+}

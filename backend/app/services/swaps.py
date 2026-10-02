@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session, aliased
 from app.models import Agent, AuditLog, ModelVersion, SwapSuggestion, SystemMeta, User
 from app.models.enums import SwapResponse, SwapStatus, UserRole
 from app.schemas.swap import SwapItem, SwapPage, SwapParty
-from app.services import rebalance
+from app.services import notify, rebalance
 from app.services.forecast import _utc
 
 Donor, Receiver = aliased(Agent), aliased(Agent)
@@ -80,6 +80,14 @@ def swap_page(session: Session, user: User, status: SwapStatus | None, page: int
                     page_size=page_size, van_trips_avoided=vans)
 
 
+def all_items(session: Session, user: User, status: SwapStatus | None) -> list[SwapItem]:
+    """Every swap in scope, queue order (CSV export)."""
+    query = _scoped(user)
+    if status is not None:
+        query = query.where(SwapSuggestion.status == status)
+    return [_item(*r) for r in session.execute(query.order_by(*_ORDER)).tuples()]
+
+
 def _load(session: Session, user: User, swap_id: int
           ) -> tuple[SwapSuggestion, Agent, Agent, str | None]:
     """Unknown and out-of-scope ids both raise forbidden, so ids cannot be probed."""
@@ -113,6 +121,7 @@ def decide(session: Session, user: User, swap_id: int, decision: Literal["approv
     s.decided_by, s.decided_at, s.note = user.id, datetime.now(UTC), note
     _audit(session, user, f"swap.{decision}", s, note, status=s.status.value)
     session.flush()
+    notify.swap_decided(session, s)
     return _item(s, donor, receiver, version)
 
 

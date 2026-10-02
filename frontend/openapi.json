@@ -1,0 +1,7805 @@
+{
+ "components": {
+  "schemas": {
+   "AgentExplanation": {
+    "properties": {
+     "agent_id": {
+      "title": "Agent Id",
+      "type": "integer"
+     },
+     "as_of": {
+      "format": "date-time",
+      "title": "As Of",
+      "type": "string"
+     },
+     "demand_type": {
+      "$ref": "#/components/schemas/TxnType"
+     },
+     "evidence": {
+      "additionalProperties": true,
+      "title": "Evidence",
+      "type": "object"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "generated_by": {
+      "$ref": "#/components/schemas/GeneratedBy",
+      "default": "template"
+     },
+     "lang": {
+      "$ref": "#/components/schemas/Lang"
+     },
+     "model_version": {
+      "title": "Model Version",
+      "type": "string"
+     },
+     "reasons": {
+      "items": {
+       "$ref": "#/components/schemas/Reason"
+      },
+      "title": "Reasons",
+      "type": "array"
+     },
+     "target": {
+      "$ref": "#/components/schemas/FloatType"
+     },
+     "unit": {
+      "const": "BDT",
+      "default": "BDT",
+      "title": "Unit",
+      "type": "string"
+     },
+     "usual_bdt": {
+      "title": "Usual Bdt",
+      "type": "number"
+     },
+     "window_hours": {
+      "title": "Window Hours",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "agent_id",
+     "target",
+     "demand_type",
+     "lang",
+     "as_of",
+     "window_hours",
+     "usual_bdt",
+     "model_version",
+     "generated_at",
+     "reasons",
+     "evidence"
+    ],
+    "title": "AgentExplanation",
+    "type": "object"
+   },
+   "AgentForecast": {
+    "properties": {
+     "agent_id": {
+      "title": "Agent Id",
+      "type": "integer"
+     },
+     "as_of": {
+      "format": "date-time",
+      "title": "As Of",
+      "type": "string"
+     },
+     "floats": {
+      "items": {
+       "$ref": "#/components/schemas/FloatForecast"
+      },
+      "title": "Floats",
+      "type": "array"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "horizon_hours": {
+      "title": "Horizon Hours",
+      "type": "integer"
+     },
+     "model_version": {
+      "title": "Model Version",
+      "type": "string"
+     },
+     "unit": {
+      "const": "BDT",
+      "default": "BDT",
+      "title": "Unit",
+      "type": "string"
+     }
+    },
+    "required": [
+     "agent_id",
+     "as_of",
+     "horizon_hours",
+     "model_version",
+     "generated_at",
+     "floats"
+    ],
+    "title": "AgentForecast",
+    "type": "object"
+   },
+   "AgentHorizonLevel": {
+    "properties": {
+     "horizon_h": {
+      "title": "Horizon H",
+      "type": "integer"
+     },
+     "level": {
+      "$ref": "#/components/schemas/RiskLevelCode"
+     },
+     "probability": {
+      "title": "Probability",
+      "type": "number"
+     }
+    },
+    "required": [
+     "horizon_h",
+     "level",
+     "probability"
+    ],
+    "title": "AgentHorizonLevel",
+    "type": "object"
+   },
+   "AgentProfile": {
+    "properties": {
+     "cash_capacity": {
+      "title": "Cash Capacity",
+      "type": "number"
+     },
+     "code": {
+      "title": "Code",
+      "type": "string"
+     },
+     "distributor_id": {
+      "title": "Distributor Id",
+      "type": "integer"
+     },
+     "district": {
+      "title": "District",
+      "type": "string"
+     },
+     "emoney_capacity": {
+      "title": "Emoney Capacity",
+      "type": "number"
+     },
+     "id": {
+      "title": "Id",
+      "type": "integer"
+     },
+     "is_active": {
+      "title": "Is Active",
+      "type": "boolean"
+     },
+     "lat": {
+      "title": "Lat",
+      "type": "number"
+     },
+     "lng": {
+      "title": "Lng",
+      "type": "number"
+     },
+     "name": {
+      "title": "Name",
+      "type": "string"
+     },
+     "opened_on": {
+      "anyOf": [
+       {
+        "format": "date",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Opened On"
+     },
+     "region": {
+      "title": "Region",
+      "type": "string"
+     },
+     "tier": {
+      "title": "Tier",
+      "type": "integer"
+     },
+     "upazila": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Upazila"
+     },
+     "urban_rural": {
+      "$ref": "#/components/schemas/UrbanRural"
+     }
+    },
+    "required": [
+     "id",
+     "code",
+     "name",
+     "distributor_id",
+     "region",
+     "district",
+     "upazila",
+     "urban_rural",
+     "tier",
+     "lat",
+     "lng",
+     "cash_capacity",
+     "emoney_capacity",
+     "opened_on",
+     "is_active"
+    ],
+    "title": "AgentProfile",
+    "type": "object"
+   },
+   "AgentRecommendation": {
+    "properties": {
+     "advisory": {
+      "const": true,
+      "default": true,
+      "title": "Advisory",
+      "type": "boolean"
+     },
+     "agent_id": {
+      "title": "Agent Id",
+      "type": "integer"
+     },
+     "as_of": {
+      "format": "date-time",
+      "title": "As Of",
+      "type": "string"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/RecommendationItem"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "model_version": {
+      "title": "Model Version",
+      "type": "string"
+     },
+     "unit": {
+      "const": "BDT",
+      "default": "BDT",
+      "title": "Unit",
+      "type": "string"
+     }
+    },
+    "required": [
+     "agent_id",
+     "as_of",
+     "model_version",
+     "generated_at",
+     "items"
+    ],
+    "title": "AgentRecommendation",
+    "type": "object"
+   },
+   "AgentRisk": {
+    "properties": {
+     "agent_id": {
+      "title": "Agent Id",
+      "type": "integer"
+     },
+     "as_of": {
+      "format": "date-time",
+      "title": "As Of",
+      "type": "string"
+     },
+     "by_horizon": {
+      "items": {
+       "$ref": "#/components/schemas/AgentHorizonLevel"
+      },
+      "title": "By Horizon",
+      "type": "array"
+     },
+     "floats": {
+      "items": {
+       "$ref": "#/components/schemas/FloatRisk"
+      },
+      "title": "Floats",
+      "type": "array"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "level": {
+      "$ref": "#/components/schemas/RiskLevelCode"
+     },
+     "model_version": {
+      "title": "Model Version",
+      "type": "string"
+     }
+    },
+    "required": [
+     "agent_id",
+     "as_of",
+     "model_version",
+     "generated_at",
+     "level",
+     "by_horizon",
+     "floats"
+    ],
+    "title": "AgentRisk",
+    "type": "object"
+   },
+   "AgentRiskPage": {
+    "properties": {
+     "as_of": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "As Of"
+     },
+     "generated_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Generated At"
+     },
+     "horizon_h": {
+      "title": "Horizon H",
+      "type": "integer"
+     },
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/AgentRiskRow"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "model_version": {
+      "title": "Model Version",
+      "type": "string"
+     },
+     "page": {
+      "title": "Page",
+      "type": "integer"
+     },
+     "page_size": {
+      "title": "Page Size",
+      "type": "integer"
+     },
+     "total": {
+      "title": "Total",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "items",
+     "total",
+     "page",
+     "page_size",
+     "horizon_h",
+     "as_of",
+     "model_version",
+     "generated_at"
+    ],
+    "title": "AgentRiskPage",
+    "type": "object"
+   },
+   "AgentRiskRow": {
+    "properties": {
+     "agent_id": {
+      "title": "Agent Id",
+      "type": "integer"
+     },
+     "code": {
+      "title": "Code",
+      "type": "string"
+     },
+     "district": {
+      "title": "District",
+      "type": "string"
+     },
+     "hours_to_stockout": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hours To Stockout"
+     },
+     "lat": {
+      "title": "Lat",
+      "type": "number"
+     },
+     "level": {
+      "$ref": "#/components/schemas/RiskLevelCode"
+     },
+     "lng": {
+      "title": "Lng",
+      "type": "number"
+     },
+     "name": {
+      "title": "Name",
+      "type": "string"
+     },
+     "probability": {
+      "title": "Probability",
+      "type": "number"
+     },
+     "stockout_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Stockout At"
+     },
+     "tier": {
+      "title": "Tier",
+      "type": "integer"
+     },
+     "upazila": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Upazila"
+     },
+     "urban_rural": {
+      "$ref": "#/components/schemas/UrbanRural"
+     },
+     "worst_float": {
+      "$ref": "#/components/schemas/FloatType"
+     }
+    },
+    "required": [
+     "agent_id",
+     "code",
+     "name",
+     "district",
+     "upazila",
+     "urban_rural",
+     "tier",
+     "lat",
+     "lng",
+     "level",
+     "probability",
+     "worst_float",
+     "stockout_at",
+     "hours_to_stockout"
+    ],
+    "title": "AgentRiskRow",
+    "type": "object"
+   },
+   "AgentStockout": {
+    "properties": {
+     "agent_id": {
+      "title": "Agent Id",
+      "type": "integer"
+     },
+     "as_of": {
+      "format": "date-time",
+      "title": "As Of",
+      "type": "string"
+     },
+     "floats": {
+      "items": {
+       "$ref": "#/components/schemas/FloatStockout"
+      },
+      "title": "Floats",
+      "type": "array"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "model_version": {
+      "title": "Model Version",
+      "type": "string"
+     },
+     "unit": {
+      "const": "BDT",
+      "default": "BDT",
+      "title": "Unit",
+      "type": "string"
+     }
+    },
+    "required": [
+     "agent_id",
+     "as_of",
+     "model_version",
+     "generated_at",
+     "floats"
+    ],
+    "title": "AgentStockout",
+    "type": "object"
+   },
+   "AgentSummary": {
+    "properties": {
+     "agent": {
+      "$ref": "#/components/schemas/AgentProfile"
+     },
+     "agent_id": {
+      "title": "Agent Id",
+      "type": "integer"
+     },
+     "as_of": {
+      "format": "date-time",
+      "title": "As Of",
+      "type": "string"
+     },
+     "by_horizon": {
+      "items": {
+       "$ref": "#/components/schemas/AgentHorizonLevel"
+      },
+      "title": "By Horizon",
+      "type": "array"
+     },
+     "floats": {
+      "items": {
+       "$ref": "#/components/schemas/FloatSummary"
+      },
+      "title": "Floats",
+      "type": "array"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "level": {
+      "$ref": "#/components/schemas/RiskLevelCode"
+     },
+     "model_version": {
+      "title": "Model Version",
+      "type": "string"
+     },
+     "unit": {
+      "const": "BDT",
+      "default": "BDT",
+      "title": "Unit",
+      "type": "string"
+     }
+    },
+    "required": [
+     "agent_id",
+     "as_of",
+     "model_version",
+     "generated_at",
+     "agent",
+     "level",
+     "by_horizon",
+     "floats"
+    ],
+    "title": "AgentSummary",
+    "type": "object"
+   },
+   "AnomalyAgent": {
+    "properties": {
+     "agent_id": {
+      "title": "Agent Id",
+      "type": "integer"
+     },
+     "code": {
+      "title": "Code",
+      "type": "string"
+     },
+     "district": {
+      "title": "District",
+      "type": "string"
+     },
+     "name": {
+      "title": "Name",
+      "type": "string"
+     },
+     "upazila": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Upazila"
+     }
+    },
+    "required": [
+     "agent_id",
+     "code",
+     "name",
+     "district",
+     "upazila"
+    ],
+    "title": "AnomalyAgent",
+    "type": "object"
+   },
+   "AnomalyContext": {
+    "properties": {
+     "baseline_cash_out_bdt": {
+      "title": "Baseline Cash Out Bdt",
+      "type": "number"
+     },
+     "cash_in_bdt": {
+      "title": "Cash In Bdt",
+      "type": "number"
+     },
+     "cash_out_bdt": {
+      "title": "Cash Out Bdt",
+      "type": "number"
+     },
+     "refills": {
+      "title": "Refills",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "cash_out_bdt",
+     "cash_in_bdt",
+     "baseline_cash_out_bdt",
+     "refills"
+    ],
+    "title": "AnomalyContext",
+    "type": "object"
+   },
+   "AnomalyDetail": {
+    "properties": {
+     "advisory": {
+      "const": true,
+      "default": true,
+      "title": "Advisory",
+      "type": "boolean"
+     },
+     "agent": {
+      "$ref": "#/components/schemas/AnomalyAgent"
+     },
+     "context": {
+      "$ref": "#/components/schemas/AnomalyContext"
+     },
+     "features": {
+      "items": {
+       "$ref": "#/components/schemas/PeerFeature"
+      },
+      "title": "Features",
+      "type": "array"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "history_h": {
+      "title": "History H",
+      "type": "integer"
+     },
+     "id": {
+      "title": "Id",
+      "type": "integer"
+     },
+     "model_version": {
+      "title": "Model Version",
+      "type": "string"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     },
+     "peer_count": {
+      "title": "Peer Count",
+      "type": "integer"
+     },
+     "peer_group": {
+      "title": "Peer Group",
+      "type": "string"
+     },
+     "peer_scores": {
+      "$ref": "#/components/schemas/PeerScores"
+     },
+     "reasons": {
+      "items": {
+       "$ref": "#/components/schemas/AnomalyReason"
+      },
+      "title": "Reasons",
+      "type": "array"
+     },
+     "reviewed_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reviewed At"
+     },
+     "reviewed_by": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reviewed By"
+     },
+     "score": {
+      "title": "Score",
+      "type": "number"
+     },
+     "status": {
+      "$ref": "#/components/schemas/AnomalyStatus"
+     },
+     "threshold": {
+      "title": "Threshold",
+      "type": "number"
+     },
+     "window_end": {
+      "format": "date-time",
+      "title": "Window End",
+      "type": "string"
+     },
+     "window_h": {
+      "title": "Window H",
+      "type": "integer"
+     },
+     "window_start": {
+      "format": "date-time",
+      "title": "Window Start",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "agent",
+     "window_start",
+     "window_end",
+     "score",
+     "threshold",
+     "peer_group",
+     "reasons",
+     "status",
+     "reviewed_at",
+     "note",
+     "model_version",
+     "generated_at",
+     "peer_count",
+     "window_h",
+     "history_h",
+     "features",
+     "peer_scores",
+     "context",
+     "reviewed_by"
+    ],
+    "title": "AnomalyDetail",
+    "type": "object"
+   },
+   "AnomalyItem": {
+    "properties": {
+     "agent": {
+      "$ref": "#/components/schemas/AnomalyAgent"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "id": {
+      "title": "Id",
+      "type": "integer"
+     },
+     "model_version": {
+      "title": "Model Version",
+      "type": "string"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     },
+     "peer_group": {
+      "title": "Peer Group",
+      "type": "string"
+     },
+     "reasons": {
+      "items": {
+       "$ref": "#/components/schemas/AnomalyReason"
+      },
+      "title": "Reasons",
+      "type": "array"
+     },
+     "reviewed_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reviewed At"
+     },
+     "score": {
+      "title": "Score",
+      "type": "number"
+     },
+     "status": {
+      "$ref": "#/components/schemas/AnomalyStatus"
+     },
+     "threshold": {
+      "title": "Threshold",
+      "type": "number"
+     },
+     "window_end": {
+      "format": "date-time",
+      "title": "Window End",
+      "type": "string"
+     },
+     "window_start": {
+      "format": "date-time",
+      "title": "Window Start",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "agent",
+     "window_start",
+     "window_end",
+     "score",
+     "threshold",
+     "peer_group",
+     "reasons",
+     "status",
+     "reviewed_at",
+     "note",
+     "model_version",
+     "generated_at"
+    ],
+    "title": "AnomalyItem",
+    "type": "object"
+   },
+   "AnomalyPage": {
+    "properties": {
+     "advisory": {
+      "const": true,
+      "default": true,
+      "title": "Advisory",
+      "type": "boolean"
+     },
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/AnomalyItem"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "page": {
+      "title": "Page",
+      "type": "integer"
+     },
+     "page_size": {
+      "title": "Page Size",
+      "type": "integer"
+     },
+     "total": {
+      "title": "Total",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "items",
+     "total",
+     "page",
+     "page_size"
+    ],
+    "title": "AnomalyPage",
+    "type": "object"
+   },
+   "AnomalyReason": {
+    "properties": {
+     "deviation": {
+      "title": "Deviation",
+      "type": "number"
+     },
+     "direction": {
+      "enum": [
+       "high",
+       "low"
+      ],
+      "title": "Direction",
+      "type": "string"
+     },
+     "feature": {
+      "enum": [
+       "cash_out_growth",
+       "hour_shift",
+       "refills_per_day",
+       "out_in_log_ratio"
+      ],
+      "title": "Feature",
+      "type": "string"
+     },
+     "peer_median": {
+      "title": "Peer Median",
+      "type": "number"
+     },
+     "value": {
+      "title": "Value",
+      "type": "number"
+     }
+    },
+    "required": [
+     "feature",
+     "value",
+     "peer_median",
+     "deviation",
+     "direction"
+    ],
+    "title": "AnomalyReason",
+    "type": "object"
+   },
+   "AnomalyReviewIn": {
+    "properties": {
+     "decision": {
+      "enum": [
+       "confirmed",
+       "dismissed"
+      ],
+      "title": "Decision",
+      "type": "string"
+     },
+     "note": {
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Note",
+      "type": "string"
+     }
+    },
+    "required": [
+     "decision",
+     "note"
+    ],
+    "title": "AnomalyReviewIn",
+    "type": "object"
+   },
+   "AnomalyStatus": {
+    "enum": [
+     "open",
+     "confirmed",
+     "dismissed"
+    ],
+    "title": "AnomalyStatus",
+    "type": "string"
+   },
+   "BalancePoint": {
+    "properties": {
+     "expected": {
+      "title": "Expected",
+      "type": "number"
+     },
+     "high": {
+      "title": "High",
+      "type": "number"
+     },
+     "hour": {
+      "title": "Hour",
+      "type": "integer"
+     },
+     "low": {
+      "title": "Low",
+      "type": "number"
+     },
+     "ts": {
+      "format": "date-time",
+      "title": "Ts",
+      "type": "string"
+     }
+    },
+    "required": [
+     "ts",
+     "hour",
+     "low",
+     "expected",
+     "high"
+    ],
+    "title": "BalancePoint",
+    "type": "object"
+   },
+   "ChangePasswordRequest": {
+    "additionalProperties": false,
+    "properties": {
+     "new_password": {
+      "maxLength": 128,
+      "minLength": 8,
+      "title": "New Password",
+      "type": "string"
+     },
+     "old_password": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Old Password",
+      "type": "string"
+     }
+    },
+    "required": [
+     "old_password",
+     "new_password"
+    ],
+    "title": "ChangePasswordRequest",
+    "type": "object"
+   },
+   "ChangePasswordResponse": {
+    "properties": {
+     "other_sessions_revoked": {
+      "title": "Other Sessions Revoked",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "other_sessions_revoked"
+    ],
+    "title": "ChangePasswordResponse",
+    "type": "object"
+   },
+   "ChannelAlternative": {
+    "properties": {
+     "channel": {
+      "$ref": "#/components/schemas/RecommendationChannel"
+     },
+     "est_cost_bdt": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Est Cost Bdt"
+     },
+     "eta_h": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Eta H"
+     },
+     "feasible": {
+      "title": "Feasible",
+      "type": "boolean"
+     },
+     "reason": {
+      "title": "Reason",
+      "type": "string"
+     }
+    },
+    "required": [
+     "channel",
+     "feasible",
+     "est_cost_bdt",
+     "eta_h",
+     "reason"
+    ],
+    "title": "ChannelAlternative",
+    "type": "object"
+   },
+   "CopilotChatIn": {
+    "properties": {
+     "agent_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Agent Id"
+     },
+     "lang": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Lang"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "message": {
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Message",
+      "type": "string"
+     }
+    },
+    "required": [
+     "message"
+    ],
+    "title": "CopilotChatIn",
+    "type": "object"
+   },
+   "DataInfo": {
+    "properties": {
+     "data_version": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Data Version"
+     },
+     "end": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "End"
+     },
+     "holdout_start": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Holdout Start"
+     },
+     "n_agents": {
+      "title": "N Agents",
+      "type": "integer"
+     },
+     "n_distributors": {
+      "title": "N Distributors",
+      "type": "integer"
+     },
+     "seed": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Seed"
+     },
+     "source": {
+      "title": "Source",
+      "type": "string"
+     },
+     "start": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Start"
+     }
+    },
+    "required": [
+     "source",
+     "seed",
+     "data_version",
+     "start",
+     "end",
+     "holdout_start",
+     "n_agents",
+     "n_distributors"
+    ],
+    "title": "DataInfo",
+    "type": "object"
+   },
+   "DataPeriod": {
+    "description": "Synthetic data window; the last 14 days are held out from training.",
+    "properties": {
+     "end": {
+      "format": "date-time",
+      "title": "End",
+      "type": "string"
+     },
+     "holdout_start": {
+      "format": "date-time",
+      "title": "Holdout Start",
+      "type": "string"
+     },
+     "sim_now": {
+      "format": "date-time",
+      "title": "Sim Now",
+      "type": "string"
+     },
+     "start": {
+      "format": "date-time",
+      "title": "Start",
+      "type": "string"
+     }
+    },
+    "required": [
+     "start",
+     "end",
+     "holdout_start",
+     "sim_now"
+    ],
+    "title": "DataPeriod",
+    "type": "object"
+   },
+   "EqualService": {
+    "description": "The threshold rule swept over thresholds, read at the AI's level (linear in between).\n\nNone = the AI's value lies outside what the swept thresholds reach.",
+    "properties": {
+     "baseline_stockout_hours_at_ai_trips": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Baseline Stockout Hours At Ai Trips"
+     },
+     "baseline_trips_at_ai_stockout_hours": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Baseline Trips At Ai Stockout Hours"
+     },
+     "stockout_hours_avoided": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Stockout Hours Avoided"
+     },
+     "sweep": {
+      "items": {
+       "$ref": "#/components/schemas/SweepPoint"
+      },
+      "title": "Sweep",
+      "type": "array"
+     },
+     "van_trips_avoided": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Van Trips Avoided"
+     }
+    },
+    "required": [
+     "baseline_trips_at_ai_stockout_hours",
+     "van_trips_avoided",
+     "baseline_stockout_hours_at_ai_trips",
+     "stockout_hours_avoided",
+     "sweep"
+    ],
+    "title": "EqualService",
+    "type": "object"
+   },
+   "EventIn": {
+    "properties": {
+     "district": {
+      "anyOf": [
+       {
+        "maxLength": 80,
+        "minLength": 1,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "District"
+     },
+     "ends_at": {
+      "format": "date-time",
+      "title": "Ends At",
+      "type": "string"
+     },
+     "intensity": {
+      "default": 1.0,
+      "exclusiveMinimum": 0.0,
+      "maximum": 10.0,
+      "title": "Intensity",
+      "type": "number"
+     },
+     "name_bn": {
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Name Bn",
+      "type": "string"
+     },
+     "name_en": {
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Name En",
+      "type": "string"
+     },
+     "starts_at": {
+      "format": "date-time",
+      "title": "Starts At",
+      "type": "string"
+     },
+     "type": {
+      "$ref": "#/components/schemas/EventType"
+     }
+    },
+    "required": [
+     "type",
+     "name_en",
+     "name_bn",
+     "starts_at",
+     "ends_at"
+    ],
+    "title": "EventIn",
+    "type": "object"
+   },
+   "EventItem": {
+    "properties": {
+     "district": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "District"
+     },
+     "ends_at": {
+      "format": "date-time",
+      "title": "Ends At",
+      "type": "string"
+     },
+     "id": {
+      "title": "Id",
+      "type": "integer"
+     },
+     "intensity": {
+      "title": "Intensity",
+      "type": "number"
+     },
+     "name_bn": {
+      "title": "Name Bn",
+      "type": "string"
+     },
+     "name_en": {
+      "title": "Name En",
+      "type": "string"
+     },
+     "starts_at": {
+      "format": "date-time",
+      "title": "Starts At",
+      "type": "string"
+     },
+     "type": {
+      "$ref": "#/components/schemas/EventType"
+     }
+    },
+    "required": [
+     "id",
+     "type",
+     "name_en",
+     "name_bn",
+     "starts_at",
+     "ends_at",
+     "district",
+     "intensity"
+    ],
+    "title": "EventItem",
+    "type": "object"
+   },
+   "EventPage": {
+    "properties": {
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/EventItem"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "page": {
+      "title": "Page",
+      "type": "integer"
+     },
+     "page_size": {
+      "title": "Page Size",
+      "type": "integer"
+     },
+     "total": {
+      "title": "Total",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "items",
+     "total",
+     "page",
+     "page_size"
+    ],
+    "title": "EventPage",
+    "type": "object"
+   },
+   "EventType": {
+    "enum": [
+     "salary",
+     "eid",
+     "hat_bazar",
+     "weather",
+     "holiday"
+    ],
+    "title": "EventType",
+    "type": "string"
+   },
+   "FairnessGap": {
+    "description": "Largest minus smallest value across the groups (smaller = more even).",
+    "properties": {
+     "nmae": {
+      "additionalProperties": {
+       "type": "number"
+      },
+      "title": "Nmae",
+      "type": "object"
+     },
+     "recall": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Recall"
+     }
+    },
+    "required": [
+     "nmae",
+     "recall"
+    ],
+    "title": "FairnessGap",
+    "type": "object"
+   },
+   "FairnessGroup": {
+    "properties": {
+     "forecast": {
+      "items": {
+       "$ref": "#/components/schemas/ForecastFairness"
+      },
+      "title": "Forecast",
+      "type": "array"
+     },
+     "group": {
+      "title": "Group",
+      "type": "string"
+     },
+     "n_agents": {
+      "title": "N Agents",
+      "type": "integer"
+     },
+     "stockout": {
+      "$ref": "#/components/schemas/StockoutFairness"
+     }
+    },
+    "required": [
+     "group",
+     "n_agents",
+     "forecast",
+     "stockout"
+    ],
+    "title": "FairnessGroup",
+    "type": "object"
+   },
+   "FairnessMethod": {
+    "properties": {
+     "amber_cut_24h": {
+      "title": "Amber Cut 24H",
+      "type": "number"
+     },
+     "end": {
+      "format": "date",
+      "title": "End",
+      "type": "string"
+     },
+     "horizon_h": {
+      "title": "Horizon H",
+      "type": "integer"
+     },
+     "n_paths": {
+      "title": "N Paths",
+      "type": "integer"
+     },
+     "rounds_local_hours": {
+      "items": {
+       "type": "integer"
+      },
+      "title": "Rounds Local Hours",
+      "type": "array"
+     },
+     "start": {
+      "format": "date",
+      "title": "Start",
+      "type": "string"
+     }
+    },
+    "required": [
+     "start",
+     "end",
+     "rounds_local_hours",
+     "horizon_h",
+     "amber_cut_24h",
+     "n_paths"
+    ],
+    "title": "FairnessMethod",
+    "type": "object"
+   },
+   "FairnessReport": {
+    "properties": {
+     "gap": {
+      "$ref": "#/components/schemas/FairnessGap"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "group_by": {
+      "$ref": "#/components/schemas/GroupBy"
+     },
+     "groups": {
+      "items": {
+       "$ref": "#/components/schemas/FairnessGroup"
+      },
+      "title": "Groups",
+      "type": "array"
+     },
+     "method": {
+      "$ref": "#/components/schemas/FairnessMethod"
+     },
+     "model_version": {
+      "title": "Model Version",
+      "type": "string"
+     },
+     "overall": {
+      "$ref": "#/components/schemas/FairnessGroup"
+     }
+    },
+    "required": [
+     "group_by",
+     "groups",
+     "overall",
+     "gap",
+     "method",
+     "model_version",
+     "generated_at"
+    ],
+    "title": "FairnessReport",
+    "type": "object"
+   },
+   "FloatForecast": {
+    "properties": {
+     "demand_type": {
+      "$ref": "#/components/schemas/TxnType"
+     },
+     "float_type": {
+      "$ref": "#/components/schemas/FloatType"
+     },
+     "points": {
+      "items": {
+       "$ref": "#/components/schemas/ForecastPoint"
+      },
+      "title": "Points",
+      "type": "array"
+     }
+    },
+    "required": [
+     "float_type",
+     "demand_type",
+     "points"
+    ],
+    "title": "FloatForecast",
+    "type": "object"
+   },
+   "FloatRisk": {
+    "properties": {
+     "float_type": {
+      "$ref": "#/components/schemas/FloatType"
+     },
+     "horizons": {
+      "items": {
+       "$ref": "#/components/schemas/HorizonRisk"
+      },
+      "title": "Horizons",
+      "type": "array"
+     },
+     "level": {
+      "$ref": "#/components/schemas/RiskLevelCode"
+     }
+    },
+    "required": [
+     "float_type",
+     "level",
+     "horizons"
+    ],
+    "title": "FloatRisk",
+    "type": "object"
+   },
+   "FloatStockout": {
+    "properties": {
+     "balance": {
+      "title": "Balance",
+      "type": "number"
+     },
+     "capacity": {
+      "title": "Capacity",
+      "type": "number"
+     },
+     "confidence": {
+      "title": "Confidence",
+      "type": "number"
+     },
+     "float_type": {
+      "$ref": "#/components/schemas/FloatType"
+     },
+     "hours_to_stockout": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hours To Stockout"
+     },
+     "stockout_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Stockout At"
+     }
+    },
+    "required": [
+     "float_type",
+     "balance",
+     "capacity",
+     "stockout_at",
+     "hours_to_stockout",
+     "confidence"
+    ],
+    "title": "FloatStockout",
+    "type": "object"
+   },
+   "FloatSummary": {
+    "properties": {
+     "balance": {
+      "title": "Balance",
+      "type": "number"
+     },
+     "capacity": {
+      "title": "Capacity",
+      "type": "number"
+     },
+     "confidence": {
+      "title": "Confidence",
+      "type": "number"
+     },
+     "float_type": {
+      "$ref": "#/components/schemas/FloatType"
+     },
+     "horizons": {
+      "items": {
+       "$ref": "#/components/schemas/HorizonRisk"
+      },
+      "title": "Horizons",
+      "type": "array"
+     },
+     "hours_to_stockout": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hours To Stockout"
+     },
+     "level": {
+      "$ref": "#/components/schemas/RiskLevelCode"
+     },
+     "stockout_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Stockout At"
+     }
+    },
+    "required": [
+     "float_type",
+     "balance",
+     "capacity",
+     "stockout_at",
+     "hours_to_stockout",
+     "confidence",
+     "level",
+     "horizons"
+    ],
+    "title": "FloatSummary",
+    "type": "object"
+   },
+   "FloatType": {
+    "enum": [
+     "cash",
+     "emoney"
+    ],
+    "title": "FloatType",
+    "type": "string"
+   },
+   "ForecastFairness": {
+    "properties": {
+     "mae_baseline_bdt": {
+      "title": "Mae Baseline Bdt",
+      "type": "number"
+     },
+     "mae_bdt": {
+      "title": "Mae Bdt",
+      "type": "number"
+     },
+     "mean_demand_bdt": {
+      "title": "Mean Demand Bdt",
+      "type": "number"
+     },
+     "nmae": {
+      "title": "Nmae",
+      "type": "number"
+     },
+     "skill": {
+      "title": "Skill",
+      "type": "number"
+     },
+     "target": {
+      "title": "Target",
+      "type": "string"
+     }
+    },
+    "required": [
+     "target",
+     "mean_demand_bdt",
+     "mae_bdt",
+     "mae_baseline_bdt",
+     "nmae",
+     "skill"
+    ],
+    "title": "ForecastFairness",
+    "type": "object"
+   },
+   "ForecastPoint": {
+    "properties": {
+     "expected": {
+      "title": "Expected",
+      "type": "number"
+     },
+     "high": {
+      "title": "High",
+      "type": "number"
+     },
+     "horizon_h": {
+      "title": "Horizon H",
+      "type": "integer"
+     },
+     "low": {
+      "title": "Low",
+      "type": "number"
+     },
+     "ts": {
+      "format": "date-time",
+      "title": "Ts",
+      "type": "string"
+     }
+    },
+    "required": [
+     "ts",
+     "horizon_h",
+     "low",
+     "expected",
+     "high"
+    ],
+    "title": "ForecastPoint",
+    "type": "object"
+   },
+   "Freshness": {
+    "properties": {
+     "data_period": {
+      "$ref": "#/components/schemas/DataPeriod"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "last_forecast_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Forecast At"
+     },
+     "llm_mode": {
+      "enum": [
+       "anthropic",
+       "openai_compatible",
+       "replay",
+       "template"
+      ],
+      "title": "Llm Mode",
+      "type": "string"
+     },
+     "model_version": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Model Version"
+     }
+    },
+    "required": [
+     "last_forecast_at",
+     "model_version",
+     "data_period",
+     "llm_mode",
+     "generated_at"
+    ],
+    "title": "Freshness",
+    "type": "object"
+   },
+   "GeneratedBy": {
+    "enum": [
+     "llm",
+     "template",
+     "replay"
+    ],
+    "title": "GeneratedBy",
+    "type": "string"
+   },
+   "GroupBy": {
+    "enum": [
+     "urban_rural",
+     "tier",
+     "region"
+    ],
+    "title": "GroupBy",
+    "type": "string"
+   },
+   "GuardResult": {
+    "enum": [
+     "pass",
+     "numbers_fail",
+     "injection",
+     "schema_fail",
+     "timeout",
+     "error"
+    ],
+    "title": "GuardResult",
+    "type": "string"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "title": "Detail",
+      "type": "array"
+     }
+    },
+    "title": "HTTPValidationError",
+    "type": "object"
+   },
+   "HealthResponse": {
+    "properties": {
+     "status": {
+      "const": "ok",
+      "title": "Status",
+      "type": "string"
+     }
+    },
+    "required": [
+     "status"
+    ],
+    "title": "HealthResponse",
+    "type": "object"
+   },
+   "HorizonRisk": {
+    "properties": {
+     "confidence": {
+      "title": "Confidence",
+      "type": "number"
+     },
+     "horizon_h": {
+      "title": "Horizon H",
+      "type": "integer"
+     },
+     "level": {
+      "$ref": "#/components/schemas/RiskLevelCode"
+     },
+     "probability": {
+      "title": "Probability",
+      "type": "number"
+     }
+    },
+    "required": [
+     "horizon_h",
+     "probability",
+     "level",
+     "confidence"
+    ],
+    "title": "HorizonRisk",
+    "type": "object"
+   },
+   "ImpactAssumptions": {
+    "properties": {
+     "alert_share": {
+      "title": "Alert Share",
+      "type": "number"
+     },
+     "cashout_fee_pct": {
+      "title": "Cashout Fee Pct",
+      "type": "number"
+     },
+     "decision_hours": {
+      "items": {
+       "type": "integer"
+      },
+      "title": "Decision Hours",
+      "type": "array"
+     },
+     "emergency_eta_h": {
+      "title": "Emergency Eta H",
+      "type": "number"
+     },
+     "rebalance_horizon_h": {
+      "title": "Rebalance Horizon H",
+      "type": "integer"
+     },
+     "topup_eta_h": {
+      "title": "Topup Eta H",
+      "type": "number"
+     },
+     "van_cost_per_trip_bdt": {
+      "title": "Van Cost Per Trip Bdt",
+      "type": "number"
+     },
+     "van_lead_time_h": {
+      "title": "Van Lead Time H",
+      "type": "number"
+     }
+    },
+    "required": [
+     "alert_share",
+     "decision_hours",
+     "emergency_eta_h",
+     "van_lead_time_h",
+     "topup_eta_h",
+     "cashout_fee_pct",
+     "van_cost_per_trip_bdt",
+     "rebalance_horizon_h"
+    ],
+    "title": "ImpactAssumptions",
+    "type": "object"
+   },
+   "ImpactComparison": {
+    "properties": {
+     "days": {
+      "items": {
+       "$ref": "#/components/schemas/ImpactDay"
+      },
+      "title": "Days",
+      "type": "array"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "model_version": {
+      "title": "Model Version",
+      "type": "string"
+     },
+     "n_agents": {
+      "title": "N Agents",
+      "type": "integer"
+     },
+     "scope": {
+      "title": "Scope",
+      "type": "string"
+     },
+     "totals": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ImpactTotals"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "required": [
+     "scope",
+     "n_agents",
+     "days",
+     "totals",
+     "model_version",
+     "generated_at"
+    ],
+    "title": "ImpactComparison",
+    "type": "object"
+   },
+   "ImpactDay": {
+    "properties": {
+     "baseline": {
+      "$ref": "#/components/schemas/ScenarioTotals"
+     },
+     "date": {
+      "format": "date",
+      "title": "Date",
+      "type": "string"
+     },
+     "delta": {
+      "$ref": "#/components/schemas/ImpactDelta"
+     },
+     "model": {
+      "$ref": "#/components/schemas/ScenarioTotals"
+     }
+    },
+    "required": [
+     "date",
+     "model",
+     "baseline",
+     "delta"
+    ],
+    "title": "ImpactDay",
+    "type": "object"
+   },
+   "ImpactDelta": {
+    "description": "Baseline minus AI: positive = the AI did better.",
+    "properties": {
+     "fee_saved_bdt": {
+      "title": "Fee Saved Bdt",
+      "type": "number"
+     },
+     "stockout_hours_reduced": {
+      "title": "Stockout Hours Reduced",
+      "type": "number"
+     },
+     "stockout_hours_reduced_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Stockout Hours Reduced Pct"
+     },
+     "value_saved_bdt": {
+      "title": "Value Saved Bdt",
+      "type": "number"
+     },
+     "van_cost_avoided_bdt": {
+      "title": "Van Cost Avoided Bdt",
+      "type": "number"
+     },
+     "van_trips_avoided": {
+      "title": "Van Trips Avoided",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "stockout_hours_reduced",
+     "stockout_hours_reduced_pct",
+     "value_saved_bdt",
+     "fee_saved_bdt",
+     "van_trips_avoided",
+     "van_cost_avoided_bdt"
+    ],
+    "title": "ImpactDelta",
+    "type": "object"
+   },
+   "ImpactSummary": {
+    "properties": {
+     "assumptions": {
+      "$ref": "#/components/schemas/ImpactAssumptions"
+     },
+     "baseline": {
+      "$ref": "#/components/schemas/ScenarioTotals"
+     },
+     "days": {
+      "title": "Days",
+      "type": "integer"
+     },
+     "delta": {
+      "$ref": "#/components/schemas/ImpactDelta"
+     },
+     "end": {
+      "format": "date",
+      "title": "End",
+      "type": "string"
+     },
+     "equal_service": {
+      "$ref": "#/components/schemas/EqualService"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "model": {
+      "$ref": "#/components/schemas/ScenarioTotals"
+     },
+     "model_version": {
+      "title": "Model Version",
+      "type": "string"
+     },
+     "n_agents": {
+      "title": "N Agents",
+      "type": "integer"
+     },
+     "scope": {
+      "title": "Scope",
+      "type": "string"
+     },
+     "start": {
+      "format": "date",
+      "title": "Start",
+      "type": "string"
+     }
+    },
+    "required": [
+     "start",
+     "end",
+     "days",
+     "model",
+     "baseline",
+     "delta",
+     "scope",
+     "n_agents",
+     "equal_service",
+     "assumptions",
+     "model_version",
+     "generated_at"
+    ],
+    "title": "ImpactSummary",
+    "type": "object"
+   },
+   "ImpactTotals": {
+    "properties": {
+     "baseline": {
+      "$ref": "#/components/schemas/ScenarioTotals"
+     },
+     "days": {
+      "title": "Days",
+      "type": "integer"
+     },
+     "delta": {
+      "$ref": "#/components/schemas/ImpactDelta"
+     },
+     "end": {
+      "format": "date",
+      "title": "End",
+      "type": "string"
+     },
+     "model": {
+      "$ref": "#/components/schemas/ScenarioTotals"
+     },
+     "start": {
+      "format": "date",
+      "title": "Start",
+      "type": "string"
+     }
+    },
+    "required": [
+     "start",
+     "end",
+     "days",
+     "model",
+     "baseline",
+     "delta"
+    ],
+    "title": "ImpactTotals",
+    "type": "object"
+   },
+   "Lang": {
+    "enum": [
+     "bn",
+     "en"
+    ],
+    "title": "Lang",
+    "type": "string"
+   },
+   "LinkedEntity": {
+    "properties": {
+     "code": {
+      "title": "Code",
+      "type": "string"
+     },
+     "id": {
+      "title": "Id",
+      "type": "integer"
+     },
+     "name": {
+      "title": "Name",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "code",
+     "name"
+    ],
+    "title": "LinkedEntity",
+    "type": "object"
+   },
+   "LlmIntent": {
+    "enum": [
+     "copilot",
+     "narrate",
+     "agent_briefing",
+     "distributor_briefing",
+     "anomaly_narrative"
+    ],
+    "title": "LlmIntent",
+    "type": "string"
+   },
+   "LlmStatus": {
+    "properties": {
+     "calls_today": {
+      "title": "Calls Today",
+      "type": "integer"
+     },
+     "configured": {
+      "enum": [
+       "auto",
+       "anthropic",
+       "openai_compatible",
+       "replay",
+       "template"
+      ],
+      "title": "Configured",
+      "type": "string"
+     },
+     "daily_cap": {
+      "title": "Daily Cap",
+      "type": "integer"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "key_configured": {
+      "title": "Key Configured",
+      "type": "boolean"
+     },
+     "last_error": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Error"
+     },
+     "last_error_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Error At"
+     },
+     "live": {
+      "title": "Live",
+      "type": "boolean"
+     },
+     "mode": {
+      "enum": [
+       "anthropic",
+       "openai_compatible",
+       "replay",
+       "template"
+      ],
+      "title": "Mode",
+      "type": "string"
+     },
+     "model": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Model"
+     },
+     "replay_entries": {
+      "title": "Replay Entries",
+      "type": "integer"
+     },
+     "user_calls_per_min": {
+      "title": "User Calls Per Min",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "configured",
+     "mode",
+     "live",
+     "model",
+     "key_configured",
+     "replay_entries",
+     "calls_today",
+     "daily_cap",
+     "user_calls_per_min",
+     "last_error",
+     "last_error_at",
+     "generated_at"
+    ],
+    "title": "LlmStatus",
+    "type": "object"
+   },
+   "LlmText": {
+    "description": "Generated wording. Numbers inside `text` are verified against the evidence pack.",
+    "properties": {
+     "advisory": {
+      "const": true,
+      "default": true,
+      "title": "Advisory",
+      "type": "boolean"
+     },
+     "cached": {
+      "title": "Cached",
+      "type": "boolean"
+     },
+     "cited_factors": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Cited Factors",
+      "type": "array"
+     },
+     "evidence_hash": {
+      "title": "Evidence Hash",
+      "type": "string"
+     },
+     "fallback_reason": {
+      "anyOf": [
+       {
+        "enum": [
+         "rate_limited",
+         "daily_cap",
+         "timeout",
+         "error",
+         "numbers_fail",
+         "schema_fail",
+         "injection",
+         "replay_miss",
+         "not_configured"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Fallback Reason"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "generated_by": {
+      "$ref": "#/components/schemas/GeneratedBy"
+     },
+     "guard_result": {
+      "$ref": "#/components/schemas/GuardResult"
+     },
+     "intent": {
+      "$ref": "#/components/schemas/LlmIntent"
+     },
+     "lang": {
+      "$ref": "#/components/schemas/Lang"
+     },
+     "model": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Model"
+     },
+     "model_version": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Model Version"
+     },
+     "provider": {
+      "title": "Provider",
+      "type": "string"
+     },
+     "template_text": {
+      "title": "Template Text",
+      "type": "string"
+     },
+     "text": {
+      "title": "Text",
+      "type": "string"
+     }
+    },
+    "required": [
+     "intent",
+     "text",
+     "lang",
+     "cited_factors",
+     "generated_by",
+     "provider",
+     "model",
+     "guard_result",
+     "fallback_reason",
+     "template_text",
+     "cached",
+     "evidence_hash",
+     "model_version",
+     "generated_at"
+    ],
+    "title": "LlmText",
+    "type": "object"
+   },
+   "LoginRequest": {
+    "additionalProperties": false,
+    "properties": {
+     "email": {
+      "maxLength": 254,
+      "minLength": 3,
+      "title": "Email",
+      "type": "string"
+     },
+     "password": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Password",
+      "type": "string"
+     }
+    },
+    "required": [
+     "email",
+     "password"
+    ],
+    "title": "LoginRequest",
+    "type": "object"
+   },
+   "MapAgent": {
+    "properties": {
+     "agent_id": {
+      "title": "Agent Id",
+      "type": "integer"
+     },
+     "code": {
+      "title": "Code",
+      "type": "string"
+     },
+     "district": {
+      "title": "District",
+      "type": "string"
+     },
+     "lat": {
+      "title": "Lat",
+      "type": "number"
+     },
+     "level": {
+      "$ref": "#/components/schemas/RiskLevelCode"
+     },
+     "lng": {
+      "title": "Lng",
+      "type": "number"
+     },
+     "name": {
+      "title": "Name",
+      "type": "string"
+     },
+     "probability": {
+      "title": "Probability",
+      "type": "number"
+     },
+     "upazila": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Upazila"
+     },
+     "worst_float": {
+      "$ref": "#/components/schemas/FloatType"
+     }
+    },
+    "required": [
+     "agent_id",
+     "code",
+     "name",
+     "district",
+     "upazila",
+     "lat",
+     "lng",
+     "level",
+     "probability",
+     "worst_float"
+    ],
+    "title": "MapAgent",
+    "type": "object"
+   },
+   "MapAgents": {
+    "properties": {
+     "agents": {
+      "items": {
+       "$ref": "#/components/schemas/MapAgent"
+      },
+      "title": "Agents",
+      "type": "array"
+     },
+     "as_of": {
+      "format": "date-time",
+      "title": "As Of",
+      "type": "string"
+     },
+     "at_hour": {
+      "title": "At Hour",
+      "type": "integer"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "model_version": {
+      "title": "Model Version",
+      "type": "string"
+     },
+     "swaps": {
+      "items": {
+       "$ref": "#/components/schemas/MapSwap"
+      },
+      "title": "Swaps",
+      "type": "array"
+     },
+     "ts": {
+      "format": "date-time",
+      "title": "Ts",
+      "type": "string"
+     }
+    },
+    "required": [
+     "at_hour",
+     "as_of",
+     "ts",
+     "agents",
+     "swaps",
+     "model_version",
+     "generated_at"
+    ],
+    "title": "MapAgents",
+    "type": "object"
+   },
+   "MapSwap": {
+    "properties": {
+     "amount_bdt": {
+      "title": "Amount Bdt",
+      "type": "number"
+     },
+     "donor_agent_id": {
+      "title": "Donor Agent Id",
+      "type": "integer"
+     },
+     "float_type": {
+      "$ref": "#/components/schemas/FloatType"
+     },
+     "from_lat": {
+      "title": "From Lat",
+      "type": "number"
+     },
+     "from_lng": {
+      "title": "From Lng",
+      "type": "number"
+     },
+     "id": {
+      "title": "Id",
+      "type": "integer"
+     },
+     "receiver_agent_id": {
+      "title": "Receiver Agent Id",
+      "type": "integer"
+     },
+     "relevant": {
+      "title": "Relevant",
+      "type": "boolean"
+     },
+     "status": {
+      "$ref": "#/components/schemas/SwapStatus"
+     },
+     "to_lat": {
+      "title": "To Lat",
+      "type": "number"
+     },
+     "to_lng": {
+      "title": "To Lng",
+      "type": "number"
+     },
+     "van_trip_saved": {
+      "title": "Van Trip Saved",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "id",
+     "donor_agent_id",
+     "receiver_agent_id",
+     "from_lat",
+     "from_lng",
+     "to_lat",
+     "to_lng",
+     "float_type",
+     "amount_bdt",
+     "status",
+     "van_trip_saved",
+     "relevant"
+    ],
+    "title": "MapSwap",
+    "type": "object"
+   },
+   "ModelCard": {
+    "properties": {
+     "advisory_only": {
+      "title": "Advisory Only",
+      "type": "boolean"
+     },
+     "data": {
+      "$ref": "#/components/schemas/DataInfo"
+     },
+     "fairness": {
+      "additionalProperties": {
+       "$ref": "#/components/schemas/FairnessGap"
+      },
+      "propertyNames": {
+       "$ref": "#/components/schemas/GroupBy"
+      },
+      "title": "Fairness",
+      "type": "object"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "human_oversight": {
+      "title": "Human Oversight",
+      "type": "string"
+     },
+     "intended_use": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Intended Use",
+      "type": "array"
+     },
+     "lang": {
+      "$ref": "#/components/schemas/Lang"
+     },
+     "limitations": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+     },
+     "model_version": {
+      "title": "Model Version",
+      "type": "string"
+     },
+     "models": {
+      "items": {
+       "$ref": "#/components/schemas/ModelInfo"
+      },
+      "title": "Models",
+      "type": "array"
+     },
+     "out_of_scope": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Out Of Scope",
+      "type": "array"
+     }
+    },
+    "required": [
+     "lang",
+     "advisory_only",
+     "human_oversight",
+     "models",
+     "data",
+     "intended_use",
+     "out_of_scope",
+     "limitations",
+     "fairness",
+     "model_version",
+     "generated_at"
+    ],
+    "title": "ModelCard",
+    "type": "object"
+   },
+   "ModelInfo": {
+    "properties": {
+     "kind": {
+      "title": "Kind",
+      "type": "string"
+     },
+     "metrics": {
+      "additionalProperties": {
+       "type": "number"
+      },
+      "title": "Metrics",
+      "type": "object"
+     },
+     "name": {
+      "title": "Name",
+      "type": "string"
+     },
+     "purpose": {
+      "title": "Purpose",
+      "type": "string"
+     },
+     "trained_at": {
+      "format": "date-time",
+      "title": "Trained At",
+      "type": "string"
+     },
+     "version": {
+      "title": "Version",
+      "type": "string"
+     }
+    },
+    "required": [
+     "name",
+     "version",
+     "kind",
+     "purpose",
+     "trained_at",
+     "metrics"
+    ],
+    "title": "ModelInfo",
+    "type": "object"
+   },
+   "NarrateIn": {
+    "properties": {
+     "agent_id": {
+      "title": "Agent Id",
+      "type": "integer"
+     },
+     "lang": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Lang"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "target": {
+      "$ref": "#/components/schemas/FloatType",
+      "default": "cash"
+     }
+    },
+    "required": [
+     "agent_id"
+    ],
+    "title": "NarrateIn",
+    "type": "object"
+   },
+   "NotificationItem": {
+    "description": "Text is built client-side from `title_key` + `params` (bn/en i18n).",
+    "properties": {
+     "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+     },
+     "entity_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Entity Id"
+     },
+     "entity_type": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Entity Type"
+     },
+     "id": {
+      "title": "Id",
+      "type": "integer"
+     },
+     "params": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        },
+        {
+         "type": "number"
+        },
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "title": "Params",
+      "type": "object"
+     },
+     "read_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Read At"
+     },
+     "severity": {
+      "$ref": "#/components/schemas/NotificationSeverity"
+     },
+     "title_key": {
+      "title": "Title Key",
+      "type": "string"
+     },
+     "type": {
+      "$ref": "#/components/schemas/NotificationType"
+     }
+    },
+    "required": [
+     "id",
+     "type",
+     "severity",
+     "title_key",
+     "params",
+     "entity_type",
+     "entity_id",
+     "read_at",
+     "created_at"
+    ],
+    "title": "NotificationItem",
+    "type": "object"
+   },
+   "NotificationPage": {
+    "properties": {
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/NotificationItem"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "page": {
+      "title": "Page",
+      "type": "integer"
+     },
+     "page_size": {
+      "title": "Page Size",
+      "type": "integer"
+     },
+     "total": {
+      "title": "Total",
+      "type": "integer"
+     },
+     "unread_count": {
+      "title": "Unread Count",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "items",
+     "total",
+     "unread_count",
+     "page",
+     "page_size"
+    ],
+    "title": "NotificationPage",
+    "type": "object"
+   },
+   "NotificationSeverity": {
+    "enum": [
+     "info",
+     "warning",
+     "critical"
+    ],
+    "title": "NotificationSeverity",
+    "type": "string"
+   },
+   "NotificationType": {
+    "enum": [
+     "risk_change",
+     "swap_offer",
+     "swap_decision",
+     "anomaly",
+     "system"
+    ],
+    "title": "NotificationType",
+    "type": "string"
+   },
+   "PeerFeature": {
+    "description": "One feature of the flagged window against the same window of its peer group.",
+    "properties": {
+     "deviation": {
+      "title": "Deviation",
+      "type": "number"
+     },
+     "name": {
+      "enum": [
+       "cash_out_growth",
+       "hour_shift",
+       "refills_per_day",
+       "out_in_log_ratio"
+      ],
+      "title": "Name",
+      "type": "string"
+     },
+     "p10": {
+      "title": "P10",
+      "type": "number"
+     },
+     "p25": {
+      "title": "P25",
+      "type": "number"
+     },
+     "p50": {
+      "title": "P50",
+      "type": "number"
+     },
+     "p75": {
+      "title": "P75",
+      "type": "number"
+     },
+     "p90": {
+      "title": "P90",
+      "type": "number"
+     },
+     "percentile": {
+      "title": "Percentile",
+      "type": "number"
+     },
+     "value": {
+      "title": "Value",
+      "type": "number"
+     }
+    },
+    "required": [
+     "name",
+     "value",
+     "deviation",
+     "percentile",
+     "p10",
+     "p25",
+     "p50",
+     "p75",
+     "p90"
+    ],
+    "title": "PeerFeature",
+    "type": "object"
+   },
+   "PeerScores": {
+    "properties": {
+     "max": {
+      "title": "Max",
+      "type": "number"
+     },
+     "p50": {
+      "title": "P50",
+      "type": "number"
+     },
+     "p90": {
+      "title": "P90",
+      "type": "number"
+     }
+    },
+    "required": [
+     "p50",
+     "p90",
+     "max"
+    ],
+    "title": "PeerScores",
+    "type": "object"
+   },
+   "PreferencesUpdate": {
+    "additionalProperties": false,
+    "description": "Only fields sent (non-null) change. `lang` is accepted as an alias of `language`.",
+    "properties": {
+     "digits": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Lang"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "language": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Lang"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "notify_in_app": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Notify In App"
+     },
+     "theme": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Theme"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "tour_done": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Tour Done"
+     }
+    },
+    "title": "PreferencesUpdate",
+    "type": "object"
+   },
+   "ProfileOut": {
+    "properties": {
+     "agent": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/LinkedEntity"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "avatar_color": {
+      "anyOf": [
+       {
+        "enum": [
+         "teal",
+         "indigo",
+         "amber",
+         "rose",
+         "emerald",
+         "sky",
+         "violet",
+         "slate"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Avatar Color"
+     },
+     "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+     },
+     "display_name": {
+      "title": "Display Name",
+      "type": "string"
+     },
+     "distributor": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/LinkedEntity"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "email": {
+      "title": "Email",
+      "type": "string"
+     },
+     "id": {
+      "format": "uuid",
+      "title": "Id",
+      "type": "string"
+     },
+     "last_login_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Login At"
+     },
+     "role": {
+      "$ref": "#/components/schemas/UserRole"
+     }
+    },
+    "required": [
+     "id",
+     "email",
+     "role",
+     "display_name",
+     "avatar_color",
+     "agent",
+     "distributor",
+     "last_login_at",
+     "created_at"
+    ],
+    "title": "ProfileOut",
+    "type": "object"
+   },
+   "ProfileUpdate": {
+    "additionalProperties": false,
+    "properties": {
+     "avatar_color": {
+      "anyOf": [
+       {
+        "enum": [
+         "teal",
+         "indigo",
+         "amber",
+         "rose",
+         "emerald",
+         "sky",
+         "violet",
+         "slate"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Avatar Color"
+     },
+     "display_name": {
+      "anyOf": [
+       {
+        "maxLength": 40,
+        "minLength": 1,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Display Name"
+     }
+    },
+    "title": "ProfileUpdate",
+    "type": "object"
+   },
+   "Rationale": {
+    "description": "Numbers behind the amount and deadline (all BDT unless named otherwise).",
+    "properties": {
+     "alternatives": {
+      "default": [],
+      "items": {
+       "$ref": "#/components/schemas/ChannelAlternative"
+      },
+      "title": "Alternatives",
+      "type": "array"
+     },
+     "balance_bdt": {
+      "title": "Balance Bdt",
+      "type": "number"
+     },
+     "buffer_bdt": {
+      "title": "Buffer Bdt",
+      "type": "number"
+     },
+     "capacity_bdt": {
+      "title": "Capacity Bdt",
+      "type": "number"
+     },
+     "capped": {
+      "title": "Capped",
+      "type": "boolean"
+     },
+     "horizon_h": {
+      "title": "Horizon H",
+      "type": "integer"
+     },
+     "lead_time_h": {
+      "title": "Lead Time H",
+      "type": "number"
+     },
+     "need_bdt": {
+      "title": "Need Bdt",
+      "type": "number"
+     },
+     "risk_level": {
+      "$ref": "#/components/schemas/RiskLevelCode"
+     },
+     "risk_probability": {
+      "title": "Risk Probability",
+      "type": "number"
+     },
+     "rule_trace": {
+      "default": [],
+      "items": {
+       "$ref": "#/components/schemas/RuleStep"
+      },
+      "title": "Rule Trace",
+      "type": "array"
+     },
+     "shortfall_bdt": {
+      "title": "Shortfall Bdt",
+      "type": "number"
+     },
+     "stockout_at": {
+      "format": "date-time",
+      "title": "Stockout At",
+      "type": "string"
+     },
+     "swap_amount_bdt": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Swap Amount Bdt"
+     },
+     "swap_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Swap Id"
+     },
+     "urgent": {
+      "title": "Urgent",
+      "type": "boolean"
+     },
+     "van_route_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Van Route Id"
+     }
+    },
+    "required": [
+     "horizon_h",
+     "lead_time_h",
+     "balance_bdt",
+     "capacity_bdt",
+     "need_bdt",
+     "shortfall_bdt",
+     "buffer_bdt",
+     "stockout_at",
+     "urgent",
+     "capped",
+     "risk_level",
+     "risk_probability"
+    ],
+    "title": "Rationale",
+    "type": "object"
+   },
+   "ReadAllResult": {
+    "properties": {
+     "updated": {
+      "title": "Updated",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "updated"
+    ],
+    "title": "ReadAllResult",
+    "type": "object"
+   },
+   "Reason": {
+    "properties": {
+     "direction": {
+      "enum": [
+       "up",
+       "down"
+      ],
+      "title": "Direction",
+      "type": "string"
+     },
+     "factor": {
+      "title": "Factor",
+      "type": "string"
+     },
+     "impact": {
+      "title": "Impact",
+      "type": "number"
+     },
+     "sentence": {
+      "title": "Sentence",
+      "type": "string"
+     },
+     "share": {
+      "title": "Share",
+      "type": "number"
+     }
+    },
+    "required": [
+     "factor",
+     "impact",
+     "direction",
+     "share",
+     "sentence"
+    ],
+    "title": "Reason",
+    "type": "object"
+   },
+   "RecommendationChannel": {
+    "description": "How the money would reach the agent (app/rules/channel_rules.py).",
+    "enum": [
+     "swap",
+     "top_up",
+     "van",
+     "self_fetch",
+     "urgent_manual"
+    ],
+    "title": "RecommendationChannel",
+    "type": "string"
+   },
+   "RecommendationItem": {
+    "properties": {
+     "amount_bdt": {
+      "title": "Amount Bdt",
+      "type": "number"
+     },
+     "channel": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/RecommendationChannel"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "deadline_at": {
+      "format": "date-time",
+      "title": "Deadline At",
+      "type": "string"
+     },
+     "float_type": {
+      "$ref": "#/components/schemas/FloatType"
+     },
+     "id": {
+      "title": "Id",
+      "type": "integer"
+     },
+     "kind": {
+      "$ref": "#/components/schemas/RecommendationKind"
+     },
+     "rationale": {
+      "$ref": "#/components/schemas/Rationale"
+     },
+     "status": {
+      "$ref": "#/components/schemas/RecommendationStatus"
+     },
+     "van_route_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Van Route Id"
+     }
+    },
+    "required": [
+     "id",
+     "kind",
+     "channel",
+     "van_route_id",
+     "float_type",
+     "amount_bdt",
+     "deadline_at",
+     "status",
+     "rationale"
+    ],
+    "title": "RecommendationItem",
+    "type": "object"
+   },
+   "RecommendationKind": {
+    "enum": [
+     "add_cash",
+     "add_emoney",
+     "swap",
+     "van"
+    ],
+    "title": "RecommendationKind",
+    "type": "string"
+   },
+   "RecommendationStatus": {
+    "enum": [
+     "open",
+     "requested",
+     "done",
+     "expired"
+    ],
+    "title": "RecommendationStatus",
+    "type": "string"
+   },
+   "RequestAgent": {
+    "properties": {
+     "agent_id": {
+      "title": "Agent Id",
+      "type": "integer"
+     },
+     "code": {
+      "title": "Code",
+      "type": "string"
+     },
+     "name": {
+      "title": "Name",
+      "type": "string"
+     }
+    },
+    "required": [
+     "agent_id",
+     "code",
+     "name"
+    ],
+    "title": "RequestAgent",
+    "type": "object"
+   },
+   "RequestDecisionIn": {
+    "properties": {
+     "decision": {
+      "enum": [
+       "approve",
+       "decline"
+      ],
+      "title": "Decision",
+      "type": "string"
+     },
+     "note": {
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Note",
+      "type": "string"
+     }
+    },
+    "required": [
+     "decision",
+     "note"
+    ],
+    "title": "RequestDecisionIn",
+    "type": "object"
+   },
+   "RequestItem": {
+    "properties": {
+     "advisory": {
+      "const": true,
+      "default": true,
+      "title": "Advisory",
+      "type": "boolean"
+     },
+     "agent": {
+      "$ref": "#/components/schemas/RequestAgent"
+     },
+     "amount_bdt": {
+      "title": "Amount Bdt",
+      "type": "number"
+     },
+     "channel": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/RecommendationChannel"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+     },
+     "deadline_at": {
+      "format": "date-time",
+      "title": "Deadline At",
+      "type": "string"
+     },
+     "decided_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Decided At"
+     },
+     "decided_by": {
+      "anyOf": [
+       {
+        "format": "uuid",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Decided By"
+     },
+     "float_type": {
+      "$ref": "#/components/schemas/FloatType"
+     },
+     "id": {
+      "title": "Id",
+      "type": "integer"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     },
+     "recommendation_id": {
+      "title": "Recommendation Id",
+      "type": "integer"
+     },
+     "requested_by": {
+      "format": "uuid",
+      "title": "Requested By",
+      "type": "string"
+     },
+     "status": {
+      "$ref": "#/components/schemas/RequestStatus"
+     }
+    },
+    "required": [
+     "id",
+     "recommendation_id",
+     "agent",
+     "float_type",
+     "channel",
+     "amount_bdt",
+     "deadline_at",
+     "status",
+     "requested_by",
+     "decided_by",
+     "note",
+     "created_at",
+     "decided_at"
+    ],
+    "title": "RequestItem",
+    "type": "object"
+   },
+   "RequestNoteIn": {
+    "properties": {
+     "note": {
+      "anyOf": [
+       {
+        "maxLength": 500,
+        "minLength": 1,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "title": "RequestNoteIn",
+    "type": "object"
+   },
+   "RequestPage": {
+    "properties": {
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/RequestItem"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "page": {
+      "title": "Page",
+      "type": "integer"
+     },
+     "page_size": {
+      "title": "Page Size",
+      "type": "integer"
+     },
+     "total": {
+      "title": "Total",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "items",
+     "total",
+     "page",
+     "page_size"
+    ],
+    "title": "RequestPage",
+    "type": "object"
+   },
+   "RequestStatus": {
+    "enum": [
+     "requested",
+     "approved",
+     "declined",
+     "fulfilled",
+     "cancelled"
+    ],
+    "title": "RequestStatus",
+    "type": "string"
+   },
+   "RiskLevelCode": {
+    "enum": [
+     "green",
+     "amber",
+     "red"
+    ],
+    "title": "RiskLevelCode",
+    "type": "string"
+   },
+   "RuleStep": {
+    "properties": {
+     "detail": {
+      "title": "Detail",
+      "type": "string"
+     },
+     "passed": {
+      "title": "Passed",
+      "type": "boolean"
+     },
+     "rule": {
+      "title": "Rule",
+      "type": "string"
+     }
+    },
+    "required": [
+     "rule",
+     "passed",
+     "detail"
+    ],
+    "title": "RuleStep",
+    "type": "object"
+   },
+   "ScenarioTotals": {
+    "properties": {
+     "actions": {
+      "additionalProperties": {
+       "type": "integer"
+      },
+      "propertyNames": {
+       "$ref": "#/components/schemas/RecommendationChannel"
+      },
+      "title": "Actions",
+      "type": "object"
+     },
+     "fee_lost_bdt": {
+      "title": "Fee Lost Bdt",
+      "type": "number"
+     },
+     "stockout_hours": {
+      "title": "Stockout Hours",
+      "type": "number"
+     },
+     "value_lost_bdt": {
+      "title": "Value Lost Bdt",
+      "type": "number"
+     },
+     "van_cost_bdt": {
+      "title": "Van Cost Bdt",
+      "type": "number"
+     },
+     "van_trips": {
+      "title": "Van Trips",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "stockout_hours",
+     "value_lost_bdt",
+     "fee_lost_bdt",
+     "van_trips",
+     "van_cost_bdt",
+     "actions"
+    ],
+    "title": "ScenarioTotals",
+    "type": "object"
+   },
+   "SearchHit": {
+    "properties": {
+     "key": {
+      "title": "Key",
+      "type": "string"
+     },
+     "kind": {
+      "enum": [
+       "agent",
+       "page"
+      ],
+      "title": "Kind",
+      "type": "string"
+     },
+     "label": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Label"
+     },
+     "path": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Path"
+     },
+     "sublabel": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sublabel"
+     },
+     "title_key": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Title Key"
+     }
+    },
+    "required": [
+     "kind",
+     "key",
+     "label",
+     "title_key",
+     "sublabel",
+     "path"
+    ],
+    "title": "SearchHit",
+    "type": "object"
+   },
+   "SearchResponse": {
+    "properties": {
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/SearchHit"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "q": {
+      "title": "Q",
+      "type": "string"
+     }
+    },
+    "required": [
+     "q",
+     "items"
+    ],
+    "title": "SearchResponse",
+    "type": "object"
+   },
+   "StockoutFairness": {
+    "properties": {
+     "caught": {
+      "title": "Caught",
+      "type": "integer"
+     },
+     "events": {
+      "title": "Events",
+      "type": "integer"
+     },
+     "flagged": {
+      "title": "Flagged",
+      "type": "integer"
+     },
+     "precision": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Precision"
+     },
+     "recall": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Recall"
+     }
+    },
+    "required": [
+     "events",
+     "flagged",
+     "caught",
+     "recall",
+     "precision"
+    ],
+    "title": "StockoutFairness",
+    "type": "object"
+   },
+   "SwapDecisionIn": {
+    "properties": {
+     "decision": {
+      "enum": [
+       "approve",
+       "reject"
+      ],
+      "title": "Decision",
+      "type": "string"
+     },
+     "note": {
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Note",
+      "type": "string"
+     }
+    },
+    "required": [
+     "decision",
+     "note"
+    ],
+    "title": "SwapDecisionIn",
+    "type": "object"
+   },
+   "SwapItem": {
+    "properties": {
+     "amount_bdt": {
+      "title": "Amount Bdt",
+      "type": "number"
+     },
+     "decided_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Decided At"
+     },
+     "distance_km": {
+      "title": "Distance Km",
+      "type": "number"
+     },
+     "donor": {
+      "$ref": "#/components/schemas/SwapParty"
+     },
+     "float_type": {
+      "$ref": "#/components/schemas/FloatType"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "id": {
+      "title": "Id",
+      "type": "integer"
+     },
+     "model_version": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Model Version"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     },
+     "receiver": {
+      "$ref": "#/components/schemas/SwapParty"
+     },
+     "score": {
+      "title": "Score",
+      "type": "number"
+     },
+     "status": {
+      "$ref": "#/components/schemas/SwapStatus"
+     },
+     "van_trip_saved": {
+      "title": "Van Trip Saved",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "id",
+     "donor",
+     "receiver",
+     "float_type",
+     "amount_bdt",
+     "distance_km",
+     "van_trip_saved",
+     "score",
+     "status",
+     "decided_at",
+     "note",
+     "model_version",
+     "generated_at"
+    ],
+    "title": "SwapItem",
+    "type": "object"
+   },
+   "SwapPage": {
+    "properties": {
+     "advisory": {
+      "const": true,
+      "default": true,
+      "title": "Advisory",
+      "type": "boolean"
+     },
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/SwapItem"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "page": {
+      "title": "Page",
+      "type": "integer"
+     },
+     "page_size": {
+      "title": "Page Size",
+      "type": "integer"
+     },
+     "total": {
+      "title": "Total",
+      "type": "integer"
+     },
+     "van_trips_avoided": {
+      "title": "Van Trips Avoided",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "items",
+     "total",
+     "page",
+     "page_size",
+     "van_trips_avoided"
+    ],
+    "title": "SwapPage",
+    "type": "object"
+   },
+   "SwapParty": {
+    "properties": {
+     "agent_id": {
+      "title": "Agent Id",
+      "type": "integer"
+     },
+     "code": {
+      "title": "Code",
+      "type": "string"
+     },
+     "name": {
+      "title": "Name",
+      "type": "string"
+     },
+     "response": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/SwapResponse"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "upazila": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Upazila"
+     }
+    },
+    "required": [
+     "agent_id",
+     "code",
+     "name",
+     "upazila",
+     "response"
+    ],
+    "title": "SwapParty",
+    "type": "object"
+   },
+   "SwapRespondIn": {
+    "properties": {
+     "note": {
+      "anyOf": [
+       {
+        "maxLength": 500,
+        "minLength": 1,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     },
+     "response": {
+      "enum": [
+       "accept",
+       "decline"
+      ],
+      "title": "Response",
+      "type": "string"
+     }
+    },
+    "required": [
+     "response"
+    ],
+    "title": "SwapRespondIn",
+    "type": "object"
+   },
+   "SwapResponse": {
+    "enum": [
+     "accepted",
+     "declined"
+    ],
+    "title": "SwapResponse",
+    "type": "string"
+   },
+   "SwapStatus": {
+    "enum": [
+     "pending",
+     "approved",
+     "rejected"
+    ],
+    "title": "SwapStatus",
+    "type": "string"
+   },
+   "SweepPoint": {
+    "properties": {
+     "alert_share": {
+      "title": "Alert Share",
+      "type": "number"
+     },
+     "stockout_hours": {
+      "title": "Stockout Hours",
+      "type": "number"
+     },
+     "value_lost_bdt": {
+      "title": "Value Lost Bdt",
+      "type": "number"
+     },
+     "van_trips": {
+      "title": "Van Trips",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "alert_share",
+     "stockout_hours",
+     "van_trips",
+     "value_lost_bdt"
+    ],
+    "title": "SweepPoint",
+    "type": "object"
+   },
+   "SystemStatus": {
+    "properties": {
+     "artifacts_ok": {
+      "title": "Artifacts Ok",
+      "type": "boolean"
+     },
+     "bootstrap_state": {
+      "enum": [
+       "starting",
+       "waiting_for_db",
+       "migrating",
+       "seeding",
+       "training",
+       "precomputing",
+       "finalizing",
+       "ready",
+       "failed"
+      ],
+      "title": "Bootstrap State",
+      "type": "string"
+     },
+     "data_version": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Data Version"
+     },
+     "db": {
+      "title": "Db",
+      "type": "boolean"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "llm_mode": {
+      "enum": [
+       "anthropic",
+       "openai_compatible",
+       "replay",
+       "template"
+      ],
+      "title": "Llm Mode",
+      "type": "string"
+     },
+     "migration_current": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Migration Current"
+     },
+     "migration_head": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Migration Head"
+     },
+     "model_version": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Model Version"
+     },
+     "ready": {
+      "title": "Ready",
+      "type": "boolean"
+     },
+     "seed": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Seed"
+     }
+    },
+    "required": [
+     "ready",
+     "bootstrap_state",
+     "db",
+     "migration_current",
+     "migration_head",
+     "seed",
+     "data_version",
+     "artifacts_ok",
+     "model_version",
+     "llm_mode",
+     "generated_at"
+    ],
+    "title": "SystemStatus",
+    "type": "object"
+   },
+   "Theme": {
+    "enum": [
+     "light",
+     "dark",
+     "system"
+    ],
+    "title": "Theme",
+    "type": "string"
+   },
+   "TokenResponse": {
+    "description": "The refresh token is never in the body: it travels only in the httpOnly cookie.",
+    "properties": {
+     "access_token": {
+      "title": "Access Token",
+      "type": "string"
+     },
+     "expires_in": {
+      "title": "Expires In",
+      "type": "integer"
+     },
+     "token_type": {
+      "const": "bearer",
+      "default": "bearer",
+      "title": "Token Type",
+      "type": "string"
+     },
+     "user": {
+      "$ref": "#/components/schemas/UserOut"
+     }
+    },
+    "required": [
+     "access_token",
+     "expires_in",
+     "user"
+    ],
+    "title": "TokenResponse",
+    "type": "object"
+   },
+   "TxnType": {
+    "enum": [
+     "cash_in",
+     "cash_out"
+    ],
+    "title": "TxnType",
+    "type": "string"
+   },
+   "UrbanRural": {
+    "enum": [
+     "urban",
+     "peri_urban",
+     "rural"
+    ],
+    "title": "UrbanRural",
+    "type": "string"
+   },
+   "UserOut": {
+    "properties": {
+     "agent_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Agent Id"
+     },
+     "avatar_color": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Avatar Color"
+     },
+     "digits": {
+      "$ref": "#/components/schemas/Lang"
+     },
+     "display_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Display Name"
+     },
+     "distributor_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Distributor Id"
+     },
+     "email": {
+      "title": "Email",
+      "type": "string"
+     },
+     "full_name": {
+      "title": "Full Name",
+      "type": "string"
+     },
+     "id": {
+      "format": "uuid",
+      "title": "Id",
+      "type": "string"
+     },
+     "lang": {
+      "$ref": "#/components/schemas/Lang"
+     },
+     "last_login_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Login At"
+     },
+     "notify_in_app": {
+      "title": "Notify In App",
+      "type": "boolean"
+     },
+     "role": {
+      "$ref": "#/components/schemas/UserRole"
+     },
+     "theme": {
+      "$ref": "#/components/schemas/Theme"
+     },
+     "tour_done": {
+      "title": "Tour Done",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "id",
+     "email",
+     "full_name",
+     "role",
+     "agent_id",
+     "distributor_id",
+     "lang",
+     "theme",
+     "digits",
+     "notify_in_app",
+     "tour_done",
+     "display_name",
+     "avatar_color",
+     "last_login_at"
+    ],
+    "title": "UserOut",
+    "type": "object"
+   },
+   "UserRole": {
+    "enum": [
+     "agent",
+     "distributor",
+     "admin"
+    ],
+    "title": "UserRole",
+    "type": "string"
+   },
+   "ValidationError": {
+    "properties": {
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "title": "Location",
+      "type": "array"
+     },
+     "msg": {
+      "title": "Message",
+      "type": "string"
+     },
+     "type": {
+      "title": "Error Type",
+      "type": "string"
+     }
+    },
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError",
+    "type": "object"
+   },
+   "WhatIfIn": {
+    "properties": {
+     "delta_amount": {
+      "maximum": 10000000.0,
+      "minimum": -10000000.0,
+      "title": "Delta Amount",
+      "type": "number"
+     },
+     "float_type": {
+      "$ref": "#/components/schemas/FloatType"
+     }
+    },
+    "required": [
+     "float_type",
+     "delta_amount"
+    ],
+    "title": "WhatIfIn",
+    "type": "object"
+   },
+   "WhatIfOut": {
+    "properties": {
+     "advisory": {
+      "const": true,
+      "default": true,
+      "title": "Advisory",
+      "type": "boolean"
+     },
+     "after": {
+      "$ref": "#/components/schemas/WhatIfScenario"
+     },
+     "agent_id": {
+      "title": "Agent Id",
+      "type": "integer"
+     },
+     "as_of": {
+      "format": "date-time",
+      "title": "As Of",
+      "type": "string"
+     },
+     "before": {
+      "$ref": "#/components/schemas/WhatIfScenario"
+     },
+     "capacity": {
+      "title": "Capacity",
+      "type": "number"
+     },
+     "delta_amount": {
+      "title": "Delta Amount",
+      "type": "number"
+     },
+     "float_type": {
+      "$ref": "#/components/schemas/FloatType"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "model_version": {
+      "title": "Model Version",
+      "type": "string"
+     },
+     "unit": {
+      "const": "BDT",
+      "default": "BDT",
+      "title": "Unit",
+      "type": "string"
+     }
+    },
+    "required": [
+     "agent_id",
+     "float_type",
+     "delta_amount",
+     "capacity",
+     "as_of",
+     "before",
+     "after",
+     "model_version",
+     "generated_at"
+    ],
+    "title": "WhatIfOut",
+    "type": "object"
+   },
+   "WhatIfScenario": {
+    "properties": {
+     "balance": {
+      "title": "Balance",
+      "type": "number"
+     },
+     "confidence": {
+      "title": "Confidence",
+      "type": "number"
+     },
+     "horizons": {
+      "items": {
+       "$ref": "#/components/schemas/HorizonRisk"
+      },
+      "title": "Horizons",
+      "type": "array"
+     },
+     "hours_to_stockout": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hours To Stockout"
+     },
+     "level": {
+      "$ref": "#/components/schemas/RiskLevelCode"
+     },
+     "series": {
+      "items": {
+       "$ref": "#/components/schemas/BalancePoint"
+      },
+      "title": "Series",
+      "type": "array"
+     },
+     "stockout_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Stockout At"
+     }
+    },
+    "required": [
+     "balance",
+     "stockout_at",
+     "hours_to_stockout",
+     "confidence",
+     "level",
+     "horizons",
+     "series"
+    ],
+    "title": "WhatIfScenario",
+    "type": "object"
+   }
+  },
+  "securitySchemes": {
+   "HTTPBearer": {
+    "scheme": "bearer",
+    "type": "http"
+   }
+  }
+ },
+ "info": {
+  "title": "AgentPulse AI",
+  "version": "0.1.0"
+ },
+ "openapi": "3.1.0",
+ "paths": {
+  "/api/v1/admin/audit-log/export.csv": {
+   "get": {
+    "description": "Every human decision (swap, anomaly, request), newest first. Admin only.",
+    "operationId": "export_audit_log_api_v1_admin_audit_log_export_csv_get",
+    "responses": {
+     "200": {
+      "content": {
+       "text/csv": {
+        "schema": {
+         "type": "string"
+        }
+       }
+      },
+      "description": "CSV file"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Export Audit Log",
+    "tags": [
+     "admin"
+    ]
+   }
+  },
+  "/api/v1/agents": {
+   "get": {
+    "operationId": "list_agents_api_v1_agents_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/AgentProfile"
+         },
+         "title": "Response List Agents Api V1 Agents Get",
+         "type": "array"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "List Agents",
+    "tags": [
+     "agents"
+    ]
+   }
+  },
+  "/api/v1/agents/risk": {
+   "get": {
+    "description": "Risk of the caller's agents at one horizon (agent: self; distributor: own agents).",
+    "operationId": "list_risk_api_v1_agents_risk_get",
+    "parameters": [
+     {
+      "description": "6, 24 or 72",
+      "in": "query",
+      "name": "horizon",
+      "required": false,
+      "schema": {
+       "default": 24,
+       "description": "6, 24 or 72",
+       "title": "Horizon",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "level",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/RiskLevelCode"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Level"
+      }
+     },
+     {
+      "in": "query",
+      "name": "sort",
+      "required": false,
+      "schema": {
+       "default": "risk",
+       "enum": [
+        "risk",
+        "stockout",
+        "code",
+        "name"
+       ],
+       "title": "Sort",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page",
+      "required": false,
+      "schema": {
+       "default": 1,
+       "minimum": 1,
+       "title": "Page",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page_size",
+      "required": false,
+      "schema": {
+       "default": 20,
+       "maximum": 100,
+       "minimum": 1,
+       "title": "Page Size",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "q",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 80,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Q"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AgentRiskPage"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "List Risk",
+    "tags": [
+     "risk"
+    ]
+   }
+  },
+  "/api/v1/agents/risk/export.csv": {
+   "get": {
+    "description": "The risk list (same filters, all pages) as CSV; scoped like GET /agents/risk.",
+    "operationId": "export_risk_api_v1_agents_risk_export_csv_get",
+    "parameters": [
+     {
+      "description": "6, 24 or 72",
+      "in": "query",
+      "name": "horizon",
+      "required": false,
+      "schema": {
+       "default": 24,
+       "description": "6, 24 or 72",
+       "title": "Horizon",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "level",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/RiskLevelCode"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Level"
+      }
+     },
+     {
+      "in": "query",
+      "name": "sort",
+      "required": false,
+      "schema": {
+       "default": "risk",
+       "enum": [
+        "risk",
+        "stockout",
+        "code",
+        "name"
+       ],
+       "title": "Sort",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "q",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 80,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Q"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "text/csv": {
+        "schema": {
+         "type": "string"
+        }
+       }
+      },
+      "description": "CSV file"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Export Risk",
+    "tags": [
+     "risk"
+    ]
+   }
+  },
+  "/api/v1/agents/{agent_id}": {
+   "get": {
+    "operationId": "get_agent_api_v1_agents__agent_id__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "agent_id",
+      "required": true,
+      "schema": {
+       "title": "Agent Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AgentProfile"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Agent",
+    "tags": [
+     "agents"
+    ]
+   }
+  },
+  "/api/v1/agents/{agent_id}/briefing": {
+   "get": {
+    "description": "Morning briefing for one agent: risk, main reason, suggested action (advisory).",
+    "operationId": "agent_briefing_api_v1_agents__agent_id__briefing_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "agent_id",
+      "required": true,
+      "schema": {
+       "title": "Agent Id",
+       "type": "integer"
+      }
+     },
+     {
+      "description": "bn or en; default: user's language",
+      "in": "query",
+      "name": "lang",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/Lang"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "bn or en; default: user's language",
+       "title": "Lang"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LlmText"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Agent Briefing",
+    "tags": [
+     "llm"
+    ]
+   }
+  },
+  "/api/v1/agents/{agent_id}/explanations": {
+   "get": {
+    "description": "Top SHAP drivers of the next 24 h demand on one float, as bn/en template sentences.",
+    "operationId": "get_explanations_api_v1_agents__agent_id__explanations_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "agent_id",
+      "required": true,
+      "schema": {
+       "title": "Agent Id",
+       "type": "integer"
+      }
+     },
+     {
+      "description": "cash or emoney",
+      "in": "query",
+      "name": "target",
+      "required": false,
+      "schema": {
+       "$ref": "#/components/schemas/FloatType",
+       "default": "cash",
+       "description": "cash or emoney"
+      }
+     },
+     {
+      "description": "bn or en; default: user's language",
+      "in": "query",
+      "name": "lang",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/Lang"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "bn or en; default: user's language",
+       "title": "Lang"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AgentExplanation"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Explanations",
+    "tags": [
+     "explanations"
+    ]
+   }
+  },
+  "/api/v1/agents/{agent_id}/forecast": {
+   "get": {
+    "description": "Hourly low/expected/high (q10/q50/q90) demand per float, from the bootstrap cache.",
+    "operationId": "get_forecast_api_v1_agents__agent_id__forecast_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "agent_id",
+      "required": true,
+      "schema": {
+       "title": "Agent Id",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "horizon_hours",
+      "required": false,
+      "schema": {
+       "default": 24,
+       "maximum": 72,
+       "minimum": 1,
+       "title": "Horizon Hours",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AgentForecast"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Forecast",
+    "tags": [
+     "forecast"
+    ]
+   }
+  },
+  "/api/v1/agents/{agent_id}/recommendation": {
+   "get": {
+    "description": "Top-up amount and deadline per float that will not cover the next hours (advisory).",
+    "operationId": "get_recommendation_api_v1_agents__agent_id__recommendation_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "agent_id",
+      "required": true,
+      "schema": {
+       "title": "Agent Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AgentRecommendation"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Recommendation",
+    "tags": [
+     "recommendations"
+    ]
+   }
+  },
+  "/api/v1/agents/{agent_id}/risk": {
+   "get": {
+    "description": "Stockout probability and green/amber/red level at 6 / 24 / 72 h per float.",
+    "operationId": "get_risk_api_v1_agents__agent_id__risk_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "agent_id",
+      "required": true,
+      "schema": {
+       "title": "Agent Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AgentRisk"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Risk",
+    "tags": [
+     "risk"
+    ]
+   }
+  },
+  "/api/v1/agents/{agent_id}/stockout": {
+   "get": {
+    "description": "Time-to-stockout + confidence per float (no refills assumed).",
+    "operationId": "get_stockout_api_v1_agents__agent_id__stockout_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "agent_id",
+      "required": true,
+      "schema": {
+       "title": "Agent Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AgentStockout"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Stockout",
+    "tags": [
+     "risk"
+    ]
+   }
+  },
+  "/api/v1/agents/{agent_id}/summary": {
+   "get": {
+    "description": "Profile, balances, time-to-stockout and risk levels in one call.",
+    "operationId": "get_summary_api_v1_agents__agent_id__summary_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "agent_id",
+      "required": true,
+      "schema": {
+       "title": "Agent Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AgentSummary"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Summary",
+    "tags": [
+     "risk"
+    ]
+   }
+  },
+  "/api/v1/agents/{agent_id}/whatif": {
+   "post": {
+    "description": "Stockout + risk if `delta_amount` BDT were added to one float now (advisory, no money moves).\n\nRe-projects the cached quantile paths; `before` equals the cache. 422 `delta_out_of_bounds`\nwhen the new balance would leave 0..capacity.",
+    "operationId": "post_whatif_api_v1_agents__agent_id__whatif_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "agent_id",
+      "required": true,
+      "schema": {
+       "title": "Agent Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/WhatIfIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/WhatIfOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Post Whatif",
+    "tags": [
+     "whatif"
+    ]
+   }
+  },
+  "/api/v1/anomalies": {
+   "get": {
+    "description": "Isolation Forest flags in scope (distributor: own agents; admin: all), open first.",
+    "operationId": "list_anomalies_api_v1_anomalies_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "status",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/AnomalyStatus"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page",
+      "required": false,
+      "schema": {
+       "default": 1,
+       "minimum": 1,
+       "title": "Page",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page_size",
+      "required": false,
+      "schema": {
+       "default": 20,
+       "maximum": 100,
+       "minimum": 1,
+       "title": "Page Size",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AnomalyPage"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "List Anomalies",
+    "tags": [
+     "anomalies"
+    ]
+   }
+  },
+  "/api/v1/anomalies/{anomaly_id}": {
+   "get": {
+    "description": "One flag with its peer-group distribution per feature and the top reasons.",
+    "operationId": "get_anomaly_api_v1_anomalies__anomaly_id__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "anomaly_id",
+      "required": true,
+      "schema": {
+       "title": "Anomaly Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AnomalyDetail"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Anomaly",
+    "tags": [
+     "anomalies"
+    ]
+   }
+  },
+  "/api/v1/anomalies/{anomaly_id}/narrative": {
+   "get": {
+    "description": "Neutral investigation note for one flag, from its peer evidence only.",
+    "operationId": "anomaly_narrative_api_v1_anomalies__anomaly_id__narrative_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "anomaly_id",
+      "required": true,
+      "schema": {
+       "title": "Anomaly Id",
+       "type": "integer"
+      }
+     },
+     {
+      "description": "bn or en; default: user's language",
+      "in": "query",
+      "name": "lang",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/Lang"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "bn or en; default: user's language",
+       "title": "Lang"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LlmText"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Anomaly Narrative",
+    "tags": [
+     "llm"
+    ]
+   }
+  },
+  "/api/v1/anomalies/{anomaly_id}/review": {
+   "post": {
+    "description": "Human review: confirmed or dismissed with a note (audit_log). Nothing else happens.",
+    "operationId": "review_anomaly_api_v1_anomalies__anomaly_id__review_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "anomaly_id",
+      "required": true,
+      "schema": {
+       "title": "Anomaly Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AnomalyReviewIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AnomalyDetail"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Review Anomaly",
+    "tags": [
+     "anomalies"
+    ]
+   }
+  },
+  "/api/v1/auth/change-password": {
+   "post": {
+    "operationId": "change_password_api_v1_auth_change_password_post",
+    "parameters": [
+     {
+      "in": "cookie",
+      "name": "ap_refresh",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Ap Refresh"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ChangePasswordRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ChangePasswordResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Change Password",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/api/v1/auth/login": {
+   "post": {
+    "operationId": "login_api_v1_auth_login_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/LoginRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TokenResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Login",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/api/v1/auth/logout": {
+   "post": {
+    "description": "Works with an expired access token: the cookie alone identifies the session.",
+    "operationId": "logout_api_v1_auth_logout_post",
+    "parameters": [
+     {
+      "in": "cookie",
+      "name": "ap_refresh",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Ap Refresh"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Logout",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/api/v1/auth/me": {
+   "get": {
+    "operationId": "me_api_v1_auth_me_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/UserOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Me",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/api/v1/auth/refresh": {
+   "post": {
+    "operationId": "refresh_api_v1_auth_refresh_post",
+    "parameters": [
+     {
+      "in": "cookie",
+      "name": "ap_refresh",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Ap Refresh"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TokenResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Refresh",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/api/v1/copilot/chat": {
+   "post": {
+    "description": "`text/event-stream`, in order:\n`meta` (CopilotMeta: route, tool, playbook sources) -> `template` (CopilotDraft: deterministic\nanswer, show it at once) -> `delta`* (CopilotDraft: chunks of the final answer) -> `done`\n(CopilotReply). On an internal failure: `error` ({\"detail\": \"copilot_failed\"}).",
+    "operationId": "copilot_chat_api_v1_copilot_chat_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CopilotChatIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "text/event-stream": {}
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Copilot Chat",
+    "tags": [
+     "copilot"
+    ]
+   }
+  },
+  "/api/v1/distributor/briefing": {
+   "get": {
+    "description": "Daily briefing over the caller's agents (distributor: own; admin: all).",
+    "operationId": "distributor_briefing_api_v1_distributor_briefing_get",
+    "parameters": [
+     {
+      "description": "bn or en; default: user's language",
+      "in": "query",
+      "name": "lang",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/Lang"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "bn or en; default: user's language",
+       "title": "Lang"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LlmText"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Distributor Briefing",
+    "tags": [
+     "llm"
+    ]
+   }
+  },
+  "/api/v1/events": {
+   "get": {
+    "description": "Events overlapping [from, to), by start time; `district` keeps nationwide events too.",
+    "operationId": "list_events_api_v1_events_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "from",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date-time",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "From"
+      }
+     },
+     {
+      "in": "query",
+      "name": "to",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date-time",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "To"
+      }
+     },
+     {
+      "in": "query",
+      "name": "type",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/EventType"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Type"
+      }
+     },
+     {
+      "in": "query",
+      "name": "district",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 80,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "District"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page",
+      "required": false,
+      "schema": {
+       "default": 1,
+       "minimum": 1,
+       "title": "Page",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page_size",
+      "required": false,
+      "schema": {
+       "default": 50,
+       "maximum": 200,
+       "minimum": 1,
+       "title": "Page Size",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/EventPage"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "List Events",
+    "tags": [
+     "events"
+    ]
+   },
+   "post": {
+    "description": "Add an event (audit_log). Forecasts use it from the next precompute.",
+    "operationId": "create_event_api_v1_events_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/EventIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/EventItem"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Create Event",
+    "tags": [
+     "events"
+    ]
+   }
+  },
+  "/api/v1/events/{event_id}": {
+   "delete": {
+    "description": "Delete an event (audit_log keeps the deleted row).",
+    "operationId": "delete_event_api_v1_events__event_id__delete",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "event_id",
+      "required": true,
+      "schema": {
+       "title": "Event Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Delete Event",
+    "tags": [
+     "events"
+    ]
+   },
+   "put": {
+    "description": "Replace an event (audit_log keeps before/after).",
+    "operationId": "update_event_api_v1_events__event_id__put",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "event_id",
+      "required": true,
+      "schema": {
+       "title": "Event Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/EventIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/EventItem"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Update Event",
+    "tags": [
+     "events"
+    ]
+   }
+  },
+  "/api/v1/explanations/narrate": {
+   "post": {
+    "description": "SHAP template reasons for one float, reworded by the LLM (template on any failure).",
+    "operationId": "narrate_api_v1_explanations_narrate_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/NarrateIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LlmText"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Narrate",
+    "tags": [
+     "llm"
+    ]
+   }
+  },
+  "/api/v1/health": {
+   "get": {
+    "operationId": "health_api_v1_health_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HealthResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Health",
+    "tags": [
+     "system"
+    ]
+   }
+  },
+  "/api/v1/impact/comparison": {
+   "get": {
+    "description": "Day-by-day AI vs baseline inside [from, to] (clipped to the holdout) + range totals.",
+    "operationId": "get_comparison_api_v1_impact_comparison_get",
+    "parameters": [
+     {
+      "description": "first local day",
+      "in": "query",
+      "name": "from",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "first local day",
+       "title": "From"
+      }
+     },
+     {
+      "description": "last local day, inclusive",
+      "in": "query",
+      "name": "to",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "last local day, inclusive",
+       "title": "To"
+      }
+     },
+     {
+      "description": "BDT per van trip; default from settings",
+      "in": "query",
+      "name": "van_cost",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maximum": 100000,
+         "minimum": 0,
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "BDT per van trip; default from settings",
+       "title": "Van Cost"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ImpactComparison"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Comparison",
+    "tags": [
+     "impact"
+    ]
+   }
+  },
+  "/api/v1/impact/summary": {
+   "get": {
+    "description": "AI vs fixed-threshold baseline over the 14 held-out days (own agents for a distributor).",
+    "operationId": "get_summary_api_v1_impact_summary_get",
+    "parameters": [
+     {
+      "description": "BDT per van trip; default from settings",
+      "in": "query",
+      "name": "van_cost",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maximum": 100000,
+         "minimum": 0,
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "BDT per van trip; default from settings",
+       "title": "Van Cost"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ImpactSummary"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Summary",
+    "tags": [
+     "impact"
+    ]
+   }
+  },
+  "/api/v1/llm/status": {
+   "get": {
+    "description": "Configured and effective provider, today's live calls vs the cap, last error code.",
+    "operationId": "get_llm_status_api_v1_llm_status_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LlmStatus"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Llm Status",
+    "tags": [
+     "llm"
+    ]
+   }
+  },
+  "/api/v1/map/agents": {
+   "get": {
+    "description": "Scoped agents' lat/lng + risk level at `at_hour` (0..72) + current swaps (time scrubber).",
+    "operationId": "get_map_agents_api_v1_map_agents_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "at_hour",
+      "required": false,
+      "schema": {
+       "default": 0,
+       "maximum": 72,
+       "minimum": 0,
+       "title": "At Hour",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/MapAgents"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Map Agents",
+    "tags": [
+     "map"
+    ]
+   }
+  },
+  "/api/v1/notifications": {
+   "get": {
+    "description": "The caller's own notifications, newest first, with the unread count for the bell.",
+    "operationId": "list_notifications_api_v1_notifications_get",
+    "parameters": [
+     {
+      "description": "true: unread only; false: read only",
+      "in": "query",
+      "name": "unread",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "true: unread only; false: read only",
+       "title": "Unread"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page",
+      "required": false,
+      "schema": {
+       "default": 1,
+       "minimum": 1,
+       "title": "Page",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page_size",
+      "required": false,
+      "schema": {
+       "default": 20,
+       "maximum": 100,
+       "minimum": 1,
+       "title": "Page Size",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/NotificationPage"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "List Notifications",
+    "tags": [
+     "notifications"
+    ]
+   }
+  },
+  "/api/v1/notifications/read-all": {
+   "post": {
+    "operationId": "read_all_api_v1_notifications_read_all_post",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ReadAllResult"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Read All",
+    "tags": [
+     "notifications"
+    ]
+   }
+  },
+  "/api/v1/notifications/{notification_id}/read": {
+   "post": {
+    "operationId": "read_one_api_v1_notifications__notification_id__read_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "notification_id",
+      "required": true,
+      "schema": {
+       "title": "Notification Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/NotificationItem"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Read One",
+    "tags": [
+     "notifications"
+    ]
+   }
+  },
+  "/api/v1/recommendation-requests": {
+   "get": {
+    "description": "Requests in scope (agent: own; distributor: own agents; admin: all), newest first.",
+    "operationId": "list_requests_api_v1_recommendation_requests_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "status",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/RequestStatus"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page",
+      "required": false,
+      "schema": {
+       "default": 1,
+       "minimum": 1,
+       "title": "Page",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page_size",
+      "required": false,
+      "schema": {
+       "default": 20,
+       "maximum": 100,
+       "minimum": 1,
+       "title": "Page Size",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RequestPage"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "List Requests",
+    "tags": [
+     "recommendation-requests"
+    ]
+   }
+  },
+  "/api/v1/recommendation-requests/{request_id}/cancel": {
+   "post": {
+    "description": "Agent withdraws own request while it is still awaiting a decision (audit_log).",
+    "operationId": "cancel_api_v1_recommendation_requests__request_id__cancel_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "request_id",
+      "required": true,
+      "schema": {
+       "title": "Request Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "anyOf": [
+         {
+          "$ref": "#/components/schemas/RequestNoteIn"
+         },
+         {
+          "type": "null"
+         }
+        ],
+        "title": "Body"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RequestItem"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Cancel",
+    "tags": [
+     "recommendation-requests"
+    ]
+   }
+  },
+  "/api/v1/recommendation-requests/{request_id}/decision": {
+   "post": {
+    "description": "Distributor approves or declines a requested item with a note (audit_log).",
+    "operationId": "decide_api_v1_recommendation_requests__request_id__decision_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "request_id",
+      "required": true,
+      "schema": {
+       "title": "Request Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RequestDecisionIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RequestItem"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Decide",
+    "tags": [
+     "recommendation-requests"
+    ]
+   }
+  },
+  "/api/v1/recommendation-requests/{request_id}/fulfil": {
+   "post": {
+    "description": "Distributor records that an approved request was delivered (audit_log).",
+    "operationId": "fulfil_api_v1_recommendation_requests__request_id__fulfil_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "request_id",
+      "required": true,
+      "schema": {
+       "title": "Request Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "anyOf": [
+         {
+          "$ref": "#/components/schemas/RequestNoteIn"
+         },
+         {
+          "type": "null"
+         }
+        ],
+        "title": "Body"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RequestItem"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Fulfil",
+    "tags": [
+     "recommendation-requests"
+    ]
+   }
+  },
+  "/api/v1/recommendations/{recommendation_id}/request": {
+   "post": {
+    "description": "Agent asks the distributor to act on own recommendation. A repeat call returns the\nexisting request (200).",
+    "operationId": "create_request_api_v1_recommendations__recommendation_id__request_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "recommendation_id",
+      "required": true,
+      "schema": {
+       "title": "Recommendation Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RequestItem"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Create Request",
+    "tags": [
+     "recommendation-requests"
+    ]
+   }
+  },
+  "/api/v1/responsible-ai/fairness": {
+   "get": {
+    "description": "Held-out forecast MAE and stockout recall per agent group, with the gap between groups.",
+    "operationId": "get_fairness_api_v1_responsible_ai_fairness_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "groupBy",
+      "required": false,
+      "schema": {
+       "$ref": "#/components/schemas/GroupBy",
+       "default": "urban_rural"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/FairnessReport"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Fairness",
+    "tags": [
+     "responsible-ai"
+    ]
+   }
+  },
+  "/api/v1/responsible-ai/model-card": {
+   "get": {
+    "description": "Active models, held-out metrics, data, intended use, limits; advisory only.",
+    "operationId": "get_model_card_api_v1_responsible_ai_model_card_get",
+    "parameters": [
+     {
+      "description": "bn or en; default: user's language",
+      "in": "query",
+      "name": "lang",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/Lang"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "bn or en; default: user's language",
+       "title": "Lang"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ModelCard"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Model Card",
+    "tags": [
+     "responsible-ai"
+    ]
+   }
+  },
+  "/api/v1/search": {
+   "get": {
+    "description": "Command palette: agents in the caller's scope (code / name / region) + role pages, max 8.",
+    "operationId": "search_api_v1_search_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "q",
+      "required": true,
+      "schema": {
+       "maxLength": 80,
+       "minLength": 1,
+       "title": "Q",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SearchResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Search",
+    "tags": [
+     "search"
+    ]
+   }
+  },
+  "/api/v1/swaps": {
+   "get": {
+    "description": "Swap suggestions in scope (agent: own as donor or receiver; distributor: own agents).",
+    "operationId": "list_swaps_api_v1_swaps_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "status",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/SwapStatus"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page",
+      "required": false,
+      "schema": {
+       "default": 1,
+       "minimum": 1,
+       "title": "Page",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page_size",
+      "required": false,
+      "schema": {
+       "default": 20,
+       "maximum": 100,
+       "minimum": 1,
+       "title": "Page Size",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SwapPage"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "List Swaps",
+    "tags": [
+     "swaps"
+    ]
+   }
+  },
+  "/api/v1/swaps/export.csv": {
+   "get": {
+    "description": "The swap queue in scope as CSV (notes are user text: formula-escaped).",
+    "operationId": "export_swaps_api_v1_swaps_export_csv_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "status",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/SwapStatus"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "text/csv": {
+        "schema": {
+         "type": "string"
+        }
+       }
+      },
+      "description": "CSV file"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Export Swaps",
+    "tags": [
+     "swaps"
+    ]
+   }
+  },
+  "/api/v1/swaps/{swap_id}/decision": {
+   "post": {
+    "description": "Distributor approves or rejects with a note (audit_log). Advisory: no money moves.",
+    "operationId": "decide_api_v1_swaps__swap_id__decision_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "swap_id",
+      "required": true,
+      "schema": {
+       "title": "Swap Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SwapDecisionIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SwapItem"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Decide",
+    "tags": [
+     "swaps"
+    ]
+   }
+  },
+  "/api/v1/swaps/{swap_id}/respond": {
+   "post": {
+    "description": "Donor or receiver agent accepts or declines (audit_log); the distributor still decides.",
+    "operationId": "respond_api_v1_swaps__swap_id__respond_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "swap_id",
+      "required": true,
+      "schema": {
+       "title": "Swap Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SwapRespondIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SwapItem"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Respond",
+    "tags": [
+     "swaps"
+    ]
+   }
+  },
+  "/api/v1/system/freshness": {
+   "get": {
+    "description": "Last forecast time, active model version, synthetic data period and LLM mode.",
+    "operationId": "system_freshness_api_v1_system_freshness_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Freshness"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "System Freshness",
+    "tags": [
+     "system"
+    ]
+   }
+  },
+  "/api/v1/system/health": {
+   "get": {
+    "operationId": "health_api_v1_system_health_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HealthResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Health",
+    "tags": [
+     "system"
+    ]
+   }
+  },
+  "/api/v1/system/status": {
+   "get": {
+    "operationId": "system_status_api_v1_system_status_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SystemStatus"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "System Status",
+    "tags": [
+     "system"
+    ]
+   }
+  },
+  "/api/v1/users/me/preferences": {
+   "patch": {
+    "description": "Language, theme, digits, in-app notifications, onboarding tour; only sent fields change.",
+    "operationId": "update_preferences_api_v1_users_me_preferences_patch",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PreferencesUpdate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/UserOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Update Preferences",
+    "tags": [
+     "users"
+    ]
+   }
+  },
+  "/api/v1/users/me/profile": {
+   "get": {
+    "operationId": "get_profile_api_v1_users_me_profile_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ProfileOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Profile",
+    "tags": [
+     "users"
+    ]
+   },
+   "patch": {
+    "description": "Display name (no e-mail / phone numbers) and avatar colour token.",
+    "operationId": "update_profile_api_v1_users_me_profile_patch",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ProfileUpdate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ProfileOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Update Profile",
+    "tags": [
+     "users"
+    ]
+   }
+  }
+ }
+}

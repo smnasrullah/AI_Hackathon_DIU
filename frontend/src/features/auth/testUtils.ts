@@ -10,7 +10,12 @@ export function makeUser(role: Role): AuthUser {
     agent_id: role === "agent" ? 1 : null,
     distributor_id: role === "admin" ? null : 1,
     lang: "en",
-    theme: "system",
+    theme: "light",
+    digits: "en",
+    notify_in_app: true,
+    tour_done: true,
+    display_name: null,
+    avatar_color: null,
     last_login_at: null,
   };
 }

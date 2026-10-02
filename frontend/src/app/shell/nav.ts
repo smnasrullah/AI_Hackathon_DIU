@@ -1,0 +1,132 @@
+import {
+  Activity,
+  ArrowLeftRight,
+  Bot,
+  Boxes,
+  ChartLine,
+  House,
+  Map as MapIcon,
+  MessageCircle,
+  Newspaper,
+  ScanSearch,
+  ScrollText,
+  ShieldCheck,
+  TrendingUp,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
+import { matchPath } from "react-router-dom";
+
+import type en from "../../i18n/en.json";
+import { ROLE_HOME, type Role } from "../../features/auth/types";
+
+export type PageKey = keyof (typeof en)["page"];
+
+export interface NavItem {
+  to: string;
+  page: PageKey;
+  icon: LucideIcon;
+  end?: boolean;
+}
+
+export const SIDE_NAV: Record<Exclude<Role, "agent">, NavItem[]> = {
+  distributor: [
+    { to: "/distributor", page: "controlRoom", icon: MapIcon, end: true },
+    { to: "/distributor/swaps", page: "swapQueue", icon: ArrowLeftRight },
+    { to: "/distributor/anomalies", page: "anomalies", icon: ScanSearch },
+    { to: "/distributor/impact", page: "impact", icon: TrendingUp },
+    { to: "/distributor/briefing", page: "briefing", icon: Newspaper },
+    { to: "/responsible-ai", page: "responsibleAi", icon: ShieldCheck },
+  ],
+  admin: [
+    { to: "/admin", page: "systemStatus", icon: Activity, end: true },
+    { to: "/admin/users", page: "users", icon: Users },
+    { to: "/admin/models", page: "models", icon: Boxes },
+    { to: "/admin/llm", page: "llmLog", icon: Bot },
+    { to: "/admin/audit", page: "auditLog", icon: ScrollText },
+    { to: "/responsible-ai", page: "responsibleAi", icon: ShieldCheck },
+  ],
+};
+
+export const AGENT_NAV = [
+  { to: "/agent", label: "nav.home", icon: House, end: true },
+  { to: "/agent/forecast", label: "nav.forecast", icon: ChartLine, end: false },
+  { to: "/agent/swap", label: "nav.swap", icon: ArrowLeftRight, end: false },
+  { to: "/agent/copilot", label: "nav.ask", icon: MessageCircle, end: false },
+] as const;
+
+/** Nav entries for the palette's empty state. */
+export function navFor(role: Role): NavItem[] {
+  if (role !== "agent") return SIDE_NAV[role];
+  const pages: PageKey[] = ["agentHome", "agentForecast", "agentSwap", "agentCopilot"];
+  return AGENT_NAV.map((item, i) => ({ to: item.to, page: pages[i] ?? "agentHome", icon: item.icon, end: item.end }));
+}
+
+const HOME = "~home";
+
+interface PageMeta {
+  pattern: string;
+  page: PageKey;
+  parent?: string;
+  /** Prediction pages show the data freshness chip. */
+  prediction?: boolean;
+}
+
+const PAGES: PageMeta[] = [
+  { pattern: "/agent", page: "agentHome", prediction: true },
+  { pattern: "/agent/forecast", page: "agentForecast", parent: "/agent", prediction: true },
+  { pattern: "/agent/stockout", page: "agentStockout", parent: "/agent", prediction: true },
+  { pattern: "/agent/swap", page: "agentSwap", parent: "/agent", prediction: true },
+  { pattern: "/agent/copilot", page: "agentCopilot", parent: "/agent" },
+  { pattern: "/agent/settings", page: "settings", parent: "/agent" },
+  { pattern: "/distributor", page: "controlRoom", prediction: true },
+  { pattern: "/distributor/agents/:id", page: "agentDetail", parent: "/distributor", prediction: true },
+  { pattern: "/distributor/swaps", page: "swapQueue", parent: "/distributor", prediction: true },
+  { pattern: "/distributor/anomalies", page: "anomalies", parent: "/distributor" },
+  { pattern: "/distributor/anomalies/:id", page: "investigation", parent: "/distributor/anomalies" },
+  { pattern: "/distributor/impact", page: "impact", parent: "/distributor", prediction: true },
+  { pattern: "/distributor/briefing", page: "briefing", parent: "/distributor", prediction: true },
+  { pattern: "/admin", page: "systemStatus" },
+  { pattern: "/admin/users", page: "users", parent: "/admin" },
+  { pattern: "/admin/models", page: "models", parent: "/admin" },
+  { pattern: "/admin/llm", page: "llmLog", parent: "/admin" },
+  { pattern: "/admin/audit", page: "auditLog", parent: "/admin" },
+  { pattern: "/settings", page: "settings", parent: HOME },
+  { pattern: "/profile", page: "profile", parent: HOME },
+  { pattern: "/help", page: "help", parent: HOME },
+  { pattern: "/about", page: "about", parent: HOME },
+  { pattern: "/notifications", page: "notifications", parent: HOME },
+  { pattern: "/responsible-ai", page: "responsibleAi", parent: HOME },
+];
+
+export interface Crumb {
+  to: string;
+  page: PageKey;
+  /** Route param shown after the title ("#12"). */
+  id?: string;
+}
+
+function find(pathname: string): { meta: PageMeta; id?: string } | null {
+  for (const meta of PAGES) {
+    const hit = matchPath({ path: meta.pattern, end: true }, pathname);
+    if (hit) return { meta, id: hit.params.id };
+  }
+  return null;
+}
+
+export function pageFor(pathname: string): PageMeta | null {
+  return find(pathname)?.meta ?? null;
+}
+
+/** Home first, current page last. */
+export function crumbsFor(pathname: string, role: Role): Crumb[] {
+  const out: Crumb[] = [];
+  let path: string | undefined = pathname;
+  for (let guard = 0; path && guard < 5; guard++) {
+    const found = find(path);
+    if (!found) break;
+    out.unshift({ to: path, page: found.meta.page, id: found.id });
+    path = found.meta.parent === HOME ? ROLE_HOME[role] : found.meta.parent;
+  }
+  return out;
+}

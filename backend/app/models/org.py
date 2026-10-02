@@ -14,6 +14,7 @@ from sqlalchemy import (
     SmallInteger,
     Text,
     Uuid,
+    false,
     true,
 )
 from sqlalchemy.orm import Mapped, mapped_column
@@ -86,6 +87,12 @@ class User(Base):
     theme: Mapped[Theme] = mapped_column(
         db_enum(Theme), default=Theme.system, server_default="system"
     )
+    digits: Mapped[Lang] = mapped_column(db_enum(Lang), default=Lang.bn, server_default="bn")
+    notify_in_app: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
+    tour_done: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
+    # Self-chosen nickname + palette token; never real PII.
+    display_name: Mapped[str | None] = mapped_column(Text)
+    avatar_color: Mapped[str | None] = mapped_column(Text)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
     last_login_at: Mapped[datetime | None] = mapped_column(TsTz)
     created_at: Mapped[datetime] = created_at_col()

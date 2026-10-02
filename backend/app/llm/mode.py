@@ -1,9 +1,7 @@
-from pathlib import Path
-
 from app.core.config import Settings
 from app.schemas.system import LlmMode
 
-REPLAY_FILE = Path(__file__).resolve().parent / "cache" / "demo_replay.json"
+LIVE: frozenset[LlmMode] = frozenset({"anthropic", "openai_compatible"})
 
 
 def resolve_mode(settings: Settings) -> LlmMode:
@@ -12,4 +10,4 @@ def resolve_mode(settings: Settings) -> LlmMode:
         return settings.llm_provider
     if settings.llm_api_key.get_secret_value():
         return "openai_compatible" if settings.llm_base_url else "anthropic"
-    return "replay" if REPLAY_FILE.is_file() else "template"
+    return "replay" if settings.llm_replay_file.is_file() else "template"

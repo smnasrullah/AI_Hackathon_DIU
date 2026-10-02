@@ -25,17 +25,44 @@ export function pathOf(page: Page): string {
   return new URL(page.url()).pathname;
 }
 
+/** Ids and test ids, not labels: the login page is Bangla-first and the labels follow the language. */
 export async function fillLogin(page: Page, email: string, password: string): Promise<void> {
   await page.goto("/login");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password", { exact: true }).fill(password);
-  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await page.locator("#email").fill(email);
+  await page.locator("#password").fill(password);
+  await page.getByTestId("login-submit").click();
+}
+
+/** True when the page scrolls sideways (a layout bug at that viewport). */
+export async function hasHorizontalScroll(page: Page): Promise<boolean> {
+  return page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
 }
 
 export async function loginAs(page: Page, role: Role): Promise<void> {
   const { email, password, home } = ACCOUNTS[role];
   await fillLogin(page, email, password);
   await expect(page).toHaveURL((url) => url.pathname === home);
+  await dismissTour(page);
+}
+
+/** The onboarding tour opens on a user's first visit; it renders with the shell, so check once. */
+export async function dismissTour(page: Page): Promise<void> {
+  await expect(page.getByTestId("app-shell")).toBeVisible();
+  const skip = page.getByTestId("tour-skip");
+  if (await skip.isVisible()) {
+    // Wait for tour_done to reach the server, so a following page load does not reopen it.
+    const saved = page.waitForResponse((res) => res.url().endsWith("/users/me/preferences") && res.ok());
+    await skip.click();
+    await saved;
+    await expect(page.getByTestId("onboarding-tour")).toHaveCount(0);
+  }
+}
+
+/** Open the avatar menu and log out. */
+export async function logoutFromMenu(page: Page): Promise<void> {
+  await page.getByTestId("avatar-menu").click();
+  await page.getByTestId("logout").click();
+  await expect(page).toHaveURL(/\/login$/);
 }
 
 const EXPECTED_STATUS = new Set([401, 403]);

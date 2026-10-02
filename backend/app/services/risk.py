@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from app.models import FloatSnapshot, Forecast, RiskLevel, StockoutPrediction, SystemMeta
 from app.models.enums import FloatType
 from app.rules.risk_rules import HORIZONS, RiskConfig, level_confidence, level_for
-from app.services import forecast
+from app.services import forecast, notify
 from app.services.model_registry import active_model
 from ml.inference.stockout import StockoutConfig, project
 from ml.registry import FORECAST_MODEL
@@ -98,11 +98,13 @@ def precompute(session: Session, cfg: RiskConfig, seed: int, force: bool = False
                 risks.append({**base, "horizon_h": h, "probability": p,
                               "level": level_for(p, h, cfg),
                               "confidence": round(level_confidence(p), 4), "shap_top": []})
+    before = notify.headline_levels(session)
     session.execute(delete(RiskLevel))
     session.execute(delete(StockoutPrediction))
     if stockouts:
         session.execute(insert(StockoutPrediction), stockouts)
         session.execute(insert(RiskLevel), risks)
+    notify.risk_changed(session, before, notify.headline_levels(session))
     session.merge(SystemMeta(key=CACHE_KEY, value=key))
     log.info("risk cache: %d agents at %s (%s)", len(agents), now.isoformat(), mv.version)
     return len(agents)

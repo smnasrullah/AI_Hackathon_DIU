@@ -33,6 +33,7 @@ def env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
     monkeypatch.setenv("ARTIFACTS_DIR", str(tmp_path / "artifacts"))
     monkeypatch.setenv("LLM_PROVIDER", "auto")
     monkeypatch.setenv("LLM_API_KEY", "")
+    monkeypatch.setenv("DEMO_MODE", "true")
     get_settings.cache_clear()
     get_engine.cache_clear()
     yield tmp_path

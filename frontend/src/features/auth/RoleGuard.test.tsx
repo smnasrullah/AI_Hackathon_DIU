@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { authClient } from "../../lib/api";
 import { useAuthStore } from "./authStore";
-import { ForbiddenPage } from "./ForbiddenPage";
+import { ForbiddenPage } from "../shared/StatusPages";
 import { HomeRedirect } from "./HomeRedirect";
 import { RoleGuard } from "./RoleGuard";
 import { signIn, signOut } from "./testUtils";

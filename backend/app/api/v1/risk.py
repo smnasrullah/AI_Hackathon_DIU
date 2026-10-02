@@ -1,14 +1,16 @@
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, Query, Response, status
 
+from app.core.csv_export import CSV_RESPONSES, csv_response
 from app.core.deps import CurrentUser, ScopedAgent, SessionDep
 from app.models.enums import RiskLevelCode
 from app.rules.risk_rules import HORIZONS
 from app.schemas.risk import AgentRisk, AgentRiskPage, AgentStockout, AgentSummary, RiskSort
-from app.services import risk_read
+from app.services import exports, risk_read
 
 router = APIRouter(prefix="/agents", tags=["risk"])
+EXPORT_MAX_ROWS = 100_000
 
 
 def _not_ready() -> HTTPException:
@@ -33,6 +35,25 @@ def list_risk(
     if result is None:
         raise _not_ready()
     return result
+
+
+@router.get("/risk/export.csv", response_class=Response, responses=CSV_RESPONSES)
+def export_risk(
+    user: CurrentUser,
+    session: SessionDep,
+    horizon: Annotated[int, Query(description="6, 24 or 72")] = 24,
+    level: Annotated[RiskLevelCode | None, Query()] = None,
+    sort: Annotated[RiskSort, Query()] = "risk",
+    q: Annotated[str | None, Query(max_length=80)] = None,
+) -> Response:
+    """The risk list (same filters, all pages) as CSV; scoped like GET /agents/risk."""
+    if horizon not in HORIZONS:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, detail="invalid_horizon")
+    result = risk_read.risk_page(session, user, horizon, level, sort, 1, EXPORT_MAX_ROWS, q)
+    if result is None:
+        raise _not_ready()
+    return csv_response(f"agent-risk-{horizon}h.csv", exports.RISK_HEADER,
+                        exports.risk_rows(result))
 
 
 @router.get("/{agent_id}/summary", response_model=AgentSummary)

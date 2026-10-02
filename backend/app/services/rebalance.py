@@ -36,7 +36,7 @@ from app.rules.channel_rules import ChannelConfig, Choice, Shortage, SwapCover, 
 from app.rules.rebalance_rules import Advice, Need, RebalanceConfig, advise, assess
 from app.rules.risk_rules import HEADLINE_HORIZON, SEVERITY
 from app.rules.swap_rules import Donor, Match, Receiver, SwapConfig, haversine_km, match
-from app.services import forecast, risk
+from app.services import forecast, notify, risk
 from app.services.model_registry import active_model
 from ml.registry import FORECAST_MODEL
 
@@ -221,8 +221,10 @@ def precompute(session: Session, rcfg: RebalanceConfig, scfg: SwapConfig,
         .values(status=RecommendationStatus.expired))
     session.execute(delete(Recommendation).where(
         Recommendation.status == RecommendationStatus.open))
+    known = notify.pending_swap_keys(session)
     session.execute(delete(SwapSuggestion).where(SwapSuggestion.status == SwapStatus.pending))
     swaps |= _write_swaps(session, mv.id, matches)
+    notify.swap_offers(session, known)
     choices = _channels(session, plans, swaps, now, ccfg)
     rows: list[dict[str, Any]] = []
     for i, p in enumerate(plans):

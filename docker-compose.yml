@@ -34,6 +34,9 @@ services:
     build:
       context: ./frontend
       target: runtime
+      args:
+        # true only for the e2e build (scripts/check -E2E): adds the dev-only /dev/kit route.
+        VITE_DEV_KIT: ${VITE_DEV_KIT:-false}
     depends_on:
       - backend
     ports:

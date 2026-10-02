@@ -35,8 +35,11 @@ Invoke-Step 'vitest'    ($fe + @('npm', 'run', '-s', 'test'))
 if ($E2E) {
   if ((docker compose --profile e2e config --services) -contains 'e2e') {
     # Rebuild app images so e2e tests the working tree; `up -d` recreates changed containers.
+    # The e2e bundle includes the dev-only /dev/kit route.
+    $env:VITE_DEV_KIT = 'true'
     if (-not $NoBuild) { Invoke-Step 'e2e-build' @('compose', '--profile', 'e2e', 'build', '-q', 'backend', 'frontend', 'e2e') }
     Invoke-Step 'e2e-up' @('compose', 'up', '-d', '--wait', 'db', 'frontend')
+    Remove-Item Env:VITE_DEV_KIT -ErrorAction SilentlyContinue
     Invoke-Step 'e2e' @('compose', '--profile', 'e2e', 'run', '--rm', '-T', 'e2e')
   } else { Write-Host 'SKIP  e2e        (no e2e service defined yet)' }
 }

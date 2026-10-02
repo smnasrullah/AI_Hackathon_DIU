@@ -32,4 +32,22 @@ class SystemStatus(BaseModel):
     artifacts_ok: bool
     model_version: str | None
     llm_mode: LlmMode
+    demo_mode: bool
+    generated_at: datetime
+
+
+class DataPeriod(BaseModel):
+    """Synthetic data window; the last 14 days are held out from training."""
+
+    start: datetime
+    end: datetime  # exclusive
+    holdout_start: datetime
+    sim_now: datetime  # simulated "now" every prediction starts at
+
+
+class Freshness(BaseModel):
+    last_forecast_at: datetime | None
+    model_version: str | None
+    data_period: DataPeriod
+    llm_mode: LlmMode
     generated_at: datetime

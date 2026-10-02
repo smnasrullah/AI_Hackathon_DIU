@@ -11,6 +11,7 @@ export interface E2ERoute {
 
 export const ROUTES: E2ERoute[] = [
   // Public
+  { path: "/", as: "public" },
   { path: "/login", as: "public" },
   { path: "/403", as: "public" },
 
@@ -42,4 +43,23 @@ export const ROUTES: E2ERoute[] = [
   { path: "/admin/models", as: "admin" },
   { path: "/admin/llm", as: "admin" },
   { path: "/admin/audit", as: "admin" },
+
+  // Dev only (built into the e2e bundle via VITE_DEV_KIT)
+  { path: "/dev/kit", as: "public" },
+
+  // App shell + platform pages
+  { path: "/404", as: "public" },
+  { path: "/500", as: "public" },
+  { path: "/profile", as: "agent" },
+  { path: "/profile", as: "distributor" },
+  { path: "/profile", as: "admin" },
+  { path: "/notifications", as: "agent" },
+  { path: "/notifications", as: "distributor" },
+  { path: "/help", as: "agent" },
+  { path: "/help", as: "admin" },
+  { path: "/about", as: "distributor" },
+  { path: "/about", as: "agent" },
+
+  // Agent stockout time (/agent and /agent/forecast are listed above)
+  { path: "/agent/stockout", as: "agent" },
 ];

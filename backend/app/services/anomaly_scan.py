@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 
 from app.models import Anomaly, SystemMeta
 from app.models.enums import AnomalyStatus
-from app.services import forecast
+from app.services import forecast, notify
 from app.services.model_registry import register_anomaly_model
 from ml.explain.anomaly_evidence import evidence
 from ml.features.anomaly import WINDOW_H, load_series, window_features
@@ -48,21 +48,26 @@ def precompute(session: Session, artifacts_dir: Path, force: bool = False) -> in
     groups = np.array(series.groups)
     score, threshold = detector.score(w.x, groups)
     start_ts, end_ts = ts_of(end - WINDOW_H), ts_of(end)
+    # Agents already flagged for this window were notified then; only new flags notify.
+    known = {(a, _utc(ts)) for a, ts in session.execute(select(Anomaly.agent_id,
+             Anomaly.window_start).where(Anomaly.status == AnomalyStatus.open))}
     session.execute(delete(Anomaly).where(Anomaly.status == AnomalyStatus.open))
     reviewed = {(a, _utc(ts)) for a, ts in session.execute(
         select(Anomaly.agent_id, Anomaly.window_start))}
-    written = 0
+    flags: list[Anomaly] = []
     for i in np.flatnonzero(score > threshold):
         agent_id = int(series.agent_ids[i])
         if (agent_id, start_ts) in reviewed:
             continue
-        session.add(Anomaly(model_version_id=mv.id, agent_id=agent_id, window_start=start_ts,
-                            window_end=end_ts, score=round(float(score[i]), 4),
-                            features=evidence(w, score, threshold, groups, int(i)) | {
-                                "as_of": now.isoformat()}))
-        written += 1
+        flags.append(Anomaly(model_version_id=mv.id, agent_id=agent_id, window_start=start_ts,
+                             window_end=end_ts, score=round(float(score[i]), 4),
+                             features=evidence(w, score, threshold, groups, int(i)) | {
+                                 "as_of": now.isoformat()}))
+    session.add_all(flags)
     session.merge(SystemMeta(key=CACHE_KEY, value=key))
     session.flush()
+    notify.anomalies_new(session, [f for f in flags if (f.agent_id, start_ts) not in known])
+    written = len(flags)
     log.info("anomaly cache: %d of %d agents flagged at %s (%s)", written,
              len(series.agent_ids), now.isoformat(), mv.version)
     return written

@@ -22,6 +22,8 @@ export interface SystemStatus {
   artifacts_ok: boolean;
   model_version: string | null;
   llm_mode: "anthropic" | "openai_compatible" | "replay" | "template";
+  /** One-click demo logins (landing role cards, login chips). */
+  demo_mode: boolean;
   generated_at: string;
 }
 
