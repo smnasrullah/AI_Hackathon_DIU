@@ -13,6 +13,13 @@ class CopilotChatIn(BaseModel):
     agent_id: int | None = None
 
 
+class CopilotSuggestions(BaseModel):
+    """Suggested questions; the only ones with recorded replay wording (exact-text match)."""
+
+    lang: Lang
+    items: list[str]
+
+
 class CopilotSource(BaseModel):
     """Liquidity Playbook passage the answer is grounded in (cited by title)."""
 

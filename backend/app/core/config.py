@@ -43,8 +43,10 @@ class Settings(BaseSettings):
     demo_admin_password: SecretStr = SecretStr("")
     demo_distributor_password: SecretStr = SecretStr("")
     demo_agent_password: SecretStr = SecretStr("")
-    # Landing role cards + POST /auth/demo-login (one click, no password). Synthetic data only.
+    # Landing role cards + POST /auth/demo-login (one click, no password, is_demo accounts
+    # only). Synthetic data only. MUST be false on any public deployment.
     demo_mode: bool = True
+    demo_login_per_min: int = 10  # per client IP
 
     # Optional override of app/rules/risk_rules.DEFAULT_CUTS: {"6": [amber, red], ...}.
     risk_thresholds: dict[int, list[float]] = {}

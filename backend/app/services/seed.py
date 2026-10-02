@@ -78,6 +78,13 @@ DEMO_AGENTS: tuple[AgentSeed, ...] = (
     ),
 )
 
+# One-click demo login targets: the only users flagged is_demo.
+DEMO_ACCOUNTS: dict[UserRole, str] = {
+    UserRole.agent: "agent.mirpur@agentpulse.demo",
+    UserRole.distributor: "dist.dhaka@agentpulse.demo",
+    UserRole.admin: "admin@agentpulse.demo",
+}
+
 DEMO_USERS: tuple[UserSeed, ...] = (
     UserSeed("admin@agentpulse.demo", "Demo Admin", UserRole.admin, Lang.en),
     UserSeed("dist.dhaka@agentpulse.demo", "Dhaka Distributor", UserRole.distributor, Lang.en,
@@ -156,6 +163,7 @@ def _upsert_users(
         elif not verify_password(password, row.password_hash):
             row.password_hash = hash_password(password)
         row.full_name, row.role, row.lang, row.is_active = u.full_name, u.role, u.lang, True
+        row.is_demo = DEMO_ACCOUNTS.get(u.role) == u.email
         row.distributor_id = dist_ids[u.distributor_code] if u.distributor_code else None
         row.agent_id = agent_ids[u.agent_code] if u.agent_code else None
         if u.agent_code:

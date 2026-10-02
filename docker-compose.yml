@@ -19,6 +19,8 @@ services:
     build:
       context: ./backend
       target: runtime
+    # DEMO_MODE comes from .env (true for local / judge runs). Public hosting: DEMO_MODE=false,
+    # which unregisters POST /api/v1/auth/demo-login.
     env_file:
       - path: .env
         required: false

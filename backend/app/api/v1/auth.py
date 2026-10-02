@@ -4,6 +4,7 @@ from fastapi import APIRouter, Cookie, HTTPException, Request, Response, status
 
 from app.core.config import Settings, get_settings
 from app.core.deps import CurrentUser, SessionDep
+from app.core.rate_limit import RateLimiter
 from app.schemas.auth import (
     ChangePasswordRequest,
     ChangePasswordResponse,
@@ -16,6 +17,9 @@ from app.services import auth as auth_service
 from app.services.auth import AuthError, IssuedTokens
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+# Mounted by create_app only when DEMO_MODE=true: with it off the route does not exist.
+demo_router = APIRouter(prefix="/auth", tags=["auth"])
+demo_limiter = RateLimiter()
 
 REFRESH_COOKIE = "ap_refresh"
 # Scoped so the browser only sends the refresh token to the auth endpoints.
@@ -88,19 +92,27 @@ def login(
     return _token_response(tokens)
 
 
-@router.post("/demo-login", response_model=TokenResponse)
+DEMO_ERRORS = {"demo_mode_off": status.HTTP_404_NOT_FOUND,
+               "not_demo_account": status.HTTP_403_FORBIDDEN}
+
+
+@demo_router.post("/demo-login", response_model=TokenResponse)
 def demo_login(
     body: DemoLoginRequest, request: Request, response: Response, session: SessionDep
 ) -> TokenResponse:
-    """One-click sign-in as a seeded demo account. 404 unless DEMO_MODE is on."""
+    """One-click sign-in as a seeded is_demo account (DEMO_MODE only, rate-limited per IP,
+    audited). Never enable DEMO_MODE on a public deployment."""
     settings = get_settings()
+    ip = client_ip(request)
+    if not demo_limiter.allow(ip, settings.demo_login_per_min):
+        raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, detail="too_many_attempts",
+                            headers={"Retry-After": "60"})
     try:
         tokens = auth_service.demo_login(
-            session, body.role, request.headers.get("user-agent"), settings
+            session, body.role, ip, request.headers.get("user-agent"), settings
         )
     except AuthError as exc:
-        off = exc.code == "demo_mode_off"
-        code = status.HTTP_404_NOT_FOUND if off else status.HTTP_409_CONFLICT
+        code = DEMO_ERRORS.get(exc.code, status.HTTP_409_CONFLICT)
         raise HTTPException(code, detail=exc.code) from exc
     _set_refresh_cookie(response, tokens, settings)
     return _token_response(tokens)

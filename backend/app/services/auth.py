@@ -16,16 +16,11 @@ from app.core.security import (
     new_refresh_token,
     verify_password,
 )
-from app.models import LoginFailure, RefreshToken, User
+from app.models import AuditLog, LoginFailure, RefreshToken, User
 from app.models.enums import UserRole
+from app.services.seed import DEMO_ACCOUNTS
 
 USER_AGENT_MAX = 256
-# One-click demo login targets (seeded in services/seed.py).
-DEMO_ACCOUNTS: dict[UserRole, str] = {
-    UserRole.agent: "agent.mirpur@agentpulse.demo",
-    UserRole.distributor: "dist.dhaka@agentpulse.demo",
-    UserRole.admin: "admin@agentpulse.demo",
-}
 # Bound on the rotation chain walked when a reused token revokes its family.
 FAMILY_WALK_LIMIT = 10_000
 
@@ -122,17 +117,26 @@ def clear_login_failures(session: Session, email: str) -> int:
 
 
 def demo_login(
-    session: Session, role: UserRole, user_agent: str | None, settings: Settings
+    session: Session, role: UserRole, ip: str, user_agent: str | None, settings: Settings
 ) -> IssuedTokens:
-    """DEMO_MODE only: sign in as the fixed seeded demo account of `role`, no password."""
+    """DEMO_MODE only: sign in as the seeded demo account of `role`, no password.
+
+    The account must be flagged is_demo; every successful use is written to audit_log.
+    """
     if not settings.demo_mode:
         raise AuthError("demo_mode_off")
     user = session.scalar(select(User).where(User.email == DEMO_ACCOUNTS[role]))
     if user is None or not user.is_active:
         raise AuthError("demo_account_missing")
+    if not user.is_demo:
+        raise AuthError("not_demo_account")
     now = datetime.now(UTC)
     user.last_login_at = now
     tokens, _ = _issue(session, user, settings, now, user_agent)
+    session.add(AuditLog(user_id=user.id, action="auth.demo_login", entity_type="user",
+                         entity_id=str(user.id), note=None,
+                         payload={"role": role.value, "ip": ip,
+                                  "user_agent": (user_agent or "")[:USER_AGENT_MAX]}))
     session.commit()
     return tokens
 

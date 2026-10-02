@@ -94,6 +94,8 @@ class User(Base):
     display_name: Mapped[str | None] = mapped_column(Text)
     avatar_color: Mapped[str | None] = mapped_column(Text)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
+    # Only flagged accounts can be signed into via POST /auth/demo-login (DEMO_MODE only).
+    is_demo: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     last_login_at: Mapped[datetime | None] = mapped_column(TsTz)
     created_at: Mapped[datetime] = created_at_col()
 

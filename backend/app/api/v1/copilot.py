@@ -3,8 +3,9 @@
 import logging
 import uuid
 from collections.abc import Iterator
+from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Query, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sse_starlette.sse import EventSourceResponse
@@ -12,10 +13,10 @@ from sse_starlette.sse import EventSourceResponse
 from app.core.config import get_settings
 from app.core.db import get_engine
 from app.core.deps import CurrentUser, SessionDep, can_access_agent
-from app.llm.copilot import chat
+from app.llm.copilot import chat, suggestions
 from app.models import Agent, User
 from app.models.enums import Lang, UserRole
-from app.schemas.copilot import CopilotChatIn, CopilotDraft, CopilotError
+from app.schemas.copilot import CopilotChatIn, CopilotDraft, CopilotError, CopilotSuggestions
 
 router = APIRouter(prefix="/copilot", tags=["copilot"])
 log = logging.getLogger(__name__)
@@ -82,3 +83,12 @@ def copilot_chat(body: CopilotChatIn, user: CurrentUser, session: SessionDep
     are refused without an LLM call; every answer is labelled generated_by llm|replay|template."""
     agent = _agent(user, session, body.agent_id)
     return EventSourceResponse(_stream(user.id, agent.id, body.message, body.lang or user.lang))
+
+
+@router.get("/suggestions", response_model=CopilotSuggestions)
+def copilot_suggestions(user: CurrentUser,
+                        lang: Annotated[Lang | None, Query()] = None) -> CopilotSuggestions:
+    """Suggested questions (default: user's language). Replay matches exact question text, so
+    these are the prompts that show recorded LLM wording without a key."""
+    chosen = lang or user.lang
+    return CopilotSuggestions(lang=chosen, items=list(suggestions.for_lang(chosen)))

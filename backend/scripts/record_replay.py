@@ -23,6 +23,7 @@ from app.core.db import get_engine
 from app.llm import packs, store
 from app.llm.copilot import chat
 from app.llm.copilot.intents import Route
+from app.llm.copilot.suggestions import COPILOT_DEMO
 from app.llm.mode import LIVE, resolve_mode
 from app.llm.packs import Pack
 from app.llm.service import generate
@@ -33,13 +34,6 @@ from app.services import anomalies, risk_read
 from app.services.anomalies import AnomalyError
 
 FLOATS = (FloatType.cash, FloatType.emoney)
-COPILOT_DEMO = {
-    Lang.en: ("When will my cash run out?", "How do I request cash?",
-              "What does a red alert mean?", "Do I have any swap offers?",
-              "What is the expected demand in the next 6 hours?"),
-    Lang.bn: ("আমার নগদ কখন শেষ হবে?", "কীভাবে নগদ টাকা চাইব?", "লাল সতর্কতা মানে কী?",
-              "অদল-বদলের কী অবস্থা?", "আগামী ৬ ঘণ্টার চাহিদার পূর্বাভাস"),
-}
 
 
 def _agent_packs(session: Session, agent: Agent) -> Iterator[Pack]:
@@ -97,7 +91,7 @@ def main() -> int:
     recorded = fallback = 0
     seen: set[str] = set()
 
-    def record(result: LlmText) -> None:
+    def record(result: LlmText, question: str | None = None) -> None:
         nonlocal recorded, fallback
         name = f"{result.intent.value:<22} {result.lang.value}"
         if result.generated_by is not GeneratedBy.llm:
@@ -107,7 +101,8 @@ def main() -> int:
         store.replay_record(settings.llm_replay_file, result.evidence_hash, {
             "intent": result.intent.value, "lang": result.lang.value, "text": result.text,
             "cited_factors": result.cited_factors, "model": result.model or
-            settings.llm_model, "recorded_at": datetime.now(UTC).isoformat()})
+            settings.llm_model, "recorded_at": datetime.now(UTC).isoformat()}
+            | ({"question": question} if question is not None else {}))
         recorded += 1
         print(f"ok    {name} {result.evidence_hash[:12]}")
 
@@ -120,14 +115,14 @@ def main() -> int:
                 seen.add(key)
                 record(generate(session, settings, user, pack, lang))
                 session.commit()
-        # Copilot replay is keyed by the exact question: these are the UI's suggested prompts.
+        # Copilot replay is keyed by the exact question: GET /copilot/suggestions serves these.
         for user, agent in copilot_users(session):
             for lang, questions in COPILOT_DEMO.items():
                 for question in questions:
                     reply = chat.ask(session, settings, user, agent, question, lang)
                     session.commit()
                     if reply.route not in (Route.blocked, Route.off_topic):
-                        record(reply.answer)
+                        record(reply.answer, question)
     print(f"recorded {recorded}, fell back {fallback} -> {settings.llm_replay_file}")
     return 0 if recorded else 1
 
