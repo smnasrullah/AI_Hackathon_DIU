@@ -64,6 +64,10 @@ class Settings(BaseSettings):
     self_fetch_speed_kmh: float = 15.0
     travel_cost_per_km_bdt: float = 10.0
     urgent_manual_cost_bdt: float = 2_500.0
+    # app/rules/impact_rules.py (holdout backtest, F11); assumptions in docs/METHODS.md.
+    impact_alert_share: float = 0.20
+    impact_decision_hours: list[int] = [8, 14, 20]
+    impact_cashout_fee_pct: float = 1.85
 
     llm_provider: LlmProvider = "auto"
     llm_model: str = "claude-haiku-4-5-20251001"

@@ -17,7 +17,7 @@ from app.core.config import DATA_VERSION, get_settings
 from app.core.db import get_engine
 from app.models.system_meta import SystemMeta
 from app.rules.risk_rules import build_config
-from app.services import anomaly_scan, forecast, rebalance, risk
+from app.services import anomaly_scan, backtest, forecast, rebalance, risk
 from app.services import seed as reference_seed
 from ml import registry
 from ml.data_gen import generate
@@ -87,7 +87,8 @@ def run_train() -> int:
 
 
 def precompute() -> int:
-    """Register the active models; cache forecasts, stockout + risk, rebalance + swaps, anomalies.
+    """Register the active models; cache forecasts, stockout + risk, rebalance + swaps, anomalies,
+    holdout impact + fairness.
 
     The anomaly forests train in seconds, so missing/invalid anomaly artifacts are refitted here.
     """
@@ -101,6 +102,7 @@ def precompute() -> int:
         risk.precompute(session, build_config(settings.risk_thresholds), settings.seed)
         rebalance.precompute(session, *rebalance.configs(settings))
         anomaly_scan.precompute(session, settings.artifacts_dir)
+        backtest.precompute(session, settings)
     return 0
 
 

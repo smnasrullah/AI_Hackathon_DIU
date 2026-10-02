@@ -7,8 +7,10 @@ from app.api.v1 import (
     events,
     explanations,
     forecast,
+    impact,
     recommendation_requests,
     recommendations,
+    responsible_ai,
     risk,
     risk_map,
     swaps,
@@ -33,3 +35,5 @@ api_router.include_router(recommendation_requests.router)
 api_router.include_router(swaps.router)
 api_router.include_router(risk_map.router)
 api_router.include_router(anomalies.router)
+api_router.include_router(impact.router)
+api_router.include_router(responsible_ai.router)

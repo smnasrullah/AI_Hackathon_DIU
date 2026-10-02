@@ -70,7 +70,22 @@ Limitations: the target is *served* demand, so hours where a float already hit z
 | Agent risk (F9) | Window = the 7 days (168 h) before the window end; baseline = the agent's own 28 days before the window. Raw measures: **cash_out_growth** = log(window cash-out / own baseline rate); **hour_shift** = Jensen-Shannon distance (base 2) between the window's and the baseline's hour-of-day profile of cash-in + cash-out; **refills_per_day** = hours where cash + e-money jumps by > 10 BDT (every transaction conserves the total, so a jump is a refill) / 7; **out_in_log_ratio** = log(cash-out / cash-in). Model inputs = each measure as a robust z vs the peer group in the same window ((x − median) / (1.4826 × MAD), spread floored at 0.05), so market-wide shifts (Eid, salary days) cancel; growth, hour shift and refills are one-sided (below-peer clipped to 0). Peer group = tier × urban_rural; groups with < 10 agents use the global group (seed 42: tier 1 peri-urban/rural). One scikit-learn `IsolationForest` per group + one global (200 trees, `contamination` 0.005, seeded), fitted on daily-stride windows ending on or before the holdout start (21,600 agent-windows); labels are never used for fitting. Flag = score > the group's threshold (score = −`score_samples`, 0..1) | `backend/ml/features/anomaly.py`, `backend/ml/training/anomaly.py`, `backend/ml/inference/anomaly.py`, `backend/ml/artifacts/anomaly_*` |
 | Anomaly serving (F9) | Bootstrap verifies the committed artifact (sha256 + feature list; refits in seconds if missing), registers `model_versions` (`agent_anomaly`, metrics = evaluation below), scores every agent's 7 days before SIM_NOW and stores only flagged windows. `anomalies.features` = evidence: peer group + count, threshold, peer score p50/p90/max, per raw measure the value, peer p10/p25/p50/p75/p90, percentile and deviation (= model input), top ≤ 3 reasons (deviation ≥ 2, else the largest one), window totals (cash-out, cash-in, baseline cash-out, refills). A rescan replaces open flags and keeps reviewed ones | `backend/app/services/anomaly_scan.py`, `anomalies.py`; `GET /anomalies?status&page&page_size`, `GET /anomalies/{id}` |
 | Anomaly review (F9) | Distributor (own agents) or admin sets `confirmed` / `dismissed` with a required note; once only (409 after). Writes `reviewed_by`, `reviewed_at`, `note` and an `audit_log` row (`anomaly.confirmed` / `anomaly.dismissed`, user id, note, score, window, model_version). Agents never see flags. Nothing else happens: a flag is a lead, not an accusation | `POST /anomalies/{id}/review`, `audit_log` |
-| Impact (F11) | On the 14-day holdout, compare model-driven actions vs fixed-threshold alert baseline: stockout hours, BDT value saved, van trips; `van_cost` is a parameter | `backend/app/rules/` (baseline alerts), `backend/app/services/`, `impact_results`, `GET /impact` |
+| Impact (F11) | Counterfactual replay of the 14 held-out days (2026-04-21..05-04, never trained on), all agents, hour by hour. Ground truth = the seeded generator re-run in memory (same seed + agent count; checked against the stored balances at the holdout start, else skipped): full customer demand incl. what the logged history turned away, opening balances, each agent's own routine refills (identical in every scenario; not counted as trips). Each hour: routine refill -> deliveries that land -> policy orders -> customers served with the simulator's rules -> balances move. **Baseline** (fixed-threshold alert): every business hour (08-21), a float below `IMPACT_ALERT_SHARE` (20%) of capacity alerts once until its delivery lands; cash by a dedicated van (1 trip, ETA `REBALANCE_LEAD_TIME_H` 3 h), e-money by digital top-up (next hour); both refill to the agent's usual refill target. **AI**: at each planning round (`IMPACT_DECISION_HOURS` 08/14/20) LightGBM forecasts from the logged history before the round -> rebalance rule (F4, balance incl. deliveries on the way) -> swap matching (F5) -> channel rules (F4); an order is placed when the next round would leave less than the channel lead time (van 4 h for cash, top-up for e-money) to its deadline. Swap = donor cash for receiver e-money (capped by both); van route = 1 trip per cluster; urgent_manual = 1 trip (3 h); self-fetch and top-up = no van. Physical deliveries landing after 21:00 land at 08:00. Metrics per scenario x distributor x day: stockout hours = agent-hours with any customer turned away (> 0.5 BDT), value lost (turned-away BDT), van trips, actions by channel; value saved = baseline lost - AI lost; fee = `IMPACT_CASHOUT_FEE_PCT` x turned-away cash-out. Threshold sweep (10-50%) for an equal-service and an equal-van-budget reading (linear between thresholds) | `backend/app/rules/impact_rules.py`, `backend/app/services/{holdout_inputs,impact_sim,impact_policies,impact,impact_read,backtest}.py`, `impact_results`, `system_meta.impact_cache`, `GET /impact/summary?van_cost`, `GET /impact/comparison?from&to&van_cost` |
+| Impact assumptions | Synthetic, not upay figures; all `.env` overridable: alert threshold 20% of capacity, cash-out fee 1.85% of the turned-away cash-out (cash-in assumed free), van 1,500 BDT per trip (`VAN_COST_PER_TRIP_BDT`), dedicated delivery 3 h, batched van 4 h, top-up within the hour, business hours 08-21, AI planning rounds 08 / 14 / 20. Channel assumptions above apply unchanged | `backend/app/core/config.py`, `.env.example` |
+
+Impact backtest (model `lgbq-1.0.0-56571e7f`, seed 42, 300 agents, 14 held-out days; `GET /impact/summary`):
+
+| Scenario | Stockout hours | Value turned away (BDT) | Cash-out fee lost (BDT) | Van trips | Van cost (BDT) | Deliveries by channel |
+|---|---|---|---|---|---|---|
+| No action (routine refills only, reference) | 4,484 | 28,010,860 | 431,162 | 0 | 0 | - |
+| Baseline: alert at 20% of capacity | 322 | 2,813,340 | 44,579 | 786 | 1,179,000 | 786 dedicated van, 184 top-up |
+| AI: forecast + recommendation + swaps | **76** | 761,050 | 12,083 | 1,065 | 1,597,500 | 2,320 on 317 batched van routes, 748 urgent, 549 self-fetch, 281 swaps, 1,656 top-up |
+| AI - baseline | **-246 (-76.4%)** | **2,052,290 saved** | 32,496 saved | **+279 (none avoided)** | +418,500 | |
+
+By distributor (stockout hours baseline -> AI, BDT saved, van trips baseline -> AI): DST-DHK 105 -> 16, 679,204, 203 -> 338; DST-CTG 91 -> 14, 600,798, 268 -> 387; DST-SYL 126 -> 46, 772,288, 315 -> 340.
+Threshold sweep of the baseline (stockout hours / van trips): 10% 718 / 528, 20% 322 / 786, 30% 152 / 1,198, 40% 118 / 2,029, 50% 104 / 4,030. Equal van budget: at the AI's 1,065 trips the rule would have ~207 stockout hours (AI 76, i.e. 131 fewer). Equal service: no threshold up to 50% reaches the AI's 76 hours (50% still has 104 with 4,030 trips), so "van trips avoided at equal service" has no value (`null`). Sensitivity (not stored): with two planning rounds (08 / 20) the AI has 240 stockout hours with 786 trips, i.e. the same trips as the baseline and 25% fewer stockout hours.
+Reading: the AI does not save van trips against the 20% rule; it moves the trade-off. It serves far more customers for a moderate rise in trips, and no fixed threshold matches its service at any trip count in the sweep. In fee terms alone the extra van cost (418,500 BDT) exceeds the cash-out fee recovered (32,496 BDT); the case rests on the 2.05 M BDT of transactions customers could complete and on the equal-budget comparison.
+Limitations: the AI's forecasts use the logged history (status-quo stockouts), not the counterfactual one; the recommendation knows nothing about routine refills (it plans for "no refill") and orders the 24 h need, so it orders small amounts often; perfect delivery reliability; the AI's own action costs other than vans (top-up fee 0.5%, self-fetch / swap travel) are not netted out; one synthetic seed.
 
 Anomaly evaluation (model `iforest-1.0.0-25b1a7f6`, seed 42, data_version 1.0.0) against the ~3% injected anomalous agents (`system_meta.synthetic_labels`; kinds night_structuring, volume_burst, circular_flow; SYNTHETIC_ASSUMPTIONS.md). Unit = agent-window (7 days, daily stride). A window is a true anomaly when ≥ 3 of its 7 days overlap an injected window; windows with a smaller non-zero overlap are ambiguous and excluded.
 
@@ -128,18 +143,36 @@ Verify on a fresh PC:
 
 ## 6. Limitations and responsible AI (F12)
 
-Shown on `/responsible-ai` (`GET /api/v1/responsible-ai`: model cards, metrics, fairness by group, limitations, data notice).
+Shown on `/responsible-ai`: `GET /api/v1/responsible-ai/model-card?lang` (active models + held-out metrics, data, intended use, out of scope, limitations, human oversight, `advisory_only: true`, fairness gaps) and `GET /api/v1/responsible-ai/fairness?groupBy=urban_rural|tier|region`. Both readable by every role (group aggregates only). Wording lives in `backend/app/services/model_card_text.py` (bn/en); every number comes from `model_versions` and the backtest caches.
 
 | Limitation / safeguard | Note |
 |---|---|
 | Synthetic data only | Patterns are assumptions (SYNTHETIC_ASSUMPTIONS.md), not measured upay behaviour; metrics show method soundness, not real-world accuracy |
 | Advisory only | No endpoint moves money; swaps and anomaly outcomes need a distributor decision with note in `audit_log` |
 | Uncertainty | Forecasts are a q10–q90 band; stockout time always shown with confidence |
-| Fairness | Metrics reported by group on the responsible-AI panel |
+| Fairness | Same holdout and planning rounds as the impact backtest (08/14/20, rounds with a full 24 h ahead: 2026-04-21..05-03, 39 rounds), per agent group (urban_rural, tier, region): forecast MAE of q50 vs logged served demand over hours 1-24, its baseline (same hour last week), nMAE = MAE / mean demand (comparable across busy and quiet groups) and skill = 1 - MAE / baseline MAE; stockout recall = share of real stockouts (agent x float x round with a customer turned away in the logged history within 24 h) that the 24 h risk level flagged amber/red (P >= 0.20; Monte Carlo as in §2 with 500 paths), precision alongside. Gap = largest - smallest group value. Stored in `system_meta.fairness_cache` by `backend/app/services/fairness.py` |
 | Anomaly ≠ fraud | Isolation Forest flags are leads for human review, not accusations |
 | LLM wording | May be imperfect; numbers guard + template fallback; always labelled |
 | Privacy | Role-scoped evidence; no cross-agent data in prompts; LLM key only in backend env |
 | Footer notices | "Advisory only — a human approves" and "Synthetic data only" on relevant pages |
+
+Fairness results (model `lgbq-1.0.0-56571e7f`, seed 42, 300 agents; `GET /responsible-ai/fairness`). nMAE and skill as cash_out / cash_in:
+
+| Group | Agents | nMAE | Skill vs last week | Stockout recall | Precision |
+|---|---|---|---|---|---|
+| All | 300 | 0.43 / 0.47 | 0.28 / 0.27 | 0.984 (1,466 / 1,490) | 0.24 |
+| urban | 104 | 0.40 / 0.42 | 0.29 / 0.26 | 0.988 | 0.16 |
+| peri_urban | 89 | 0.45 / 0.53 | 0.28 / 0.28 | 0.974 | 0.21 |
+| rural | 107 | 0.50 / 0.68 | 0.26 / 0.27 | 0.987 | 0.38 |
+| tier 1 | 45 | 0.35 / 0.38 | 0.31 / 0.26 | 0.984 | 0.28 |
+| tier 2 | 116 | 0.42 / 0.46 | 0.28 / 0.28 | 0.992 | 0.24 |
+| tier 3 | 139 | 0.64 / 0.75 | 0.26 / 0.27 | 0.978 | 0.24 |
+| Dhaka | 110 | 0.39 / 0.42 | 0.29 / 0.27 | 0.986 | 0.17 |
+| Chattogram | 100 | 0.45 / 0.50 | 0.28 / 0.26 | 0.980 | 0.22 |
+| Sylhet | 90 | 0.50 / 0.65 | 0.26 / 0.28 | 0.986 | 0.38 |
+
+Gaps (largest - smallest): recall 1.3 pts by area, 1.4 by tier, 0.7 by region; nMAE 0.10 / 0.26 by area, 0.29 / 0.37 by tier, 0.10 / 0.23 by region.
+Reading: stockout recall, the safety-relevant metric, is even across groups (97-99%). Relative forecast error is higher for small (tier 3) and rural agents because their hourly demand is small and Poisson-noisy, but the gain over the baseline (skill) is the same for every group, so no group is served by a weaker model. Precision is lowest for urban agents (0.16): they get more false alarms (a burden on them, not a missed stockout), partly because the "no refill" projection ignores their frequent routine refills. Synthetic groups only; real-data fairness needs re-checking.
 
 ## Open questions
 
@@ -151,8 +184,8 @@ Shown on `/responsible-ai` (`GET /api/v1/responsible-ai`: model cards, metrics, 
 6. Decided (§3, Rebalance, Delivery channel): shortfall at q90 + buffer, capped at capacity; channel by the five ordered rules, `van` only for clustered cash batches >= `VAN_MIN_BATCH_AMOUNT_BDT` with enough lead time (defaults under Channel assumptions).
 7. Decided (§3, Swap matching): `linear_sum_assignment` on distance, radius 5 km, minimum 5,000 BDT (configurable).
 8. Decided (§3, Agent risk): 7-day window vs own 28-day baseline, four peer-relative features, contamination 0.005; ~3% of agents carry injected, labelled anomalies, evaluated above.
-9. Fixed-threshold baseline parameters for F11, and impact targets ("set after P11 backtest").
-10. Fairness groups (area_type? district?) and the fairness metric.
+9. Decided (§3, Impact): alert at 20% of capacity (swept 10-50% for equal-service / equal-budget readings); targets in docs/IDEA_CHAIN.md step 6.
+10. Decided (§6, Fairness): groups urban_rural, tier, region; metrics nMAE + skill (forecast) and stockout recall + precision (24 h risk flag), with the largest group gap.
 11. Drift metric shown on `/admin/models`.
 12. Partly decided: training uses `deterministic=true`, `force_row_wise=true`, 4 threads and a fixed seed, but bit-identity across CPUs is not guaranteed. The committed artifacts are therefore canonical; bootstrap retrains only if they are missing or fail the sha256 / feature-list check, and a retrain gets a new `model_version`.
 13. `llm_cache` TTL; whether a live-provider failure falls back to replay before template.

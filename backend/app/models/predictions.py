@@ -146,15 +146,22 @@ class Anomaly(Base):
 
 
 class ImpactResult(Base):
+    """Holdout backtest (F11): one scenario, one distributor's agents, one local day."""
+
     __tablename__ = "impact_results"
     __table_args__ = (Index("ix_impact_results_version_scenario", "model_version_id", "scenario"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     model_version_id: Mapped[int] = mapped_column(ForeignKey("model_versions.id"))
     scenario: Mapped[ImpactScenario] = mapped_column(db_enum(ImpactScenario))
+    distributor_id: Mapped[int | None] = mapped_column(
+        ForeignKey("distributors.id", name="fk_impact_results_distributor_id"))
     window_start: Mapped[datetime] = mapped_column(TsTz)
     window_end: Mapped[datetime] = mapped_column(TsTz)
+    # Agent-hours in which customers were turned away (either float).
     stockout_hours: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    value_lost_bdt: Mapped[Decimal] = mapped_column(Money, server_default="0")
+    # Baseline lost - this scenario's lost (0 on baseline rows).
     value_saved_bdt: Mapped[Decimal] = mapped_column(Money)
     van_trips: Mapped[int] = mapped_column(Integer)
     params: Mapped[dict[str, Any]] = mapped_column(JsonDoc, default=dict)
