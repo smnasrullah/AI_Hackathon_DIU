@@ -358,6 +358,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/demo-login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Demo Login
+         * @description One-click sign-in as a seeded is_demo account (DEMO_MODE only, rate-limited per IP,
+         *     audited). Never enable DEMO_MODE on a public deployment.
+         */
+        post: operations["demo_login_api_v1_auth_demo_login_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/login": {
         parameters: {
             query?: never;
@@ -446,6 +467,28 @@ export interface paths {
          *     (CopilotReply). On an internal failure: `error` ({"detail": "copilot_failed"}).
          */
         post: operations["copilot_chat_api_v1_copilot_chat_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/copilot/suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Copilot Suggestions
+         * @description Suggested questions for `lang` (bn | en). Missing or unsupported `lang` falls back to the
+         *     user's language. Replay matches exact question text, so these are the prompts that show
+         *     recorded LLM wording without a key.
+         */
+        get: operations["copilot_suggestions_api_v1_copilot_suggestions_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1503,6 +1546,15 @@ export interface components {
             /** Message */
             message: string;
         };
+        /**
+         * CopilotSuggestions
+         * @description Suggested questions; the only ones with recorded replay wording (exact-text match).
+         */
+        CopilotSuggestions: {
+            /** Items */
+            items: string[];
+            lang: components["schemas"]["Lang"];
+        };
         /** DataInfo */
         DataInfo: {
             /** Data Version */
@@ -1547,6 +1599,10 @@ export interface components {
              * Format: date-time
              */
             start: string;
+        };
+        /** DemoLoginRequest */
+        DemoLoginRequest: {
+            role: components["schemas"]["UserRole"];
         };
         /**
          * EqualService
@@ -3405,6 +3461,39 @@ export interface operations {
             };
         };
     };
+    demo_login_api_v1_auth_demo_login_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DemoLoginRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     login_api_v1_auth_login_post: {
         parameters: {
             query?: never;
@@ -3538,6 +3627,37 @@ export interface operations {
                 };
                 content: {
                     "text/event-stream": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    copilot_suggestions_api_v1_copilot_suggestions_get: {
+        parameters: {
+            query?: {
+                lang?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CopilotSuggestions"];
                 };
             };
             /** @description Validation Error */

@@ -1179,6 +1179,27 @@
     "title": "CopilotChatIn",
     "type": "object"
    },
+   "CopilotSuggestions": {
+    "description": "Suggested questions; the only ones with recorded replay wording (exact-text match).",
+    "properties": {
+     "items": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "lang": {
+      "$ref": "#/components/schemas/Lang"
+     }
+    },
+    "required": [
+     "lang",
+     "items"
+    ],
+    "title": "CopilotSuggestions",
+    "type": "object"
+   },
    "DataInfo": {
     "properties": {
      "data_version": {
@@ -1296,6 +1317,19 @@
      "sim_now"
     ],
     "title": "DataPeriod",
+    "type": "object"
+   },
+   "DemoLoginRequest": {
+    "additionalProperties": false,
+    "properties": {
+     "role": {
+      "$ref": "#/components/schemas/UserRole"
+     }
+    },
+    "required": [
+     "role"
+    ],
+    "title": "DemoLoginRequest",
     "type": "object"
    },
    "EqualService": {
@@ -4369,6 +4403,10 @@
       "title": "Db",
       "type": "boolean"
      },
+     "demo_mode": {
+      "title": "Demo Mode",
+      "type": "boolean"
+     },
      "generated_at": {
       "format": "date-time",
       "title": "Generated At",
@@ -4444,6 +4482,7 @@
      "artifacts_ok",
      "model_version",
      "llm_mode",
+     "demo_mode",
      "generated_at"
     ],
     "title": "SystemStatus",
@@ -5911,6 +5950,48 @@
     ]
    }
   },
+  "/api/v1/auth/demo-login": {
+   "post": {
+    "description": "One-click sign-in as a seeded is_demo account (DEMO_MODE only, rate-limited per IP,\naudited). Never enable DEMO_MODE on a public deployment.",
+    "operationId": "demo_login_api_v1_auth_demo_login_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DemoLoginRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TokenResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Demo Login",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
   "/api/v1/auth/login": {
    "post": {
     "operationId": "login_api_v1_auth_login_post",
@@ -6108,6 +6189,62 @@
      }
     ],
     "summary": "Copilot Chat",
+    "tags": [
+     "copilot"
+    ]
+   }
+  },
+  "/api/v1/copilot/suggestions": {
+   "get": {
+    "description": "Suggested questions for `lang` (bn | en). Missing or unsupported `lang` falls back to the\nuser's language. Replay matches exact question text, so these are the prompts that show\nrecorded LLM wording without a key.",
+    "operationId": "copilot_suggestions_api_v1_copilot_suggestions_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "lang",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 8,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Lang"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CopilotSuggestions"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Copilot Suggestions",
     "tags": [
      "copilot"
     ]

@@ -29,8 +29,13 @@ def test_suggestions_default_to_user_language_and_need_auth(client: TestClient,
     assert body["lang"] == "bn" and body["items"] == list(COPILOT_DEMO[Lang.bn])
     assert client.get(API, headers=bearer(client, ADMIN)).json()["lang"] == "en"
     assert client.get(API).status_code == 401
-    assert client.get(API, params={"lang": "fr"},
-                      headers=bearer(client, ADMIN)).status_code == 422
+
+
+def test_unsupported_lang_falls_back_to_user_language(client: TestClient, seeded: Path) -> None:
+    for raw in ("fr", "EN", ""):
+        res = client.get(API, params={"lang": raw}, headers=bearer(client, ADMIN))
+        assert res.status_code == 200, res.text
+        assert res.json() == {"lang": "en", "items": list(COPILOT_DEMO[Lang.en])}
 
 
 def test_recorder_uses_the_same_source() -> None:

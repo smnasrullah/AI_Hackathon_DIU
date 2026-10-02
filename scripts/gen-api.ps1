@@ -1,9 +1,10 @@
 # Regenerate frontend API types from the backend OpenAPI schema (inside Docker).
 # Writes frontend/openapi.json and frontend/src/api/schema.d.ts. Commit both.
-$ErrorActionPreference = 'Stop'
+# Continue: docker writes progress to stderr, which Stop would treat as fatal in PS 5.1; exit codes are checked.
+$ErrorActionPreference = 'Continue'
 Set-Location (Split-Path -Parent $PSScriptRoot)
 
-$json = docker compose --profile tools run --rm -T backend-tools python -c "import json; from app.main import app; print(json.dumps(app.openapi(), indent=1, sort_keys=True))"
+$json = docker compose --profile tools run --rm -T backend-tools python -c "import json; from app.main import app; print(json.dumps(app.openapi(), indent=1, sort_keys=True))" 2>$null
 if ($LASTEXITCODE -ne 0) { Write-Host 'Could not export the OpenAPI schema'; exit 1 }
 [IO.File]::WriteAllText((Join-Path (Get-Location) 'frontend/openapi.json'), ($json -join "`n") + "`n", (New-Object Text.UTF8Encoding $false))
 

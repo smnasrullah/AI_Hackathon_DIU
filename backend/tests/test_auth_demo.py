@@ -13,6 +13,7 @@ from app.main import create_app
 from app.models import AuditLog, User
 
 API = "/api/v1"
+ADMIN_EMAIL = "admin@agentpulse.demo"
 
 
 @pytest.fixture(autouse=True)
@@ -72,24 +73,33 @@ def test_demo_login_rejects_unknown_role(client: TestClient, seeded: Path) -> No
     assert res.status_code == 422
 
 
-def test_demo_login_inactive_account(client: TestClient, seeded: Path) -> None:
+def _set_admin(**values: object) -> None:
     with Session(get_engine()) as session, session.begin():
-        session.execute(
-            update(User).where(User.email == "admin@agentpulse.demo").values(is_active=False)
-        )
-    res = client.post(f"{API}/auth/demo-login", json={"role": "admin"})
-    assert res.status_code == 409
-    assert res.json()["detail"] == "demo_account_missing"
+        session.execute(update(User).where(User.email == ADMIN_EMAIL).values(**values))
 
 
-def test_demo_login_refuses_account_not_flagged_demo(client: TestClient, seeded: Path) -> None:
-    with Session(get_engine()) as session, session.begin():
-        session.execute(
-            update(User).where(User.email == "admin@agentpulse.demo").values(is_demo=False)
-        )
+def _demo_rows() -> list[AuditLog]:
+    with Session(get_engine()) as session:
+        return list(session.scalars(select(AuditLog).where(AuditLog.action == "auth.demo_login")
+                                    .order_by(AuditLog.id)))
+
+
+@pytest.mark.parametrize("change", ["inactive", "not_demo", "missing"])
+def test_demo_login_denials_are_generic(client: TestClient, seeded: Path, change: str) -> None:
+    """Non-demo, inactive and unknown accounts get the same answer, so the case is not revealed."""
+    if change == "inactive":
+        _set_admin(is_active=False)
+    elif change == "not_demo":
+        _set_admin(is_demo=False)
+    else:
+        _set_admin(email="renamed@agentpulse.demo")
     res = client.post(f"{API}/auth/demo-login", json={"role": "admin"})
-    assert res.status_code == 403 and res.json()["detail"] == "not_demo_account"
+    assert res.status_code == 403 and res.json() == {"detail": "demo_login_denied"}
     assert "ap_refresh" not in res.cookies
+    (row,) = _demo_rows()
+    assert row.payload == {"account": ADMIN_EMAIL, "role": "admin", "ip": row.payload["ip"],
+                           "outcome": "denied"}
+    assert (row.user_id is None) == (change == "missing")
 
 
 def test_only_the_three_demo_targets_are_flagged(seeded: Path) -> None:
@@ -112,15 +122,20 @@ def test_demo_login_is_rate_limited_per_ip(
     other = client.post(f"{API}/auth/demo-login", json={"role": "agent"},
                         headers={"X-Real-IP": "10.9.9.9"})
     assert other.status_code == 200
+    outcomes = [(r.payload["outcome"], r.payload["ip"]) for r in _demo_rows()]
+    assert [o for o, _ in outcomes] == ["success", "success", "rate_limited", "success"]
+    assert outcomes[-1][1] == "10.9.9.9"
 
 
-def test_every_demo_login_is_audited(client: TestClient, seeded: Path) -> None:
+def test_every_demo_login_is_audited_without_secrets(client: TestClient, seeded: Path) -> None:
     for role in ("agent", "admin"):
-        assert client.post(f"{API}/auth/demo-login", json={"role": role}).status_code == 200
-    with Session(get_engine()) as session:
-        rows = session.scalars(select(AuditLog).where(AuditLog.action == "auth.demo_login")
-                               .order_by(AuditLog.id)).all()
-        emails = [session.get(User, r.user_id).email for r in rows]  # type: ignore[union-attr]
-    assert [r.payload["role"] for r in rows] == ["agent", "admin"]
-    assert emails == ["agent.mirpur@agentpulse.demo", "admin@agentpulse.demo"]
-    assert all(r.payload["ip"] for r in rows)
+        res = client.post(f"{API}/auth/demo-login", json={"role": role})
+        assert res.status_code == 200
+    token = res.json()["access_token"]
+    rows = _demo_rows()
+    assert [(r.entity_id, r.payload["outcome"]) for r in rows] == [
+        ("agent.mirpur@agentpulse.demo", "success"), (ADMIN_EMAIL, "success")]
+    assert all(r.user_id is not None and r.created_at is not None and r.payload["ip"]
+               for r in rows)
+    dumped = repr([(r.payload, r.note) for r in rows])
+    assert token not in dumped and "password" not in dumped and "token" not in dumped

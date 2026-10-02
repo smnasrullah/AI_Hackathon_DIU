@@ -3,6 +3,7 @@
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from typing import Literal
 
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.orm import Session
@@ -116,27 +117,41 @@ def clear_login_failures(session: Session, email: str) -> int:
     return int(getattr(result, "rowcount", 0) or 0)
 
 
+DemoOutcome = Literal["success", "denied", "rate_limited"]
+
+
+def record_demo_attempt(session: Session, role: UserRole, ip: str, outcome: DemoOutcome,
+                        user: User | None = None) -> None:
+    """audit_log row for one demo-login attempt (account, IP, outcome; created_at is the time).
+    Never passwords or tokens. The caller commits."""
+    account = DEMO_ACCOUNTS[role]
+    if user is None:
+        user = session.scalar(select(User).where(User.email == account))
+    session.add(AuditLog(user_id=user.id if user else None, action="auth.demo_login",
+                         entity_type="user", entity_id=account, note=None,
+                         payload={"account": account, "role": role.value, "ip": ip,
+                                  "outcome": outcome}))
+
+
 def demo_login(
     session: Session, role: UserRole, ip: str, user_agent: str | None, settings: Settings
 ) -> IssuedTokens:
     """DEMO_MODE only: sign in as the seeded demo account of `role`, no password.
 
-    The account must be flagged is_demo; every successful use is written to audit_log.
+    Only active is_demo accounts; a missing, inactive or non-demo account gets the same
+    `demo_login_denied`. Every attempt is audited.
     """
     if not settings.demo_mode:
         raise AuthError("demo_mode_off")
     user = session.scalar(select(User).where(User.email == DEMO_ACCOUNTS[role]))
-    if user is None or not user.is_active:
-        raise AuthError("demo_account_missing")
-    if not user.is_demo:
-        raise AuthError("not_demo_account")
+    if user is None or not user.is_active or not user.is_demo:
+        record_demo_attempt(session, role, ip, "denied", user)
+        session.commit()
+        raise AuthError("demo_login_denied")
     now = datetime.now(UTC)
     user.last_login_at = now
     tokens, _ = _issue(session, user, settings, now, user_agent)
-    session.add(AuditLog(user_id=user.id, action="auth.demo_login", entity_type="user",
-                         entity_id=str(user.id), note=None,
-                         payload={"role": role.value, "ip": ip,
-                                  "user_agent": (user_agent or "")[:USER_AGENT_MAX]}))
+    record_demo_attempt(session, role, ip, "success", user)
     session.commit()
     return tokens
 

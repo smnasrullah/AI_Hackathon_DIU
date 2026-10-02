@@ -87,8 +87,10 @@ def copilot_chat(body: CopilotChatIn, user: CurrentUser, session: SessionDep
 
 @router.get("/suggestions", response_model=CopilotSuggestions)
 def copilot_suggestions(user: CurrentUser,
-                        lang: Annotated[Lang | None, Query()] = None) -> CopilotSuggestions:
-    """Suggested questions (default: user's language). Replay matches exact question text, so
-    these are the prompts that show recorded LLM wording without a key."""
-    chosen = lang or user.lang
+                        lang: Annotated[str | None, Query(max_length=8)] = None
+                        ) -> CopilotSuggestions:
+    """Suggested questions for `lang` (bn | en). Missing or unsupported `lang` falls back to the
+    user's language. Replay matches exact question text, so these are the prompts that show
+    recorded LLM wording without a key."""
+    chosen = Lang(lang) if lang in {x.value for x in Lang} else user.lang
     return CopilotSuggestions(lang=chosen, items=list(suggestions.for_lang(chosen)))

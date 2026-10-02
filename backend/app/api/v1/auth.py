@@ -93,7 +93,7 @@ def login(
 
 
 DEMO_ERRORS = {"demo_mode_off": status.HTTP_404_NOT_FOUND,
-               "not_demo_account": status.HTTP_403_FORBIDDEN}
+               "demo_login_denied": status.HTTP_403_FORBIDDEN}
 
 
 @demo_router.post("/demo-login", response_model=TokenResponse)
@@ -105,6 +105,8 @@ def demo_login(
     settings = get_settings()
     ip = client_ip(request)
     if not demo_limiter.allow(ip, settings.demo_login_per_min):
+        auth_service.record_demo_attempt(session, body.role, ip, "rate_limited")
+        session.commit()
         raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, detail="too_many_attempts",
                             headers={"Retry-After": "60"})
     try:
@@ -112,7 +114,7 @@ def demo_login(
             session, body.role, ip, request.headers.get("user-agent"), settings
         )
     except AuthError as exc:
-        code = DEMO_ERRORS.get(exc.code, status.HTTP_409_CONFLICT)
+        code = DEMO_ERRORS.get(exc.code, status.HTTP_403_FORBIDDEN)
         raise HTTPException(code, detail=exc.code) from exc
     _set_refresh_cookie(response, tokens, settings)
     return _token_response(tokens)

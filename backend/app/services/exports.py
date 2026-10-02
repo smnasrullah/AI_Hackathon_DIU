@@ -41,8 +41,9 @@ def swap_rows(items: list[SwapItem]) -> Rows:
 
 def audit_rows(session: Session) -> Rows:
     found = session.execute(select(AuditLog, User.email, User.role)
-                            .join(User, User.id == AuditLog.user_id)
+                            .outerjoin(User, User.id == AuditLog.user_id)
                             .order_by(AuditLog.created_at.desc(), AuditLog.id.desc())).tuples()
-    return [(a.id, _utc(a.created_at), email, role.value, a.action, a.entity_type, a.entity_id,
-             a.note, json.dumps(a.payload, sort_keys=True, ensure_ascii=False))
+    return [(a.id, _utc(a.created_at), email, role.value if role else None, a.action,
+             a.entity_type, a.entity_id, a.note,
+             json.dumps(a.payload, sort_keys=True, ensure_ascii=False))
             for a, email, role in found]

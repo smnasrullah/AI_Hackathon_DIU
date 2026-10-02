@@ -116,7 +116,8 @@ class AuditLog(Base):
     )
 
     id: Mapped[int] = mapped_column(BigIntPK, primary_key=True)
-    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    # None only for denied demo-login attempts on an account that does not exist.
+    user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
     action: Mapped[str] = mapped_column(Text)
     entity_type: Mapped[str] = mapped_column(Text)
     entity_id: Mapped[str] = mapped_column(Text)

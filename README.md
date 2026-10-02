@@ -11,8 +11,8 @@ http://localhost:5173. Fresh database: `run.bat --reset`. More commands: [docs/C
 ## Demo mode and public hosting
 
 `.env.example` ships with `DEMO_MODE=true` so local and judge runs get one-click role sign-in
-(`POST /api/v1/auth/demo-login`: seeded `is_demo` accounts only, rate-limited per IP, every use in
-`audit_log`).
+(`POST /api/v1/auth/demo-login`: seeded `is_demo` accounts only, rate-limited per IP, every attempt
+(success, denied, rate-limited) in `audit_log`). The backend logs a startup warning while it is on.
 
 **For any public hosting set `DEMO_MODE=false` in `.env`.** The demo-login endpoint is then not
 registered at all and every sign-in needs a password. Also set your own `JWT_SECRET` and demo
