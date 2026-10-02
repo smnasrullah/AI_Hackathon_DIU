@@ -131,7 +131,10 @@
     "notFound": "Page not found",
     "serverError": "Something went wrong",
     "login": "Sign in",
-    "agentStockout": "Stockout time"
+    "agentStockout": "Stockout time",
+    "agentRebalance": "Rebalance",
+    "agentWhatIf": "What if",
+    "agentExplain": "Why?"
   },
   "nav": {
     "home": "Home",
@@ -598,13 +601,34 @@
   },
   "copilot": {
     "title": "Ask Copilot",
-    "lead": "Questions about your own cash and e-money. Advice only: you and your distributor decide.",
+    "lead": "Questions about your own cash and e-money, typed or spoken. Advice only: you and your distributor decide.",
     "suggestions": "Suggested questions",
     "inputLabel": "Your question",
     "placeholder": "Ask about your cash or e-money…",
     "send": "Send",
     "thinking": "Looking at your numbers…",
-    "failed": "Copilot could not answer just now."
+    "failed": "Copilot could not answer just now.",
+    "sheet": "Copilot conversation",
+    "notice": "Copilot only explains. Any cash or e-money move needs your distributor's approval.",
+    "empty": "Ask when your cash may run out, what adding money would change, or how swaps work.",
+    "typing": "Copilot is writing",
+    "mic": {
+      "start": "Speak your question",
+      "stop": "Stop listening",
+      "listening": "Listening… speak now",
+      "unsupported": "Voice input is not available in this browser. Type your question instead.",
+      "denied": "Microphone access is blocked. Allow it in the browser, or type your question.",
+      "noSpeech": "Did not catch that. Try again, or type your question.",
+      "failed": "Voice input stopped. Type your question instead."
+    },
+    "card": {
+      "runsOut": "may run out {{time}} · {{confidence}}",
+      "lasts": "lasts the next 72 hours",
+      "forecast": "Open the 72h forecast",
+      "whatIf": "Try it with the what-if slider",
+      "rebalance": "See rebalance and swap offers",
+      "sources": "From the Liquidity Playbook"
+    }
   },
   "stockout": {
     "title": "When could it run out?",
@@ -619,5 +643,95 @@
     "horizon": "Next {{hours}} hours",
     "probability": "{{value}} chance of running out",
     "seeForecast": "See the {{float}} forecast"
+  },
+  "rebalance": {
+    "title": "Rebalance",
+    "lead": "What to add, by when, and why. Ask your distributor; they decide.",
+    "recommendations": "Recommendations",
+    "shortfall": "Short by",
+    "buffer": "Safety buffer",
+    "runsOut": "Could run out",
+    "chance": "Chance in this window",
+    "capped": "Capped at what your float can hold.",
+    "statusFailed": "Request status did not load",
+    "note": "Distributor note: {{note}}",
+    "item": {
+      "open": "Open",
+      "requested": "Request sent",
+      "done": "Done",
+      "expired": "This suggestion expired"
+    },
+    "status": {
+      "requested": "Requested · waiting for your distributor",
+      "approved": "Approved by your distributor",
+      "declined": "Declined by your distributor",
+      "fulfilled": "Delivered",
+      "cancelled": "You withdrew this request"
+    },
+    "confirm": {
+      "title": "Send this request?",
+      "body": "Your distributor gets a request to add {{amount}} to {{float}}. Nothing moves until they approve.",
+      "action": "Send request"
+    },
+    "swaps": {
+      "title": "Swap offers",
+      "give": "Give {{amount}} {{float}} to {{name}}",
+      "receive": "Get {{amount}} {{float}} from {{name}}",
+      "distance": "{{km}} km away",
+      "accept": "Accept",
+      "decline": "Decline",
+      "partner": {
+        "accepted": "{{name}} accepted",
+        "declined": "{{name}} declined"
+      },
+      "mine": {
+        "accepted": "You accepted · your distributor decides",
+        "declined": "You declined this swap"
+      },
+      "confirm": {
+        "accept": {
+          "title": "Accept this swap?",
+          "body": "You agree to swap {{amount}} {{float}} with {{name}}. Your distributor still approves before anything moves."
+        },
+        "decline": {
+          "title": "Decline this swap?",
+          "body": "{{name}} and your distributor will see that you declined."
+        }
+      },
+      "sent": {
+        "accept": "You accepted the swap",
+        "decline": "You declined the swap"
+      },
+      "failed": "Could not send your answer. Try again.",
+      "empty": {
+        "title": "No swap offers right now",
+        "body": "When a nearby agent can balance your float, the offer shows here.",
+        "action": "Check again"
+      }
+    }
+  },
+  "whatif": {
+    "title": "What if…",
+    "lead": "Move the slider to add or take out money and see how long it lasts.",
+    "slider": "Change to {{float}}",
+    "reset": "Back to now",
+    "resultTitle": "What changes",
+    "updating": "Updating…",
+    "notice": "A simulation only. Nothing moves; your distributor approves real top-ups.",
+    "result": {
+      "idle": "Move the slider to see what changes for your {{float}}.",
+      "lasts": "With {{change}}, your {{float}} still lasts the next 72 hours.",
+      "nowLasts": "With {{change}}, your {{float}} lasts the next 72 hours instead of running out {{before}}.",
+      "nowRunsOut": "With {{change}}, your {{float}} may run out {{after}}.",
+      "later": "With {{change}}, your {{float}} may last until {{after}} instead of {{before}}.",
+      "earlier": "With {{change}}, your {{float}} may run out {{after}} instead of {{before}}.",
+      "same": "With {{change}}, your {{float}} may still run out around {{after}}."
+    }
+  },
+  "explain": {
+    "title": "Why this forecast?",
+    "lead": "The reasons the model sees, each with how much it moves demand.",
+    "modelChip": "Numbers and reasons from the forecasting model.",
+    "aiChip": "Plain-language wording written by AI. Its numbers are checked against the model."
   }
 }

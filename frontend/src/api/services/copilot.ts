@@ -6,16 +6,36 @@ export async function copilotSuggestions(lang: Lang, signal?: AbortSignal): Prom
   return (await api.get<CopilotSuggestions>("/copilot/suggestions", { params: { lang }, signal })).data;
 }
 
-/** SSE `done` payload (backend CopilotReply; the stream is not in the OpenAPI response models). */
-export interface CopilotReply {
+/** Where the backend routed the question (backend app/llm/copilot/intents.py Route). */
+export type CopilotRoute = "blocked" | "off_topic" | "status" | "whatif" | "swap_status" | "forecast_window" | "howto";
+
+/** Liquidity Playbook passage the answer is grounded in. */
+export interface CopilotSource {
+  slug: string;
+  title: string;
+  score: number;
+}
+
+/** SSE `meta` payload (backend CopilotMeta; the stream is not in the OpenAPI response models). */
+export interface CopilotMeta {
   agent_id: number;
-  route: string;
+  route: CopilotRoute;
+  /** Allow-listed read-only tool the backend ran, if any. */
+  tool: { tool: string } | null;
+  sources: CopilotSource[];
+}
+
+/** SSE `done` payload (backend CopilotReply). */
+export interface CopilotReply extends CopilotMeta {
   answer: LlmText;
 }
 
 export interface CopilotHandlers {
+  onMeta?: (meta: CopilotMeta) => void;
   /** Deterministic template answer, sent before the final wording. */
   onDraft: (text: string) => void;
+  /** Next chunk of the final (verified) answer. */
+  onDelta?: (text: string) => void;
   onDone: (reply: CopilotReply) => void;
 }
 
@@ -39,7 +59,9 @@ function dispatch(block: string, h: CopilotHandlers): void {
   }
   if (data.length === 0) return;
   const payload: unknown = JSON.parse(data.join("\n"));
-  if (event === "template") h.onDraft((payload as { text: string }).text);
+  if (event === "meta") h.onMeta?.(payload as CopilotMeta);
+  else if (event === "template") h.onDraft((payload as { text: string }).text);
+  else if (event === "delta") h.onDelta?.((payload as { text: string }).text);
   else if (event === "done") h.onDone(payload as CopilotReply);
   else if (event === "error") throw new Error((payload as { detail: string }).detail);
 }

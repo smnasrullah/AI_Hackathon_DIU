@@ -62,4 +62,9 @@ export const ROUTES: E2ERoute[] = [
 
   // Agent stockout time (/agent and /agent/forecast are listed above)
   { path: "/agent/stockout", as: "agent" },
+
+  // Agent actions and copilot (/agent/copilot is listed above)
+  { path: "/agent/rebalance", as: "agent" },
+  { path: "/agent/what-if", as: "agent" },
+  { path: "/agent/explain", as: "agent" },
 ];

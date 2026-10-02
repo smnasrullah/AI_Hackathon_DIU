@@ -34,11 +34,23 @@ const notifications = page(() => import("../features/notifications/Notifications
 const agentHome = page(() => import("../features/agent/home/AgentHomePage").then((m) => m.AgentHomePage));
 const agentForecast = page(() => import("../features/agent/forecast/ForecastPage").then((m) => m.ForecastPage));
 const agentStockout = page(() => import("../features/agent/stockout/StockoutPage").then((m) => m.StockoutPage));
+const agentRebalance = page(() => import("../features/agent/rebalance/RebalancePage").then((m) => m.RebalancePage));
+const agentWhatIf = page(() => import("../features/agent/whatif/WhatIfPage").then((m) => m.WhatIfPage));
+const agentExplain = page(() => import("../features/agent/explain/ExplainPage").then((m) => m.ExplainPage));
 const agentCopilot = page(() => import("../features/agent/copilot/CopilotPage").then((m) => m.CopilotPage));
 
 /** Pages built so far, keyed by role-relative path; the rest render a placeholder. */
 const BUILT: Record<string, Lazy> = { settings };
-const AGENT_BUILT: Record<string, Lazy> = { "": agentHome, forecast: agentForecast, stockout: agentStockout, copilot: agentCopilot, settings };
+const AGENT_BUILT: Record<string, Lazy> = {
+  "": agentHome,
+  forecast: agentForecast,
+  stockout: agentStockout,
+  rebalance: agentRebalance,
+  "what-if": agentWhatIf,
+  explain: agentExplain,
+  copilot: agentCopilot,
+  settings,
+};
 
 function children(pages: PageDef[], built: Record<string, Lazy> = BUILT): RouteObject[] {
   return pages.map((p) => {

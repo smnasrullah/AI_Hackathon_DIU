@@ -44,6 +44,9 @@ export type Runway = WhatIfScenario &
   Pick<WhatIfOut, "float_type" | "capacity" | "as_of" | "model_version" | "generated_at">;
 export type RecommendationItem = S["RecommendationItem"];
 export type RequestItem = S["RequestItem"];
+export type RequestPage = S["RequestPage"];
+export type RequestStatus = S["RequestStatus"];
+export type RecommendationChannel = S["RecommendationChannel"];
 export type EventType = S["EventType"];
 export type EventItem = S["EventItem"];
 export type EventPage = S["EventPage"];
@@ -55,6 +58,8 @@ export type NarrateIn = S["NarrateIn"];
 export type SwapItem = S["SwapItem"];
 export type SwapPage = S["SwapPage"];
 export type SwapDecisionIn = S["SwapDecisionIn"];
+export type SwapRespondIn = S["SwapRespondIn"];
+export type SwapParty = S["SwapParty"];
 
 export type AnomalyPage = S["AnomalyPage"];
 export type AnomalyDetail = S["AnomalyDetail"];
@@ -78,6 +83,7 @@ export type ModelCard = S["ModelCard"];
 
 export type RiskListQuery = QueryOf<"list_risk_api_v1_agents_risk_get">;
 export type SwapListQuery = QueryOf<"list_swaps_api_v1_swaps_get">;
+export type RequestListQuery = QueryOf<"list_requests_api_v1_recommendation_requests_get">;
 export type AnomalyListQuery = QueryOf<"list_anomalies_api_v1_anomalies_get">;
 export type NotificationListQuery = QueryOf<"list_notifications_api_v1_notifications_get">;
 export type ExplanationQuery = QueryOf<"get_explanations_api_v1_agents__agent_id__explanations_get">;

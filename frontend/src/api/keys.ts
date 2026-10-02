@@ -8,6 +8,7 @@ import type {
   Lang,
   ImpactQuery,
   NotificationListQuery,
+  RequestListQuery,
   RiskListQuery,
   SwapListQuery,
 } from "./types";
@@ -23,10 +24,12 @@ export const qk = {
     recommendation: (id: number) => ["agent", id, "recommendation"] as const,
     runway: (id: number, float: FloatType) => ["agent", id, "runway", float] as const,
     narration: (id: number, float: FloatType, lang: Lang) => ["agent", id, "narration", float, lang] as const,
+    whatIf: (id: number, float: FloatType, delta: number) => ["agent", id, "whatif", float, delta] as const,
   },
   events: (q: EventListQuery = {}) => ["events", q] as const,
   copilotSuggestions: (lang: Lang) => ["copilot", "suggestions", lang] as const,
   riskList: (q: RiskListQuery = {}) => ["risk-list", q] as const,
+  requests: { all: ["requests"] as const, list: (q: RequestListQuery = {}) => ["requests", q] as const },
   swaps: { all: ["swaps"] as const, list: (q: SwapListQuery = {}) => ["swaps", q] as const },
   anomalies: {
     all: ["anomalies"] as const,

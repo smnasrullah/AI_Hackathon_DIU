@@ -1,9 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { streamCopilotChat, type CopilotHandlers, type CopilotReply } from "../../../api/services/copilot";
+import { streamCopilotChat, type CopilotHandlers, type CopilotMeta, type CopilotReply } from "../../../api/services/copilot";
 import type { CopilotChatIn, LlmText } from "../../../api/types";
 import { api as realApi } from "../../../lib/api";
 import type { FakeApi } from "../../../test/fakeApi";
@@ -27,7 +27,7 @@ const SECOND = "How do I request cash?";
 const SUGGESTIONS = [FIRST, SECOND];
 
 function answer(text: string, by: LlmText["generated_by"]): CopilotReply {
-  return { agent_id: 1, route: "tool", answer: { text, generated_by: by } as LlmText };
+  return { agent_id: 1, route: "howto", tool: null, sources: [], answer: { text, generated_by: by } as LlmText };
 }
 
 function renderPage() {
@@ -99,6 +99,138 @@ describe("copilot suggestion chips", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Try again" }));
     expect(await screen.findByText("Your cash may run out around 9 pm.")).toBeInTheDocument();
     expect(stream.mock.calls.map((c) => c[0].message)).toEqual([SECOND, SECOND]);
+  });
+});
+
+describe("copilot streaming render", () => {
+  let client: QueryClient | null = null;
+
+  beforeEach(() => {
+    api.reset();
+    signIn("agent");
+    api.on("get", "/copilot/suggestions", () => ({ lang: "en", items: SUGGESTIONS }));
+  });
+
+  afterEach(() => {
+    client?.clear();
+    client = null;
+  });
+
+  it("shows the typing shimmer, then the template, then streamed wording, then the labelled mini-card", async () => {
+    let h: CopilotHandlers | null = null;
+    let finish: () => void = () => undefined;
+    stream.mockImplementation(
+      (_body: CopilotChatIn, handlers: CopilotHandlers) =>
+        new Promise<void>((resolve) => {
+          h = handlers;
+          finish = resolve;
+        }),
+    );
+    const meta: CopilotMeta = { agent_id: 1, route: "howto", tool: null, sources: [{ slug: "swaps", title: "How swaps work", score: 0.9 }] };
+    client = renderPage();
+    fireEvent.click(await screen.findByRole("button", { name: SECOND }));
+    expect(await screen.findByTestId("copilot-typing")).toBeInTheDocument();
+    const send = (fn: (x: CopilotHandlers) => void) => act(() => fn(h as unknown as CopilotHandlers));
+
+    send((x) => {
+      x.onMeta?.(meta);
+      x.onDraft("Template draft");
+    });
+    expect(screen.getByTestId("copilot-answer")).toHaveTextContent("Template draft");
+
+    send((x) => {
+      x.onDelta?.("Swaps move float ");
+      x.onDelta?.("between nearby agents.");
+    });
+    const answerCard = screen.getByTestId("copilot-answer");
+    expect(answerCard).toHaveTextContent("Swaps move float between nearby agents.");
+    expect(answerCard).not.toHaveTextContent("Template draft");
+    expect(within(answerCard).getByTestId("copilot-typing")).toBeInTheDocument();
+
+    send((x) => x.onDone({ ...meta, answer: { text: "Swaps move float between nearby agents.", generated_by: "llm" } as LlmText }));
+    finish();
+    await waitFor(() => expect(screen.queryByTestId("copilot-typing")).not.toBeInTheDocument());
+    expect(within(answerCard).getByText("AI-generated wording")).toBeInTheDocument();
+    expect(within(screen.getByTestId("copilot-card-sources")).getByText("How swaps work")).toBeInTheDocument();
+    expect(screen.getByTestId("copilot-notice")).toHaveTextContent("needs your distributor's approval");
+  });
+});
+
+describe("copilot voice input", () => {
+  let client: QueryClient | null = null;
+
+  beforeEach(() => {
+    api.reset();
+    signIn("agent");
+    api.on("get", "/copilot/suggestions", () => ({ lang: "en", items: SUGGESTIONS }));
+    stream.mockImplementation(async (_body: CopilotChatIn, h: CopilotHandlers) => {
+      h.onDone(answer("Done.", "template"));
+    });
+  });
+
+  afterEach(() => {
+    client?.clear();
+    client = null;
+    vi.unstubAllGlobals();
+  });
+
+  it("falls back to typing when the browser has no speech recognition", async () => {
+    client = renderPage();
+    fireEvent.click(screen.getByRole("button", { name: "Speak your question" }));
+
+    expect(screen.getByTestId("copilot-mic-status")).toHaveTextContent("Voice input is not available in this browser");
+    const input = screen.getByLabelText("Your question");
+    expect(input).toHaveFocus();
+    fireEvent.change(input, { target: { value: "any swap offers?" } });
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+    await waitFor(() => expect(stream.mock.calls[0]?.[0]).toEqual({ message: "any swap offers?", lang: "en" }));
+  });
+
+  it("listens in the current language and fills the input without sending", () => {
+    const started: FakeRecognition[] = [];
+    class FakeRecognition {
+      lang = "";
+      interimResults = false;
+      continuous = true;
+      maxAlternatives = 0;
+      onresult: ((e: unknown) => void) | null = null;
+      onerror: ((e: { error: string }) => void) | null = null;
+      onend: (() => void) | null = null;
+      start = () => started.push(this);
+      stop = () => this.onend?.();
+      abort = () => undefined;
+    }
+    vi.stubGlobal("webkitSpeechRecognition", FakeRecognition);
+    client = renderPage();
+    fireEvent.click(screen.getByRole("button", { name: "Speak your question" }));
+
+    const rec = started[0];
+    expect(rec?.lang).toBe("en-US");
+    expect(screen.getByRole("button", { name: "Stop listening" })).toHaveAttribute("aria-pressed", "true");
+    act(() => rec?.onresult?.({ results: [Object.assign([{ transcript: "when will my cash run out" }], { isFinal: true })] }));
+    act(() => rec?.onend?.());
+
+    expect(screen.getByLabelText("Your question")).toHaveValue("when will my cash run out");
+    expect(stream).not.toHaveBeenCalled();
+  });
+
+  it("explains a blocked microphone", () => {
+    class Denied {
+      lang = "";
+      interimResults = false;
+      continuous = false;
+      maxAlternatives = 1;
+      onresult = null;
+      onerror: ((e: { error: string }) => void) | null = null;
+      onend: (() => void) | null = null;
+      start = () => queueMicrotask(() => this.onerror?.({ error: "not-allowed" }));
+      stop = () => undefined;
+      abort = () => undefined;
+    }
+    vi.stubGlobal("SpeechRecognition", Denied);
+    client = renderPage();
+    fireEvent.click(screen.getByRole("button", { name: "Speak your question" }));
+    return waitFor(() => expect(screen.getByTestId("copilot-mic-status")).toHaveTextContent("Microphone access is blocked"));
   });
 });
 

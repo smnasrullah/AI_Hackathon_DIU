@@ -72,13 +72,27 @@ export function useRequestRecommendation(agentId: number) {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (recommendationId: number) => requestRecommendation(recommendationId),
-    onSettled: () => client.invalidateQueries({ queryKey: qk.agent.recommendation(agentId) }),
+    onSettled: () =>
+      Promise.all([
+        client.invalidateQueries({ queryKey: qk.agent.recommendation(agentId) }),
+        client.invalidateQueries({ queryKey: qk.requests.all }),
+      ]),
   });
 }
 
 /** What-if is a read (no state changes server-side), so it is a mutation only for imperative calls. */
 export function useWhatIf(id: number) {
   return useMutation({ mutationFn: (body: WhatIfIn) => postWhatIf(id, body) });
+}
+
+/** What-if for one (debounced) slider value; delta 0 is the cached runway, so it is not fetched here. */
+export function useWhatIfQuery(id: number | null, floatType: FloatType, delta: number) {
+  return useQuery({
+    queryKey: qk.agent.whatIf(id ?? 0, floatType, delta),
+    queryFn: () => postWhatIf(id ?? 0, { float_type: floatType, delta_amount: delta }),
+    enabled: id !== null && delta !== 0,
+    placeholderData: keepPreviousData,
+  });
 }
 
 export function useRiskList(q: RiskListQuery = {}) {
