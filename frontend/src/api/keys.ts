@@ -25,6 +25,7 @@ export const qk = {
     narration: (id: number, float: FloatType, lang: Lang) => ["agent", id, "narration", float, lang] as const,
   },
   events: (q: EventListQuery = {}) => ["events", q] as const,
+  copilotSuggestions: (lang: Lang) => ["copilot", "suggestions", lang] as const,
   riskList: (q: RiskListQuery = {}) => ["risk-list", q] as const,
   swaps: { all: ["swaps"] as const, list: (q: SwapListQuery = {}) => ["swaps", q] as const },
   anomalies: {

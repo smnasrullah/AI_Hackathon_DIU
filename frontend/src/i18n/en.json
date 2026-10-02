@@ -596,6 +596,16 @@
       "action": "Check again"
     }
   },
+  "copilot": {
+    "title": "Ask Copilot",
+    "lead": "Questions about your own cash and e-money. Advice only: you and your distributor decide.",
+    "suggestions": "Suggested questions",
+    "inputLabel": "Your question",
+    "placeholder": "Ask about your cash or e-money…",
+    "send": "Send",
+    "thinking": "Looking at your numbers…",
+    "failed": "Copilot could not answer just now."
+  },
   "stockout": {
     "title": "When could it run out?",
     "lead": "Counted from {{time}}",

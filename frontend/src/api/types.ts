@@ -48,6 +48,8 @@ export type EventType = S["EventType"];
 export type EventItem = S["EventItem"];
 export type EventPage = S["EventPage"];
 export type LlmText = S["LlmText"];
+export type CopilotSuggestions = S["CopilotSuggestions"];
+export type CopilotChatIn = S["CopilotChatIn"];
 export type NarrateIn = S["NarrateIn"];
 
 export type SwapItem = S["SwapItem"];
