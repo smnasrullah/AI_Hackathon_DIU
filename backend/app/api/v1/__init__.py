@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.api.v1 import (
     agents,
+    anomalies,
     auth,
     events,
     explanations,
@@ -31,3 +32,4 @@ api_router.include_router(recommendations.router)
 api_router.include_router(recommendation_requests.router)
 api_router.include_router(swaps.router)
 api_router.include_router(risk_map.router)
+api_router.include_router(anomalies.router)

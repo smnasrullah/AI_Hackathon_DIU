@@ -1,0 +1,78 @@
+{
+  "model_version": "iforest-1.0.0-25b1a7f6",
+  "trained_at": "2026-10-02T03:59:08+00:00",
+  "seed": 42,
+  "data_version": "1.0.0",
+  "files": {
+    "anomaly_iforest.joblib": "f26abb4a312ad4f7843dd2fdfabec9c121911454bdde63f274629c807e2f8287"
+  },
+  "anomaly": {
+    "model_name": "agent_anomaly",
+    "features": [
+      "cash_out_peer_z",
+      "hour_shift_peer_z",
+      "refills_peer_z",
+      "out_in_ratio_peer_z"
+    ],
+    "window_h": 168,
+    "history_h": 672,
+    "stride_h": 24,
+    "n_estimators": 200,
+    "contamination": 0.005,
+    "min_peers": 10,
+    "group_windows": {
+      "all": 21600,
+      "t1-urban": 2304,
+      "t2-peri_urban": 3024,
+      "t2-rural": 2376,
+      "t2-urban": 2952,
+      "t3-peri_urban": 2880,
+      "t3-rural": 4896,
+      "t3-urban": 2232
+    },
+    "train_windows_end_before": "2026-04-21T00:00:00+06:00",
+    "eval_min_overlap_h": 72,
+    "metrics": {
+      "holdout": {
+        "windows": 2393,
+        "excluded_ambiguous": 7,
+        "positives": 30,
+        "flagged": 23,
+        "tp": 22,
+        "fp": 1,
+        "fn": 8,
+        "precision": 0.9565,
+        "recall": 0.7333,
+        "recall_by_kind": {
+          "circular_flow": 0.875,
+          "night_structuring": 0.9167,
+          "volume_burst": 0.4
+        },
+        "agents_true": 5,
+        "agents_flagged": 5,
+        "agent_precision": 0.8,
+        "agent_recall": 0.8
+      },
+      "train_period": {
+        "windows": 21587,
+        "excluded_ambiguous": 13,
+        "positives": 27,
+        "flagged": 104,
+        "tp": 24,
+        "fp": 80,
+        "fn": 3,
+        "precision": 0.2308,
+        "recall": 0.8889,
+        "recall_by_kind": {
+          "circular_flow": 1.0,
+          "night_structuring": 0.8182,
+          "volume_burst": 0.8571
+        },
+        "agents_true": 4,
+        "agents_flagged": 43,
+        "agent_precision": 0.093,
+        "agent_recall": 1.0
+      }
+    }
+  }
+}

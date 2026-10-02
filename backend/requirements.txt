@@ -10,4 +10,6 @@ pyjwt==2.*
 numpy==2.*
 scipy==1.14.*
 lightgbm==4.5.*
+# Exact pin: the committed IsolationForest pickle must load without a version mismatch.
+scikit-learn==1.5.2
 joblib==1.4.*

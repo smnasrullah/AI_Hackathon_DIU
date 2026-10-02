@@ -1,5 +1,6 @@
 """ML gate: the COMMITTED forecast must beat the same-hour-last-week baseline on the held-out
-14 days. Metrics are read back from the model_versions row registered from the artifacts."""
+14 days, and the committed anomaly detector must find the injected anomalies there. Metrics are
+read back from the model_versions rows registered from the artifacts."""
 
 from pathlib import Path
 
@@ -10,7 +11,12 @@ from sqlalchemy.orm import Session
 
 from app.core.config import BACKEND_DIR, get_settings
 from app.core.db import get_engine
-from app.services.model_registry import active_model, register_forecast_model
+from app.services.model_registry import (
+    active_model,
+    register_anomaly_model,
+    register_forecast_model,
+)
+from ml.inference.anomaly import load_detector
 from ml.registry import FORECAST_MODEL
 
 COMMITTED_ARTIFACTS = BACKEND_DIR / "ml" / "artifacts"
@@ -36,3 +42,16 @@ def test_forecast_beats_last_week_baseline(metrics: dict[str, dict[str, float]],
     assert m["rows"] > 0
     assert m["mae_bdt"] < m["mae_baseline_bdt"], (
         f"{target}: model MAE {m['mae_bdt']} does not beat baseline {m['mae_baseline_bdt']}")
+
+
+def test_committed_anomaly_detector_finds_injected_anomalies(env: Path) -> None:
+    """Holdout precision/recall of the COMMITTED Isolation Forests vs the injected labels."""
+    cfg = Config(str(BACKEND_DIR / "alembic.ini"))
+    cfg.attributes["database_url"] = get_settings().database_url
+    command.upgrade(cfg, "head")
+    with Session(get_engine()) as session, session.begin():
+        row = register_anomaly_model(session, COMMITTED_ARTIFACTS)
+        version, holdout = row.version, row.metrics["holdout"]
+    assert load_detector(COMMITTED_ARTIFACTS).version == version
+    assert holdout["positives"] > 0
+    assert holdout["precision"] >= 0.5 and holdout["recall"] >= 0.5, holdout
