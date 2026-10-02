@@ -115,6 +115,12 @@ def login(
     return tokens
 
 
+def clear_login_failures(session: Session, email: str) -> int:
+    """Forget recent failed logins for `email` (all IPs). CLI only: e2e reruns within the window."""
+    result = session.execute(delete(LoginFailure).where(LoginFailure.email == email.lower()))
+    return int(getattr(result, "rowcount", 0) or 0)
+
+
 def demo_login(
     session: Session, role: UserRole, user_agent: str | None, settings: Settings
 ) -> IssuedTokens:

@@ -19,6 +19,8 @@ from app.services.model_registry import (
 from ml.inference.anomaly import load_detector
 from ml.registry import FORECAST_MODEL
 
+pytestmark = pytest.mark.slow
+
 COMMITTED_ARTIFACTS = BACKEND_DIR / "ml" / "artifacts"
 
 

@@ -1,7 +1,6 @@
 """Anomaly flags end to end: train on the small synthetic DB, scan at SIM_NOW, list / detail /
 review with role scoping and audit_log."""
 
-import shutil
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
@@ -19,6 +18,7 @@ from ml.data_gen import demo_spec
 from ml.registry import verify_anomaly
 from ml.training import anomaly as anomaly_train
 from tests.auth_helpers import ADMIN, AGENT_MIRPUR, DIST_DHAKA, bearer
+from tests.conftest import build_template, migrate_and_seed, use_template
 
 API = "/api/v1/anomalies"
 DIST_CTG = "dist.chattogram@agentpulse.demo"
@@ -41,14 +41,22 @@ def anomaly_artifacts(trained: tuple[Path, Path],
     yield out
 
 
+@pytest.fixture(scope="session")
+def flagged_template(trained: tuple[Path, Path], anomaly_artifacts: Path,
+                     tmp_path_factory: pytest.TempPathFactory) -> Path:
+    def build() -> None:
+        migrate_and_seed()
+        with Session(get_engine()) as session, session.begin():
+            assert anomaly_scan.precompute(session, anomaly_artifacts) > 0
+
+    return build_template(tmp_path_factory.mktemp("flagged") / "flagged.db", build,
+                          base=trained[0])
+
+
 @pytest.fixture
-def flagged(env: Path, trained: tuple[Path, Path], anomaly_artifacts: Path,
-            request: pytest.FixtureRequest) -> Path:
+def flagged(seeded: Path, anomaly_artifacts: Path, flagged_template: Path) -> Path:
     """Copy of the synthetic DB + reference seed, anomaly scan at SIM_NOW."""
-    shutil.copy(trained[0], env / "test.db")
-    request.getfixturevalue("seeded")
-    with Session(get_engine()) as session, session.begin():
-        assert anomaly_scan.precompute(session, anomaly_artifacts) > 0
+    use_template(seeded, flagged_template)
     return anomaly_artifacts
 
 

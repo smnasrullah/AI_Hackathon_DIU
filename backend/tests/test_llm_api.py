@@ -22,7 +22,11 @@ from app.rules.risk_rules import build_config
 from app.services import risk
 from tests.auth_helpers import ADMIN, AGENT_MIRPUR, DIST_DHAKA, agent_id, bearer
 from tests.conftest import N_TRAINED_AGENTS
-from tests.test_anomalies_api import anomaly_artifacts, flagged  # noqa: F401
+from tests.test_anomalies_api import (  # noqa: F401
+    anomaly_artifacts,
+    flagged,
+    flagged_template,
+)
 
 API = "/api/v1"
 DRAFT = re.compile(r"<draft>\n(.*)\n</draft>", re.DOTALL)

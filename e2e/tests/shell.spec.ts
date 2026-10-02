@@ -23,23 +23,27 @@ test("Ctrl+K opens the command palette and jumps to an agent", async ({ page }) 
   await expect(palette).toHaveCount(0);
 });
 
+// scripts/check -E2E first runs `python bootstrap.py e2e-fixtures` (includes seed-notifications):
+// the distributor's inbox is all read except one unread notice, every run, no DB reset. Saved
+// language/digits are not reset, so labels are matched in both (en | bn).
 test("notifications can be read from the bell", async ({ page }) => {
   await loginAs(page, "distributor");
-  const bell = page.getByTestId("notification-bell");
-  await bell.click();
-  const panel = page.getByRole("dialog", { name: "Notifications" });
+  const badge = page.getByTestId("notification-badge");
+  await expect(badge).toHaveText(/^[1১]$/);
+  await page.getByTestId("notification-bell").click();
+  const panel = page.getByRole("dialog", { name: /^(Notifications|নোটিফিকেশন)$/ });
   await expect(panel).toBeVisible();
+  const unreadRows = panel.locator('[data-testid="notification-row"][data-unread="true"]');
+  await expect(unreadRows).toHaveCount(1);
 
-  if ((await page.getByTestId("notification-badge").count()) > 0) {
-    await panel.getByRole("button", { name: "Mark all read" }).click();
-    await expect(page.getByTestId("notification-badge")).toHaveCount(0);
-    await expect(panel.locator('[data-testid="notification-row"][data-unread="true"]')).toHaveCount(0);
-  } else {
-    await expect(panel.getByText("All caught up")).toBeVisible();
-  }
+  await panel.getByRole("button", { name: /^(Mark all read|সব পড়া হয়েছে)$/ }).click();
+  await expect(badge).toHaveCount(0);
+  await expect(unreadRows).toHaveCount(0);
 
-  await panel.getByRole("link", { name: "View all notifications" }).click();
+  await panel.getByRole("link", { name: /^(View all notifications|সব নোটিফিকেশন দেখুন)$/ }).click();
   await expect(page).toHaveURL(/\/notifications$/);
+  await page.goto("/notifications?status=unread");
+  await expect(page.getByText(/^(All caught up|সব দেখা হয়ে গেছে)$/)).toBeVisible();
 });
 
 test("preferences persist on the server", async ({ page }) => {

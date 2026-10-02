@@ -1,6 +1,7 @@
 """Notifications: generated on risk recompute and swap events for the right users only; list,
 mark read, read all; never another user's."""
 
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -9,6 +10,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+import bootstrap
 from app.core.db import get_engine
 from app.models import Notification
 from app.rules.risk_rules import build_config
@@ -133,3 +135,16 @@ def test_cannot_touch_other_users_notifications(client: TestClient, market: Path
     assert client.post(f"{API}/read-all").status_code == 401
     for bad in ({"page": 0}, {"page_size": 101}, {"unread": "maybe"}):
         assert client.get(API, params=bad, headers=h).status_code == 422
+
+
+def test_seed_notifications_cli_leaves_exactly_one_unread(
+    client: TestClient, seeded: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    other = _page(client, DIST_CTG)["unread_count"]
+    monkeypatch.setattr(sys, "argv", ["bootstrap.py", "seed-notifications"])
+    for _ in range(2):  # rerunning (e2e twice without reset) still leaves exactly one unread
+        assert bootstrap.main() == 0
+        body = _page(client, DIST_DHAKA, unread=True)
+        assert body["unread_count"] == 1 and len(body["items"]) == 1
+        assert body["items"][0]["title_key"] == "notifications.fallback"
+    assert _page(client, DIST_CTG)["unread_count"] == other

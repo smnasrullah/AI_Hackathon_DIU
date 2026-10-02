@@ -1,47 +1,157 @@
-# All checks, inside Docker (no local node/python needed).
-# Usage: scripts\check.ps1 [-E2E] [-NoBuild]
-param([switch]$E2E, [switch]$NoBuild)
+# Checks, inside Docker (no local node/python needed). One line per step; failures only.
+# Usage: scripts\check.ps1 [-Backend] [-Frontend] [-E2E] [-Slow] [-Full] [-Up]
+#   (none)     FAST tier: ruff, pytest -m "not slow", tsc, eslint, vitest
+#   -Backend   ruff + fast pytest        -Frontend  tsc + eslint + vitest
+#   -Slow      pytest -m slow (model training, full synthetic set, ML gate)
+#   -E2E       Playwright smoke against the running stack (start it with -Up)
+#   -Up        rebuild app images with the /dev/kit route and start the stack
+#   -Full      everything: ruff, all pytest, tsc, eslint, vitest, -Up, e2e
+param([switch]$Backend, [switch]$Frontend, [switch]$E2E, [switch]$Slow, [switch]$Full,
+      [switch]$Up)
 $ErrorActionPreference = 'Continue'
-Set-Location (Split-Path -Parent $PSScriptRoot)
+$root = Split-Path -Parent $PSScriptRoot
+Set-Location $root
+
+$runBackend = $Full -or $Backend -or -not ($Frontend -or $E2E -or $Slow -or $Up)
+$runFrontend = $Full -or $Frontend -or -not ($Backend -or $E2E -or $Slow -or $Up)
+$runSlow = $Full -or $Slow
+$runUp = $Full -or $Up
+$runE2E = $Full -or $E2E
+
+# --- concurrency lock ------------------------------------------------------------------------
+$lock = Join-Path $PSScriptRoot '.check.lock'
+if (Test-Path $lock) {
+  $holder = (Get-Content $lock -ErrorAction SilentlyContinue | Select-Object -First 1)
+  $age = (Get-Date) - (Get-Item $lock).LastWriteTime
+  $alive = $holder -match '^\d+$' -and (Get-Process -Id ([int]$holder) -ErrorAction SilentlyContinue)
+  if ($alive -and $age.TotalMinutes -lt 30) {
+    Write-Host "BUSY  another check is running (pid $holder). Lock: scripts/.check.lock"
+    exit 2
+  }
+  Remove-Item $lock -Force -ErrorAction SilentlyContinue
+}
+try { $fs = [IO.File]::Open($lock, 'CreateNew', 'Write', 'Read') } catch {
+  Write-Host 'BUSY  another check just started. Lock: scripts/.check.lock'; exit 2
+}
+$w = New-Object IO.StreamWriter($fs); $w.WriteLine($PID); $w.Flush()
 
 $failed = 0
-function Invoke-Step([string]$Name, [string[]]$Cmd) {
-  $sw = [Diagnostics.Stopwatch]::StartNew()
-  $out = & docker @Cmd 2>&1 | ForEach-Object { "$_" } |
-    Where-Object { $_ -notmatch '^\s*Container \S+ (Creat|Start)|RemoteException$' }
-  $code = $LASTEXITCODE
-  $t = '{0,5:N1}s' -f $sw.Elapsed.TotalSeconds
-  if ($code -eq 0) {
-    Write-Host ("PASS  {0,-10} {1}" -f $Name, $t)
-  } else {
-    Write-Host ("FAIL  {0,-10} {1}  (exit {2})" -f $Name, $t, $code)
-    $out | Select-Object -Last 40 | ForEach-Object { Write-Host "      $_" }
-    $script:failed++
+$tag = "agentpulse-check-$PID"
+
+function Remove-StaleContainers {
+  $rows = docker ps -a --filter 'name=agentpulse-check-' --format '{{.Names}}|{{.RunningFor}}' 2>$null
+  foreach ($r in $rows) {
+    $name, $for = $r -split '\|', 2
+    $old = ($for -match 'hour|day|week|month|year') -or
+           (($for -match '^(\d+) minutes') -and [int]$Matches[1] -ge 15)
+    if ($old) { docker rm -f $name 2>$null | Out-Null; Write-Host "      removed stale $name" }
   }
 }
 
-$be = @('compose', '--profile', 'tools', 'run', '--rm', '-T', 'backend-tools')
-$fe = @('compose', '--profile', 'tools', 'run', '--rm', '-T', 'frontend-tools')
+# Filter applied to a failing step's output; falls back to its last 15 lines.
+$failPattern = '^(FAILED|ERROR)\s|error TS\d+|^\s*\d+:\d+\s+error|:\d+:\d+: [A-Z]+\d+|' +
+  '\bFAIL\b|^\s*[x' + [char]0xd7 + [char]0x2718 + ']\s|^\s*\d+\) |Error:|AssertionError|' +
+  'exit code|BUSY|not ready'
 
-if (-not $NoBuild) {
-  Invoke-Step 'build' @('compose', '--profile', 'tools', 'build', '-q', 'backend-tools', 'frontend-tools')
-  if ($failed) { exit 1 }
+function Invoke-Step([string]$Name, [int]$TimeoutSec, [string[]]$Cmd, [string]$Container = '') {
+  $sw = [Diagnostics.Stopwatch]::StartNew()
+  $psi = New-Object Diagnostics.ProcessStartInfo('docker')
+  $psi.Arguments = ($Cmd | ForEach-Object { if ($_ -match '[\s"]') { '"' + ($_ -replace '"', '\"') + '"' } else { $_ } }) -join ' '
+  $psi.UseShellExecute = $false
+  $psi.RedirectStandardOutput = $true
+  $psi.RedirectStandardError = $true
+  $p = [Diagnostics.Process]::Start($psi)
+  $so = $p.StandardOutput.ReadToEndAsync(); $se = $p.StandardError.ReadToEndAsync()
+  $timedOut = -not $p.WaitForExit($TimeoutSec * 1000)
+  if ($timedOut) {
+    try { $p.Kill() } catch { }
+    if ($Container) { docker rm -f $Container 2>$null | Out-Null }
+    $code = 124
+  } else { $p.WaitForExit(); $code = $p.ExitCode }
+  $t = '{0,6:N1}s' -f $sw.Elapsed.TotalSeconds
+  if ($code -eq 0) { Write-Host ("PASS  {0,-12} {1}" -f $Name, $t); return }
+  $why = if ($timedOut) { "timeout ${TimeoutSec}s" } else { "exit $code" }
+  Write-Host ("FAIL  {0,-12} {1}  ({2})" -f $Name, $t, $why)
+  $lines = ((($so.Result + "`n" + $se.Result) -replace "\x1b\[[0-9;]*m", '') -split "`r?`n") |
+    Where-Object { $_ -and $_ -notmatch '^\s*(Container|Network|Volume) \S+ |RemoteException$' }
+  $hits = @($lines | Where-Object { $_ -match $failPattern })
+  if (-not $hits) { $hits = @($lines | Select-Object -Last 15) }
+  $hits | Select-Object -First 30 | ForEach-Object { Write-Host "      $_" }
+  $script:failed++
 }
-Invoke-Step 'ruff'      ($be + @('ruff', 'check', '.'))
-Invoke-Step 'pytest'    ($be + @('pytest', '-q', '-p', 'no:cacheprovider'))
-Invoke-Step 'typecheck' ($fe + @('npm', 'run', '-s', 'typecheck'))
-Invoke-Step 'eslint'    ($fe + @('npm', 'run', '-s', 'lint'))
-Invoke-Step 'vitest'    ($fe + @('npm', 'run', '-s', 'test'))
-if ($E2E) {
-  if ((docker compose --profile e2e config --services) -contains 'e2e') {
-    # Rebuild app images so e2e tests the working tree; `up -d` recreates changed containers.
-    # The e2e bundle includes the dev-only /dev/kit route.
+
+function Invoke-Tool([string]$Name, [int]$TimeoutSec, [string]$Service, [string[]]$ToolCmd) {
+  $c = "$tag-$Name"
+  Invoke-Step $Name $TimeoutSec (@('compose', '--profile', 'tools', '--profile', 'e2e', 'run',
+    '--rm', '--no-deps', '-T', '--name', $c, $Service) + $ToolCmd) $c
+}
+
+# Rebuild an image only when it is missing or its Dockerfile / dependency files changed.
+function Update-Images([string]$ProfileName, [string[]]$Services, [string[]]$Inputs) {
+  $files = $Inputs | ForEach-Object { Get-ChildItem $_ -ErrorAction SilentlyContinue } | Sort-Object FullName
+  $sig = ($files | ForEach-Object { (Get-FileHash $_.FullName -Algorithm SHA256).Hash }) -join ''
+  $stamp = Join-Path $PSScriptRoot (".check-build-" + ($Services -join '_') + '.stamp')
+  $missing = $Services | Where-Object { -not (docker image ls -q "agentpulse-$_" 2>$null) }
+  $prev = if (Test-Path $stamp) { Get-Content $stamp -Raw } else { '' }
+  if (-not $missing -and $prev.Trim() -eq $sig) { return }
+  Invoke-Step ('build:' + ($Services -join ',')) 900 (@('compose', '--profile', $ProfileName, 'build', '-q') + $Services)
+  if (-not $script:failed) { Set-Content -Path $stamp -Value $sig -Encoding ascii -NoNewline }
+}
+
+try {
+  Remove-StaleContainers
+  if ($runBackend -or $runSlow) {
+    Update-Images 'tools' @('backend-tools') @('backend/Dockerfile', 'backend/requirements*.txt')
+  }
+  if ($runFrontend) {
+    Update-Images 'tools' @('frontend-tools') @('frontend/Dockerfile', 'frontend/package.json', 'frontend/package-lock.json')
+  }
+  if ($runE2E) {
+    Update-Images 'e2e' @('e2e') @('e2e/Dockerfile', 'e2e/package.json', 'e2e/package-lock.json')
+  }
+  if ($failed) { exit 1 }
+
+  $pytest = @('pytest', '-q', '-p', 'no:cacheprovider', '--tb=line', '-rfE')
+  if ($runBackend) {
+    Invoke-Tool 'ruff' 60 'backend-tools' @('ruff', 'check', '.')
+    if ($Full) { Invoke-Tool 'pytest-all' 1200 'backend-tools' $pytest }
+    else { Invoke-Tool 'pytest' 240 'backend-tools' ($pytest + @('-m', 'not slow')) }
+  }
+  if ($runSlow -and -not $Full) { Invoke-Tool 'pytest-slow' 1200 'backend-tools' ($pytest + @('-m', 'slow')) }
+  if ($runFrontend) {
+    Invoke-Tool 'typecheck' 180 'frontend-tools' @('npm', 'run', '-s', 'typecheck')
+    Invoke-Tool 'eslint' 180 'frontend-tools' @('npm', 'run', '-s', 'lint')
+    Invoke-Tool 'vitest' 240 'frontend-tools' @('npm', 'run', '-s', 'test')
+  }
+  if ($runUp) {
+    # App images built from the working tree, with the dev-only /dev/kit route e2e visits.
     $env:VITE_DEV_KIT = 'true'
-    if (-not $NoBuild) { Invoke-Step 'e2e-build' @('compose', '--profile', 'e2e', 'build', '-q', 'backend', 'frontend', 'e2e') }
-    Invoke-Step 'e2e-up' @('compose', 'up', '-d', '--wait', 'db', 'frontend')
+    Invoke-Step 'up' 900 @('compose', 'up', '-d', '--build', '--wait', 'db', 'backend', 'frontend')
     Remove-Item Env:VITE_DEV_KIT -ErrorAction SilentlyContinue
-    Invoke-Step 'e2e' @('compose', '--profile', 'e2e', 'run', '--rm', '-T', 'e2e')
-  } else { Write-Host 'SKIP  e2e        (no e2e service defined yet)' }
+  }
+  if ($runE2E) {
+    $port = if ($env:FRONTEND_PORT) { $env:FRONTEND_PORT } else { '5173' }
+    $ready = $false
+    try { $ready = (Invoke-RestMethod "http://localhost:$port/api/v1/system/status" -TimeoutSec 5).ready } catch { }
+    $kit = $null
+    try {
+      $kit = (docker image inspect agentpulse-frontend --format '{{json .Config.Labels}}' 2>$null |
+        ConvertFrom-Json).'agentpulse.devkit'
+    } catch { }
+    if (-not $ready) {
+      Write-Host 'FAIL  e2e          stack not ready; start it with: scripts\check.ps1 -Up'; $failed++
+    } elseif ($kit -ne 'true') {
+      Write-Host 'FAIL  e2e          frontend built without /dev/kit; rebuild with: scripts\check.ps1 -Up'; $failed++
+    } else {
+      # Known state for reruns without a DB reset (bootstrap.py e2e-fixtures: inbox, lockout).
+      $before = $failed
+      Invoke-Step 'e2e-seed' 60 @('compose', 'exec', '-T', 'backend', 'python', 'bootstrap.py', 'e2e-fixtures')
+      if ($failed -eq $before) { Invoke-Tool 'e2e' 420 'e2e' @() }
+    }
+  }
+} finally {
+  $w.Dispose(); $fs.Dispose()
+  Remove-Item $lock -Force -ErrorAction SilentlyContinue
 }
 
 if ($failed) { Write-Host "$failed check(s) failed"; exit 1 }

@@ -6,7 +6,7 @@ Detail lives in docs/ (read only the file or section the task names): ARCHITECTU
 
 ## Environment
 - Windows host, project root D:\Git\AI_Hackathon_DIU. Give PowerShell commands. Forward slashes inside code, Docker and config files.
-- LOCAL npm/tsc/pytest are NOT reliable on this machine. Never run them locally. Run everything in Docker via `scripts/check.ps1` (all checks) or `docker compose run --rm <tool-service> ...`.
+- LOCAL npm/tsc/pytest are NOT reliable on this machine. Never run them locally. Run everything in Docker via `scripts/check.ps1` (see Commands) or `docker compose run --rm <tool-service> ...`.
 - Shell scripts and entrypoints must be LF (.gitattributes enforces it).
 - Must run on ANY other PC (judges) with only Docker Desktop: `run.bat` / `run.sh`. First build needs internet (images, packages); afterwards offline except the optional LLM key.
 - Never read or print .env. Never commit secrets. JWT secret must be >= 32 bytes (app refuses to start otherwise).
@@ -47,12 +47,16 @@ LLM: Agent Copilot (bn/en chat + voice, grounded), explanation wording, distribu
 
 ## Working style (token saving)
 - Do exactly the task. No unrelated refactors. Use grep and targeted views, not whole-file reads.
-- Finish with `scripts/check.ps1` (and `-E2E` when the task touched UI flows). Fix failures. Stop and report after 2 failed attempts at the same problem.
+- Never wait on or poll long jobs, never start background monitors. If a command runs over 5 minutes, stop and tell me to run it myself.
+- Run only the check for the task: backend task `check.ps1 -Backend`; UI task `check.ps1 -Frontend` (+ `-Up -E2E` when routes/flows change); ML/data change also `-Slow`. Never run `-Full` unless I ask.
+- check.ps1 prints one line per step plus failing tests only; do not re-run with full logs. `BUSY` = another check holds scripts/.check.lock: do not delete it, tell me.
+- New tests: reuse session-scoped DB templates (`seeded`, `ready`, `flagged`, `backtested`); anything that trains models, loads the full synthetic set, or gates ML gets `@pytest.mark.slow`.
+- Stop and report after 2 failed attempts at the same problem.
 - Reply ONLY: files changed, commands to run, blockers. No explanations, no re-printing files.
 
 ## Commands (full list: docs/COMMANDS.md)
-- Start all: run.bat (Linux/Mac: ./run.sh) -> app http://localhost:5173, API http://localhost:8000/docs. Fresh DB: run.bat --reset
+- Start: run.bat (Linux/Mac: ./run.sh) -> http://localhost:5173, API /docs on :8000. Fresh DB: run.bat --reset
 - Readiness: http://localhost:5173/api/v1/system/status (`ready`, `bootstrap_state`)
-- All checks (available from P05b onward): scripts\check.ps1 | with e2e: scripts\check.ps1 -E2E
-- Before P05b exists: backend tests `docker compose exec backend pytest`
+- Checks: scripts\check.ps1 (FAST) | -Backend | -Frontend | -Slow | -Up | -E2E (needs -Up stack) | -Full
 - Logs: docker compose logs -f backend
+- Everything else (bootstrap CLI, e2e fixtures, tool containers, timings): docs/COMMANDS.md

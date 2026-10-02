@@ -37,6 +37,9 @@ services:
       args:
         # true only for the e2e build (scripts/check -E2E): adds the dev-only /dev/kit route.
         VITE_DEV_KIT: ${VITE_DEV_KIT:-false}
+      labels:
+        # Read by scripts/check -E2E to tell whether the running bundle has /dev/kit.
+        agentpulse.devkit: ${VITE_DEV_KIT:-false}
     depends_on:
       - backend
     ports:
@@ -74,6 +77,10 @@ services:
         required: false
     environment:
       E2E_BASE_URL: http://frontend
+    # Specs are mounted so edits need no rebuild; dependencies come from the image.
+    volumes:
+      - ./e2e:/e2e
+      - /e2e/node_modules
     depends_on:
       - frontend
     ipc: host

@@ -17,7 +17,15 @@ from app.core.config import DATA_VERSION, get_settings
 from app.core.db import get_engine
 from app.models.system_meta import SystemMeta
 from app.rules.risk_rules import build_config
-from app.services import anomaly_scan, backtest, forecast, rebalance, risk
+from app.services import (
+    anomaly_scan,
+    auth,
+    backtest,
+    forecast,
+    notifications,
+    rebalance,
+    risk,
+)
 from app.services import seed as reference_seed
 from ml import registry
 from ml.data_gen import generate
@@ -106,6 +114,30 @@ def precompute() -> int:
     return 0
 
 
+E2E_INBOX_USER = "dist.dhaka@agentpulse.demo"
+
+
+def seed_notifications() -> int:
+    """e2e fixture: the demo distributor's inbox becomes all-read plus one known unread notice."""
+    with Session(get_engine()) as session, session.begin():
+        nid = notifications.seed_one_unread(session, E2E_INBOX_USER)
+    log.info("seeded unread notification %d for %s", nid, E2E_INBOX_USER)
+    return 0
+
+
+E2E_WRONG_PASSWORD_USER = "agent.sunamganj@agentpulse.demo"
+
+
+def e2e_fixtures() -> int:
+    """Known state before each e2e run (no DB reset): one unread notice for the distributor, and
+    no lockout left on the account the wrong-password spec uses."""
+    seed_notifications()
+    with Session(get_engine()) as session, session.begin():
+        n = auth.clear_login_failures(session, E2E_WRONG_PASSWORD_USER)
+    log.info("cleared %d login failures for %s", n, E2E_WRONG_PASSWORD_USER)
+    return 0
+
+
 def mark_ready() -> int:
     with Session(get_engine()) as session, session.begin():
         _set_meta(session, "bootstrap_state", "ready")
@@ -121,6 +153,8 @@ COMMANDS = {
     "train": run_train,
     "precompute": precompute,
     "mark-ready": mark_ready,
+    "seed-notifications": seed_notifications,
+    "e2e-fixtures": e2e_fixtures,
 }
 
 

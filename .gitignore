@@ -15,6 +15,10 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 
+# scripts/check state
+scripts/.check.lock
+scripts/.check-build-*.stamp
+
 # OS / editor
 .DS_Store
 Thumbs.db

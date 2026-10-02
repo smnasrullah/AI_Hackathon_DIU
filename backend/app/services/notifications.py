@@ -6,6 +6,7 @@ from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
 from app.models import Notification, User
+from app.models.enums import NotificationSeverity, NotificationType
 from app.schemas.notification import NotificationItem, NotificationPage
 
 
@@ -52,3 +53,20 @@ def mark_all_read(session: Session, user: User) -> int:
         Notification.user_id == user.id, Notification.read_at.is_(None))
         .values(read_at=datetime.now(UTC)))
     return int(getattr(result, "rowcount", 0) or 0)
+
+
+def seed_one_unread(session: Session, email: str) -> int:
+    """Known inbox state for e2e: everything read, then exactly one unread system notice.
+
+    Returns the new notification id. Run from the CLI only (bootstrap.py seed-notifications).
+    """
+    user = session.scalar(select(User).where(User.email == email))
+    if user is None:
+        raise LookupError(f"no user {email}")
+    mark_all_read(session, user)
+    n = Notification(user_id=user.id, type=NotificationType.system,
+                     severity=NotificationSeverity.info, title_key="notifications.fallback",
+                     params={}, entity_type=None, entity_id=None)
+    session.add(n)
+    session.flush()
+    return n.id

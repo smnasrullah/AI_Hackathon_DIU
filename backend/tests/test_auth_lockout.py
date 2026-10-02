@@ -1,11 +1,14 @@
+import sys
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 from httpx import Response
 from sqlalchemy import update
 from sqlalchemy.orm import Session
 
+import bootstrap
 from app.core.db import get_engine
 from app.models import LoginFailure
 from tests.auth_helpers import ADMIN
@@ -60,3 +63,17 @@ def test_lock_expires_after_window(client: TestClient, seeded: Path) -> None:
             update(LoginFailure).values(created_at=datetime.now(UTC) - timedelta(minutes=16))
         )
     assert _attempt(client, ADMIN, GOOD).status_code == 200
+
+
+def test_e2e_fixtures_cli_clears_the_wrong_password_lockout(
+    client: TestClient, seeded: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    email = bootstrap.E2E_WRONG_PASSWORD_USER
+    for _ in range(5):
+        client.post("/api/v1/auth/login", json={"email": email, "password": "wrong-password"})
+    blocked = client.post("/api/v1/auth/login", json={"email": email, "password": "wrong-password"})
+    assert blocked.json()["detail"] == "too_many_attempts"
+    monkeypatch.setattr(sys, "argv", ["bootstrap.py", "e2e-fixtures"])
+    assert bootstrap.main() == 0
+    again = client.post("/api/v1/auth/login", json={"email": email, "password": "wrong-password"})
+    assert again.json()["detail"] == "invalid_credentials"

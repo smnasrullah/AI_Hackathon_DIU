@@ -14,17 +14,27 @@ from app.models import ImpactResult
 from app.models.enums import ImpactScenario
 from app.services import backtest
 from tests.auth_helpers import ADMIN, AGENT_MIRPUR, DIST_DHAKA, bearer
-from tests.conftest import N_TRAINED_AGENTS
+from tests.conftest import N_TRAINED_AGENTS, build_template, use_template
 
 API = "/api/v1"
 DISTRIBUTORS = (DIST_DHAKA, "dist.chattogram@agentpulse.demo", "dist.sylhet@agentpulse.demo")
 HOLDOUT_DAYS = 14
 
 
+@pytest.fixture(scope="session")
+def backtested_template(trained: tuple[Path, Path], ready_template: Path,
+                        tmp_path_factory: pytest.TempPathFactory) -> Path:
+    def build() -> None:
+        with Session(get_engine()) as session, session.begin():
+            assert backtest.precompute(session, get_settings()) > 0
+
+    return build_template(tmp_path_factory.mktemp("backtested") / "backtested.db", build,
+                          base=ready_template, artifacts=trained[1])
+
+
 @pytest.fixture
-def backtested(ready: Path) -> Path:
-    with Session(get_engine()) as session, session.begin():
-        assert backtest.precompute(session, get_settings()) > 0
+def backtested(env: Path, ready: Path, backtested_template: Path) -> Path:
+    use_template(env, backtested_template)
     return ready
 
 

@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { NotificationItem, NotificationPage } from "../../api/types";
 import { logoutRequest } from "../../features/auth/authApi";
@@ -37,8 +37,10 @@ function inbox(items: NotificationItem[]): NotificationPage {
   return { items, page: 1, page_size: 20, total: items.length, unread_count: items.filter((n) => !n.read_at).length };
 }
 
+let client: QueryClient | null = null;
+
 function renderShell(path = "/agent") {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   const router = createMemoryRouter(
     [
       { path: "/login", element: <p>Login page</p> },
@@ -87,6 +89,11 @@ describe("app shell", () => {
     signIn("agent");
   });
 
+  afterEach(() => {
+    client?.clear();
+    client = null;
+  });
+
   it("logs out from the avatar menu", async () => {
     const router = renderShell();
     fireEvent.keyDown(screen.getByTestId("avatar-menu"), { key: "Enter" });
@@ -123,6 +130,7 @@ describe("app shell", () => {
     fireEvent.click(screen.getByRole("button", { name: `Mark as read: ${text}` }));
 
     await waitFor(() => expect(api.post).toHaveBeenCalledWith("/notifications/7/read"));
+    expect(await screen.findByRole("button", { name: "Notifications" })).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByTestId("notification-badge")).not.toBeInTheDocument());
     expect(screen.queryByRole("button", { name: `Mark as read: ${text}` })).not.toBeInTheDocument();
   });

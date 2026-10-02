@@ -15,3 +15,6 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 testpaths = ["tests"]
 pythonpath = ["."]
 addopts = "-q"
+markers = [
+    "slow: trains models, loads the full synthetic set, or is the ML gate (check -Slow / -Full)",
+]

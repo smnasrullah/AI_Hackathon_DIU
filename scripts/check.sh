@@ -1,65 +1,172 @@
 #!/bin/sh
-# All checks, inside Docker (no local node/python needed).
-# Usage: scripts/check.sh [--e2e] [--no-build]
+# Checks, inside Docker (no local node/python needed). One line per step; failures only.
+# Usage: scripts/check.sh [--backend] [--frontend] [--e2e] [--slow] [--full] [--up]
+#   (none)      FAST tier: ruff, pytest -m "not slow", tsc, eslint, vitest
+#   --backend   ruff + fast pytest        --frontend  tsc + eslint + vitest
+#   --slow      pytest -m slow (model training, full synthetic set, ML gate)
+#   --e2e       Playwright smoke against the running stack (start it with --up)
+#   --up        rebuild app images with the /dev/kit route and start the stack
+#   --full      everything: ruff, all pytest, tsc, eslint, vitest, --up, e2e
 set -u
 cd "$(dirname "$0")/.." || exit 1
 
-E2E=0
-BUILD=1
+BE=0 FE=0 E2E=0 SLOW=0 FULL=0 UP=0
 for a in "$@"; do
   case "$a" in
+    --backend) BE=1 ;;
+    --frontend) FE=1 ;;
     --e2e) E2E=1 ;;
-    --no-build) BUILD=0 ;;
+    --slow) SLOW=1 ;;
+    --full) FULL=1 ;;
+    --up) UP=1 ;;
+    *) echo "unknown flag: $a"; exit 2 ;;
   esac
 done
+if [ $((BE + FE + E2E + SLOW + UP + FULL)) -eq 0 ]; then BE=1; FE=1; fi
+if [ "$FULL" -eq 1 ]; then BE=1; FE=1; E2E=1; UP=1; SLOW=0; fi
+
+# --- concurrency lock ------------------------------------------------------------------------
+LOCK=scripts/.check.lock
+if [ -f "$LOCK" ]; then
+  holder=$(head -n 1 "$LOCK" 2>/dev/null)
+  if [ -n "$holder" ] && kill -0 "$holder" 2>/dev/null \
+     && [ -z "$(find "$LOCK" -mmin +30 2>/dev/null)" ]; then
+    echo "BUSY  another check is running (pid $holder). Lock: $LOCK"
+    exit 2
+  fi
+  rm -f "$LOCK" 2>/dev/null
+fi
+if ! (set -C; echo "$$" >"$LOCK") 2>/dev/null; then
+  echo "BUSY  another check just started. Lock: $LOCK"
+  exit 2
+fi
 
 failed=0
+TAG="agentpulse-check-$$"
 LOG="$(mktemp)"
-trap 'rm -f "$LOG"' EXIT
+trap 'rm -f "$LOG" "$LOCK"' EXIT
+trap 'exit 130' INT TERM
 
-step() {
-  name="$1"
-  shift
-  start=$(date +%s)
-  docker "$@" >"$LOG" 2>&1
-  code=$?
-  t=$(( $(date +%s) - start ))
-  if [ "$code" -eq 0 ]; then
-    printf 'PASS  %-10s %4ss\n' "$name" "$t"
-  else
-    printf 'FAIL  %-10s %4ss  (exit %s)\n' "$name" "$t" "$code"
-    grep -Ev '^ *Container [^ ]+ (Creat|Start)' "$LOG" | tail -n 40 | sed 's/^/      /'
-    failed=$((failed + 1))
-  fi
+remove_stale() {
+  docker ps -a --filter name=agentpulse-check- --format '{{.Names}}|{{.RunningFor}}' 2>/dev/null |
+    while IFS='|' read -r name for; do
+      case "$for" in
+        *hour*|*day*|*week*|*month*|*year*) old=1 ;;
+        *minutes*) n=${for%% *}; [ "$n" -ge 15 ] 2>/dev/null && old=1 || old=0 ;;
+        *) old=0 ;;
+      esac
+      if [ "$old" -eq 1 ]; then
+        docker rm -f "$name" >/dev/null 2>&1
+        echo "      removed stale $name"
+      fi
+    done
 }
 
-BE="compose --profile tools run --rm -T backend-tools"
-FE="compose --profile tools run --rm -T frontend-tools"
+FAIL_RE='^(FAILED|ERROR) |error TS[0-9]+|^ *[0-9]+:[0-9]+ +error|:[0-9]+:[0-9]+: [A-Z]+[0-9]+|'
+FAIL_RE="$FAIL_RE"'\bFAIL\b|^ *[x] |^ *[0-9]+\) |Error:|AssertionError|exit code'
 
-if [ "$BUILD" -eq 1 ]; then
-  step build compose --profile tools build -q backend-tools frontend-tools
-  [ "$failed" -eq 0 ] || exit 1
-fi
-# shellcheck disable=SC2086
-step ruff $BE ruff check .
-# shellcheck disable=SC2086
-step pytest $BE pytest -q -p no:cacheprovider
-# shellcheck disable=SC2086
-step typecheck $FE npm run -s typecheck
-# shellcheck disable=SC2086
-step eslint $FE npm run -s lint
-# shellcheck disable=SC2086
-step vitest $FE npm run -s test
-if [ "$E2E" -eq 1 ]; then
-  if docker compose --profile e2e config --services | grep -qx e2e; then
-    # Rebuild app images so e2e tests the working tree; `up -d` recreates changed containers.
-    # The e2e bundle includes the dev-only /dev/kit route.
-    export VITE_DEV_KIT=true
-    [ "$BUILD" -eq 1 ] && step e2e-build compose --profile e2e build -q backend frontend e2e
-    step e2e-up compose up -d --wait db frontend
-    step e2e compose --profile e2e run --rm -T e2e
+# step NAME TIMEOUT_S CONTAINER_OR_- docker-args...
+step() {
+  name="$1" tmo="$2" cname="$3"
+  shift 3
+  start=$(date +%s)
+  docker "$@" >"$LOG" 2>&1 &
+  pid=$!
+  ( sleep "$tmo"; kill "$pid" 2>/dev/null && touch "$LOG.timeout" ) &
+  wd=$!
+  wait "$pid"
+  code=$?
+  kill "$wd" 2>/dev/null
+  t=$(( $(date +%s) - start ))
+  if [ -f "$LOG.timeout" ]; then
+    rm -f "$LOG.timeout"
+    [ "$cname" != "-" ] && docker rm -f "$cname" >/dev/null 2>&1
+    why="timeout ${tmo}s"
+    code=124
   else
-    echo "SKIP  e2e        (no e2e service defined yet)"
+    why="exit $code"
+  fi
+  if [ "$code" -eq 0 ]; then
+    printf 'PASS  %-12s %5ss\n' "$name" "$t"
+    return
+  fi
+  printf 'FAIL  %-12s %5ss  (%s)\n' "$name" "$t" "$why"
+  esc=$(printf '\033')
+  sed "s/${esc}\[[0-9;]*m//g" "$LOG" | grep -Ev '^ *(Container|Network|Volume) [^ ]+ ' >"$LOG.f"
+  if grep -Eq "$FAIL_RE" "$LOG.f"; then
+    grep -E "$FAIL_RE" "$LOG.f" | head -n 30 | sed 's/^/      /'
+  else
+    tail -n 15 "$LOG.f" | sed 's/^/      /'
+  fi
+  rm -f "$LOG.f"
+  failed=$((failed + 1))
+}
+
+tool() {
+  name="$1" tmo="$2" svc="$3"
+  shift 3
+  step "$name" "$tmo" "$TAG-$name" compose --profile tools --profile e2e run --rm --no-deps -T \
+    --name "$TAG-$name" "$svc" "$@"
+}
+
+# images PROFILE SERVICE FILES... : rebuild only when missing or Dockerfile / deps changed.
+images() {
+  prof="$1" svc="$2"
+  shift 2
+  sig=$(cat "$@" 2>/dev/null | cksum | tr -d ' ')
+  stamp="scripts/.check-build-$svc.sh.stamp"
+  if [ -n "$(docker image ls -q "agentpulse-$svc" 2>/dev/null)" ] \
+     && [ "$(cat "$stamp" 2>/dev/null)" = "$sig" ]; then
+    return
+  fi
+  step "build:$svc" 900 - compose --profile "$prof" build -q "$svc"
+  [ "$failed" -eq 0 ] && printf '%s' "$sig" >"$stamp"
+}
+
+remove_stale
+if [ "$BE" -eq 1 ] || [ "$SLOW" -eq 1 ]; then
+  images tools backend-tools backend/Dockerfile backend/requirements*.txt
+fi
+[ "$FE" -eq 1 ] && images tools frontend-tools frontend/Dockerfile frontend/package.json \
+  frontend/package-lock.json
+[ "$E2E" -eq 1 ] && images e2e e2e e2e/Dockerfile e2e/package.json e2e/package-lock.json
+[ "$failed" -eq 0 ] || exit 1
+
+if [ "$BE" -eq 1 ]; then
+  tool ruff 60 backend-tools ruff check .
+  if [ "$FULL" -eq 1 ]; then
+    tool pytest-all 1200 backend-tools pytest -q -p no:cacheprovider --tb=line -rfE
+  else
+    tool pytest 240 backend-tools pytest -q -p no:cacheprovider --tb=line -rfE -m "not slow"
+  fi
+fi
+[ "$SLOW" -eq 1 ] && tool pytest-slow 1200 backend-tools pytest -q -p no:cacheprovider \
+  --tb=line -rfE -m slow
+if [ "$FE" -eq 1 ]; then
+  tool typecheck 180 frontend-tools npm run -s typecheck
+  tool eslint 180 frontend-tools npm run -s lint
+  tool vitest 240 frontend-tools npm run -s test
+fi
+if [ "$UP" -eq 1 ]; then
+  # App images built from the working tree, with the dev-only /dev/kit route e2e visits.
+  VITE_DEV_KIT=true step up 900 - compose up -d --build --wait db backend frontend
+fi
+if [ "$E2E" -eq 1 ]; then
+  port="${FRONTEND_PORT:-5173}"
+  kit=$(docker image inspect agentpulse-frontend \
+    --format '{{ index .Config.Labels "agentpulse.devkit" }}' 2>/dev/null)
+  if ! curl -fsS --max-time 5 "http://localhost:$port/api/v1/system/status" 2>/dev/null |
+       grep -q '"ready": *true'; then
+    echo "FAIL  e2e          stack not ready; start it with: scripts/check.sh --up"
+    failed=$((failed + 1))
+  elif [ "$kit" != "true" ]; then
+    echo "FAIL  e2e          frontend built without /dev/kit; rebuild with: scripts/check.sh --up"
+    failed=$((failed + 1))
+  else
+    # Known state for reruns without a DB reset (bootstrap.py e2e-fixtures: inbox, lockout).
+    before=$failed
+    step e2e-seed 60 - compose exec -T backend python bootstrap.py e2e-fixtures
+    [ "$failed" -eq "$before" ] && tool e2e 420 e2e
   fi
 fi
 
