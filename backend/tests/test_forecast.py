@@ -15,8 +15,9 @@ from sqlalchemy.orm import Session
 
 from app.core.config import BACKEND_DIR, get_settings
 from app.core.db import get_engine
-from app.models import Forecast, ModelVersion
-from app.services import forecast
+from app.models import Forecast, ModelVersion, RiskLevel, StockoutPrediction
+from app.rules.risk_rules import build_config
+from app.services import forecast, risk
 from ml import registry
 from ml.data_gen import generate
 from ml.data_gen.timeline import HOLDOUT_START, SIM_NOW, hour_index
@@ -102,6 +103,20 @@ def test_precompute_is_idempotent_and_registers_model(ready: Path) -> None:
         assert len(active) == 1 and active[0].metrics["cash_out"]["rows"] > 0
         assert session.scalar(select(func.count()).select_from(Forecast)) == (
             N_AGENTS * 2 * MAX_HORIZON_H)
+
+
+def test_risk_precompute_on_real_forecasts(ready: Path) -> None:
+    with Session(get_engine()) as session, session.begin():
+        assert risk.precompute(session, build_config(), seed=42) == N_AGENTS
+    with Session(get_engine()) as session:
+        rows = session.scalars(select(RiskLevel).order_by(
+            RiskLevel.agent_id, RiskLevel.float_type, RiskLevel.horizon_h)).all()
+        assert len(rows) == N_AGENTS * 2 * 3
+        assert session.scalar(select(func.count()).select_from(StockoutPrediction)) == N_AGENTS * 2
+    for i in range(0, len(rows), 3):
+        probs = [float(r.probability) for r in rows[i:i + 3]]
+        assert [r.horizon_h for r in rows[i:i + 3]] == [6, 24, 72]
+        assert 0 <= probs[0] <= probs[1] <= probs[2] <= 1
 
 
 def test_forecast_shapes_and_quantile_order(client: TestClient, ready: Path) -> None:

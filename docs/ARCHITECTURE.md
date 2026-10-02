@@ -41,8 +41,10 @@ All prediction responses include `model_version` + `generated_at`. All LLM respo
 | agents | GET | `/agents` | List agents (filters: risk, district, q) | D, Ad |
 | agents | GET | `/agents/{id}` | Agent profile + current floats | A(self), D, Ad |
 | forecast | GET | `/agents/{id}/forecast` | Dual-float hourly q10/q50/q90 demand (cash <- cash_out, emoney <- cash_in), `?horizon_hours=24` (1..72), read from the bootstrap cache; 503 `forecast_not_ready` before precompute (F1) | A(self), D, Ad |
-| forecast | GET | `/agents/{id}/stockout` | Time-to-stockout + confidence per float (F2) | A(self), D, Ad |
-| risk | GET | `/agents/{id}/risk` | G/Y/R at 6/24/72h per float (F3) | A(self), D, Ad |
+| risk | GET | `/agents/risk` | Scoped risk list at one horizon: `?horizon=6\|24\|72&level=&sort=risk\|stockout\|code\|name&page=&page_size=&q=`; paginated `{items,total,page,page_size}` (F3, F10) | A(self), D, Ad |
+| risk | GET | `/agents/{id}/summary` | Profile, balances, time-to-stockout, risk per float and horizon, agent level (worst float) | A(self), D, Ad |
+| risk | GET | `/agents/{id}/stockout` | Most likely time-to-stockout + confidence per float, no-refill projection; 503 `risk_not_ready` before precompute (F2) | A(self), D, Ad |
+| risk | GET | `/agents/{id}/risk` | Stockout probability + green/amber/red at 6/24/72h per float (F3) | A(self), D, Ad |
 | whatif | POST | `/agents/{id}/whatif` | Recompute runway for `{float_type, delta_amount, at}` (F8) | A(self), D |
 | explanations | GET | `/agents/{id}/explanation` | Top SHAP factors + template bn/en text (F7) | A(self), D, Ad |
 | explanations | POST | `/explanations/narrate` | LLM rewrite of template sentence (F7, LLM) | A(self), D |
@@ -91,7 +93,7 @@ Money = `NUMERIC(14,2)` BDT. Times = `TIMESTAMPTZ` (Asia/Dhaka on display). Enum
 | model_versions | id int, model_name text, version text, trained_at, artifact_sha256 text, metrics jsonb, is_active bool, created_at | PK id | UQ (model_name, version); (is_active) |
 | forecasts | id bigint, model_version_id int, agent_id int, float_type enum(cash,emoney), ts (target), horizon_h smallint, q_low, q_mid, q_high numeric, generated_at | PK id; FK model_version_id, agent_id | (agent_id, ts); (agent_id, float_type, ts) |
 | stockout_predictions | id bigint, model_version_id int, agent_id int, float_type enum, ts (as-of), stockout_at null, hours_to_stockout numeric null, confidence numeric, generated_at | PK id; FK model_version_id, agent_id | (agent_id, ts) |
-| risk_levels | id bigint, model_version_id int, agent_id int, float_type enum, ts (as-of), horizon_h smallint(6/24/72), level enum(green,yellow,red), confidence numeric, shap_top jsonb, generated_at | PK id; FK model_version_id, agent_id | (agent_id, ts); (level) |
+| risk_levels | id bigint, model_version_id int, agent_id int, float_type enum, ts (as-of), horizon_h smallint(6/24/72), level enum(green,amber,red), probability numeric, confidence numeric, shap_top jsonb, generated_at | PK id; FK model_version_id, agent_id | (agent_id, ts); (level) |
 | recommendations | id bigint, agent_id int, model_version_id int null, kind enum(add_cash,add_emoney,swap,van), float_type enum, amount_bdt numeric, deadline_at, rationale jsonb, status enum(open,requested,done,expired), created_at | PK id; FK agent_id, model_version_id | (agent_id, created_at); (agent_id, status) |
 | swap_suggestions | id bigint, model_version_id int null, donor_agent_id int, receiver_agent_id int, float_type enum, amount_bdt numeric, distance_km numeric, van_trip_saved bool, score numeric, status enum(pending,approved,rejected), decided_by uuid null, decided_at null, note text null, created_at | PK id; FK model_version_id, donor/receiver -> agents, decided_by -> users; CHECK donor <> receiver | (status); (donor_agent_id); (receiver_agent_id) |
 | anomalies | id bigint, model_version_id int, agent_id int, window_start, window_end, score numeric, features jsonb, status enum(open,confirmed,dismissed), reviewed_by uuid null, reviewed_at null, note text null, created_at | PK id; FK model_version_id, agent_id, reviewed_by | (agent_id, window_start); (status, score) |

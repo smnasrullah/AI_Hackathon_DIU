@@ -93,6 +93,8 @@ class RiskLevel(Base):
     ts: Mapped[datetime] = mapped_column(TsTz)
     horizon_h: Mapped[int] = mapped_column(SmallInteger)
     level: Mapped[RiskLevelCode] = mapped_column(db_enum(RiskLevelCode))
+    # P(stockout within horizon_h); level comes from it via app/rules/risk_rules.py.
+    probability: Mapped[Decimal] = mapped_column(Ratio)
     confidence: Mapped[Decimal] = mapped_column(Ratio)
     shap_top: Mapped[list[dict[str, Any]]] = mapped_column(JsonDoc, default=list)
     generated_at: Mapped[datetime] = mapped_column(TsTz)

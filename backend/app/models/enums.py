@@ -35,7 +35,7 @@ class EventType(StrEnum):
 
 class RiskLevelCode(StrEnum):
     green = "green"
-    yellow = "yellow"
+    amber = "amber"
     red = "red"
 
 

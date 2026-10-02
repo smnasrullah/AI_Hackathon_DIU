@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     demo_distributor_password: SecretStr = SecretStr("")
     demo_agent_password: SecretStr = SecretStr("")
 
+    # Optional override of app/rules/risk_rules.DEFAULT_CUTS: {"6": [amber, red], ...}.
+    risk_thresholds: dict[int, list[float]] = {}
+
     llm_provider: LlmProvider = "auto"
     llm_model: str = "claude-haiku-4-5-20251001"
     llm_base_url: str = ""

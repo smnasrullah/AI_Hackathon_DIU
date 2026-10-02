@@ -41,7 +41,11 @@ Held-out results (model `lgbq-1.0.0-56571e7f`, seed 42, data_version 1.0.0; BDT 
 
 MAE by horizon (model / baseline): cash_out 1-6 h 2,395 / 3,326, 7-24 h 2,078 / 2,921, 25-72 h 2,240 / 3,073; cash_in 1-6 h 2,344 / 3,200, 7-24 h 2,044 / 2,811, 25-72 h 2,186 / 2,944. The band is slightly wider than nominal (coverage 87-89% vs 80%), i.e. conservative. Hour-level demand is noisy by construction (Poisson ticket counts, see SYNTHETIC_ASSUMPTIONS.md), so the MAE floor is high relative to the mean.
 Limitations: the target is *served* demand, so hours where a float already hit zero are censored (under-stated); the target-day weather is taken as known (perfect weather forecast).
-| Time-to-stockout | Project current balance forward with quantile forecasts; first hour the float runs out = `stockout_at`, with a confidence value | `backend/ml/inference/`, `risk_snapshots.stockout_at`, `.confidence` |
+| Time-to-stockout (F2) | Per agent and float, from the balance at SIM_NOW (snapshot = top of the hour) and the cached q10/q50/q90 paths, assuming **no refill**: balance(h) = b0 + Σ(inflow − drain). Cash float: drain cash_out, inflow cash_in; e-money float the reverse. Monte Carlo, 2,000 paths, seeded per (seed, agent, float): each hour's demand is drawn from a two-piece linear quantile function through q10/q50/q90 (linear tails, clipped at 0); hours are tied by a Gaussian copula with a shared path factor (ρ = 0.6), drain and inflow independent. First passage to the floor (0 BDT) is interpolated inside the hour | `backend/ml/inference/stockout.py`, `backend/app/services/risk.py` |
+| Stockout probability | P(stockout within 6 / 24 / 72 h) = share of paths whose first passage is ≤ h | `risk_levels.probability` |
+| Most likely stockout time | Median first-passage time (earliest t with P(T ≤ t) ≥ 0.5). Null when no stockout within 72 h is the more likely outcome | `stockout_predictions.stockout_at`, `.hours_to_stockout` |
+| Stockout confidence | With a time: share of paths that run out within ±max(1 h, 25%) of it. Without: P(no stockout within 72 h). Flat (zero-width) forecasts give exactly 1 | `stockout_predictions.confidence` |
+| Stockout limitations | Ignores scheduled/ad-hoc refills (it answers "if nothing is done"), the coupling of the two floats inside one transaction, and correlation between cash_in and cash_out; ρ is an assumption, not fitted | - |
 | Why LightGBM quantile | Fast on CPU, handles mixed tabular features, native quantile loss gives an uncertainty band without extra models, works with SHAP | - |
 | Explanation (F7) | SHAP on the forecast -> top factors list -> bn/en template sentence (LLM may reword, see §4) | `backend/ml/explain/`, `risk_snapshots.shap_top`, `GET /agents/{id}/explanation` |
 | What-if (F8) | Re-run stockout projection with `{float_type, delta_amount, at}` added to the balance; no retraining | `backend/ml/inference/`, `POST /agents/{id}/whatif` |
@@ -52,7 +56,8 @@ Limitations: the target is *served* demand, so hours where a float already hit z
 | Item | Method | Implemented in |
 |---|---|---|
 | Risk inputs | Per agent and float: `stockout_at`, confidence, current balance, capacity | `backend/ml/inference/` -> `backend/app/rules/` |
-| Risk level | Rules map stockout time vs horizon (6 / 24 / 72 h) and confidence to green / amber / red | `backend/app/rules/` (thresholds, risk levels), `risk_snapshots.level` |
+| Risk level | Per float and horizon: P(stockout within h) ≥ red cut-off → red, ≥ amber cut-off → amber, else green. Cut-offs (amber / red): 6 h 0.10 / 0.30, 24 h 0.20 / 0.50, 72 h 0.35 / 0.70 (near horizons act on lower odds). Overridable via `RISK_THRESHOLDS` env (JSON `{"6": [amber, red]}`); a change re-runs the precompute. Agent level = worst float (per horizon). Headline level (float and agent) = the 24 h level: the 72 h view assumes no refill at all and would mark most agents amber (seed 42: 6 h 277/11/12, 24 h 136/128/36, 72 h 18/240/42 green/amber/red of 300), so it is shown per horizon, not headlined. Level confidence = max(p, 1 − p) | `backend/app/rules/risk_rules.py`, `risk_levels.level`, `.probability`, `.confidence` |
+| Serving | Precomputed at bootstrap right after the forecast cache, for every agent at SIM_NOW (skipped when forecast cache, rules, method and seed are unchanged); API reads only the cache | `backend/app/services/risk.py`, `risk_read.py`; `GET /agents/{id}/summary`, `/stockout`, `/risk`, `GET /agents/risk?horizon&level&sort&page&page_size&q` |
 | Display | Always colour + icon + word: Safe / Watch / Act now (নিরাপদ / নজরে রাখুন / এখনই করুন) | frontend per DESIGN.md |
 | Rebalance (F4) | Rules turn risk + forecast into `kind` add_cash / add_emoney / swap / van, `amount_bdt`, `deadline_at`, `rationale` | `backend/app/rules/`, `backend/app/services/`, `recommendations` |
 | Swap matching (F5) | Rules filter feasible donor/receiver pairs (swap constraints), then a scipy optimiser picks pairs on ML forecasts; stores distance_km, van_trip_saved, score | `backend/app/rules/`, `backend/ml/inference/` (scipy), `swaps`, `POST /swaps/match` |
@@ -123,8 +128,8 @@ Shown on `/responsible-ai` (`GET /api/v1/responsible-ai`: model cards, metrics, 
 1. Seed value, number of distributors/agents, districts covered, length of generated history.
 2. Exact value of SIM_NOW and whether it falls inside the 14-day holdout.
 3. Decided (§2): cash_out and cash_in modelled separately; direct multi-horizon with horizon as a feature.
-4. How stockout `confidence` is computed from the quantiles (e.g. which quantile crosses zero, interpolation).
-5. Risk thresholds: exact stockout-hours / confidence cut-offs for green / amber / red at 6 / 24 / 72 h.
+4. Decided (§2): stockout probability, time and confidence from a Monte Carlo over the quantile paths.
+5. Decided (§3): probability cut-offs per horizon in `backend/app/rules/risk_rules.py`.
 6. Rebalance amount rule (target buffer, capacity cap) and when `van` is chosen over `swap`.
 7. Swap optimiser: which scipy routine (e.g. assignment vs linear programme), objective weights in `score`, max distance.
 8. Isolation Forest: window length, feature list, contamination; whether synthetic anomalies are injected and labelled (needed for anomaly precision/recall in IDEA_CHAIN).
