@@ -166,7 +166,7 @@ export function AdminLlmPage() {
   return (
     <div className="space-y-4" data-testid="admin-llm">
       <AdminHeader title={t("admin.llm.title")} lead={t("admin.llm.lead")} />
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3 [&>*]:min-w-0">
         <ProviderPanel />
         {usage.isPending ? (
           <>

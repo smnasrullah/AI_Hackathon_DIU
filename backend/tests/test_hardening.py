@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy.exc import DataError
 
 from app.core.config import get_settings
 from app.core.params import MAX_ID
@@ -85,6 +86,18 @@ def test_unhandled_error_is_json_500_without_internals(env: Path) -> None:
     assert "hunter2" not in res.text
 
 
+def test_value_the_database_rejects_is_422_not_500(env: Path) -> None:
+    """Found by fuzzing: a NUL character in a filter reached Postgres and became a 500."""
+    app = create_app()
+
+    @app.get("/api/v1/nul")
+    def nul() -> None:
+        raise DataError("SELECT 1", {}, ValueError("text cannot contain NUL"))
+
+    res = TestClient(app, raise_server_exceptions=False).get("/api/v1/nul")
+    assert (res.status_code, res.json()) == (422, {"detail": "invalid_value"})
+
+
 def test_api_rate_limit_per_client(monkeypatch: pytest.MonkeyPatch, env: Path) -> None:
     c = _app_with(monkeypatch, API_RATE_PER_MIN="5")
     codes = [c.get(f"{API}/system/health").status_code for _ in range(6)]
@@ -147,3 +160,16 @@ def test_cors_allowlist(monkeypatch: pytest.MonkeyPatch, env: Path) -> None:
     assert ok.headers["access-control-allow-credentials"] == "true"
     bad = c.options(f"{API}/auth/login", headers={"Origin": "https://evil.example", **PREFLIGHT})
     assert "access-control-allow-origin" not in bad.headers
+
+
+def test_openapi_documents_the_real_error_shape_and_statuses(client: TestClient) -> None:
+    """Fuzzing found the spec promising FastAPI's 422 body and none of 401/403/404/409/429."""
+    spec = client.get("/openapi.json").json()
+    text = str(spec)
+    assert "HTTPValidationError" not in text
+    error_ref = "#/components/schemas/ErrorResponse"
+    risk = spec["paths"]["/api/v1/agents/{agent_id}/risk"]["get"]["responses"]
+    for code in ("401", "403", "404", "422", "429"):
+        assert risk[code]["content"]["application/json"]["schema"]["$ref"] == error_ref, code
+    health = spec["paths"]["/api/v1/health"]["get"]["responses"]
+    assert "401" not in health and "422" in health

@@ -81,3 +81,36 @@ Format: what, why, alternative considered.
 - Why: sampling was most of a what-if call (p95 under 50 users: 670 ms before, 108 ms after).
   Results are identical (tests compare cached and fresh answers bit for bit). Memory: ~2.3 MB
   an entry, ~18 MB per worker at most.
+
+## D10. A network failure during the page-load session check retries instead of signing out
+- What: only a 401 from /auth/refresh ends a session. During the check on page load, a network
+  error, 5xx or restart keeps the user "checking" and retries after 1, 2, 4, 8, then every 15 s
+  (at once when the browser comes back online), with a "Cannot reach the server" note.
+- Why: found by the offline e2e test. A blip while the refresh was in flight sent users with a
+  valid cookie to the login page.
+- Alternative: give up after N tries and show the login page. Rejected: signing in cannot work
+  while the server is unreachable either, and the retry note says what is happening.
+
+## D11. OpenAPI describes the real error shape and statuses
+- What: `app/core/openapi.py` replaces FastAPI's default 422 schema with the app's one error shape
+  (`ErrorResponse`) and declares 400/413/422/429/500 everywhere, 401/403/404 on signed-in
+  operations, 409 on signed-in writes. Frontend types regenerated (scripts/gen-api.ps1).
+- Why: Schemathesis found 102 schema violations and ~300 undocumented statuses, all caused by the
+  spec, not by the API. No API behaviour changed.
+
+## D12. Double-submit guard on chosen actions, not a global scheduler change
+- What: `useSingleFlight` (a ref set in the click) on the actions where a second request would
+  create a duplicate or a confusing error: event and user forms, demo shortage, job start, and
+  "Mark all read" (both places).
+- Why: switching React Query's notify scheduler to microtasks fixed double clicks everywhere but
+  changed callback ordering (a test lost an error toast when the card unmounted first). Server
+  state machines already reject repeated claims, decisions and requests (409 / idempotent).
+
+## D13. /dev/kit is exempt from the phone layout and skeleton checks
+- The design kit is built only for e2e (VITE_DEV_KIT=true), shows loading states on purpose and
+  has oversized demo visuals. Every product route is checked at 390 and 1440 px.
+
+## D14. Signup approval and rejection lock the user row
+- What: `SELECT ... FOR UPDATE` on the user in update/approve and reject.
+- Why: reproduced on Postgres: two admins approving and rejecting the same pending signup at once
+  both succeeded, leaving an active-and-rejected account with two contradictory audit entries.

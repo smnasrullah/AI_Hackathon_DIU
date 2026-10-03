@@ -16,7 +16,7 @@ from app.core.config import get_settings
 from app.core.db import get_engine
 from app.llm import providers
 from app.llm.limits import user_limiter
-from app.llm.providers import Completion, ProviderTimeout
+from app.llm.providers import Completion, ProviderError, ProviderTimeout
 from app.models import LlmCallLog
 from app.rules.risk_rules import build_config
 from app.services import risk
@@ -142,6 +142,22 @@ def test_timeout_retries_once_then_template(client: TestClient, scored: Path,
     assert fake.calls == 2
     assert [(r.provider, r.guard_result.value) for r in _logs()] == [
         ("anthropic", "timeout"), ("anthropic", "timeout"), ("template", "timeout")]
+
+
+@pytest.mark.parametrize(("fault", "label"), [
+    (ProviderError("connection refused"), "provider down"),
+    (lambda system, user: "Sure! Here is the explanation you asked for.", "invalid JSON"),
+    (RuntimeError("provider bug"), "unexpected error"),
+])
+def test_broken_provider_falls_back_to_the_template(client: TestClient, scored: Path,
+                                                   monkeypatch: pytest.MonkeyPatch,
+                                                   fault: Reply | Exception, label: str) -> None:
+    """The page always gets its wording, labelled as the template, never an error."""
+    live(monkeypatch, FakeProvider(fault))
+    body = _narrate(client, bearer(client, AGENT_MIRPUR))
+    assert body["generated_by"] == "template", label
+    assert body["text"] == body["template_text"] and body["fallback_reason"] is not None
+    assert _logs()[-1].generated_by.value == "template"
 
 
 def test_timeout_then_success(client: TestClient, scored: Path,

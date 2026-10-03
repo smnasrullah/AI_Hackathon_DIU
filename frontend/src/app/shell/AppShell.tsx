@@ -16,6 +16,7 @@ import { CommandPalette } from "./CommandPalette";
 import { FreshnessChip } from "./FreshnessChip";
 import { crumbsFor, pageFor, SIDE_NAV } from "./nav";
 import { OfflineBanner } from "./OfflineBanner";
+import { ServerBanner } from "./ServerBanner";
 import { OnboardingTour } from "./OnboardingTour";
 import { RouteErrorBoundary } from "./RouteErrorBoundary";
 import { ShortcutHelp } from "./ShortcutHelp";
@@ -45,7 +46,7 @@ export function AppShell() {
       // loaded freshness chip (wider than its skeleton) wrap to a second row: a layout shift.
       <div className={cn("flex flex-wrap items-center gap-2", crumbs.length > 1 ? "justify-between" : "justify-end", !agent && "lg:justify-end")}>
         {crumbs.length > 1 ? <Breadcrumbs crumbs={crumbs} className={cn(!agent && "lg:hidden")} /> : null}
-        {meta?.prediction ? <FreshnessChip className="max-w-full" /> : null}
+        {meta?.prediction ? <FreshnessChip /> : null}
       </div>
     ) : null;
 
@@ -76,6 +77,7 @@ export function AppShell() {
       <div data-testid="app-shell" data-role={role} className="relative isolate min-h-screen bg-bg text-fg">
         <PageBackdrop />
         <OfflineBanner />
+        <ServerBanner />
         {role === "agent" ? (
           <div className="mx-auto flex min-h-screen max-w-md flex-col md:max-w-2xl">
             <TopBar home={home} crumbs={crumbs} compact />

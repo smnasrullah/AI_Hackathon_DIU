@@ -8,7 +8,7 @@ import { formatRelative, localizeDigits } from "../../lib/format";
 import { useLocale } from "../../lib/prefs";
 import { useNow } from "../../lib/useNow";
 
-const CHIP = "inline-flex min-h-8 items-center gap-1.5 rounded-full border border-line bg-surface px-3 text-xs";
+const CHIP = "inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-full border border-line bg-surface px-3 text-xs";
 
 /** "Updated 2 min ago · model v3" from GET /system/freshness. */
 export function FreshnessChip({ className }: { className?: string }) {

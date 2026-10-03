@@ -11,6 +11,7 @@ from app.core.config import get_settings
 from app.core.db import get_engine
 from app.core.errors import install_error_handlers
 from app.core.middleware import RequestGuard
+from app.core.openapi import install_openapi
 from app.core.perf import ServerTiming, instrument_engine
 from app.services import help_scheduler
 
@@ -46,6 +47,7 @@ def create_app() -> FastAPI:
         log.warning("DEMO_MODE=true: one-click POST /api/v1/auth/demo-login is enabled. "
                     "Set DEMO_MODE=false for any public hosting.")
     install_error_handlers(app)
+    install_openapi(app)
     app.add_middleware(RequestGuard, per_min=settings.api_rate_per_min,
                        login_per_min=settings.login_rate_per_min,
                        max_body=settings.max_body_bytes, workers=settings.web_concurrency)

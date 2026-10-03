@@ -186,7 +186,9 @@
     "loggingOut": "Logging out…",
     "offline": "You are offline. Showing the last data that loaded.",
     "backOnline": "Back online. Refreshing data.",
-    "routeLoading": "Loading page"
+    "routeLoading": "Loading page",
+    "serverDown": "Lost contact with the server. Reconnecting…",
+    "serverBack": "Reconnected. Refreshing data."
   },
   "footer": {
     "privacy": "No real personal data",
@@ -1800,5 +1802,47 @@
     },
     "asap": "As soon as possible",
     "loadMore": "Load more"
+  },
+  "changePassword": {
+    "title": "Change password",
+    "current": "Current password",
+    "new": "New password",
+    "confirm": "Confirm new password",
+    "strength": "Strength: {{level}}. At least {{min}} characters; mix words, numbers and symbols.",
+    "level": {
+      "tooShort": "too short",
+      "weak": "weak",
+      "fair": "fair",
+      "strong": "strong"
+    },
+    "submit": "Change password",
+    "saving": "Saving…",
+    "done_one": "Password changed. {{n}} other session was signed out.",
+    "done_other": "Password changed. {{n}} other sessions were signed out.",
+    "err": {
+      "currentRequired": "Enter your current password",
+      "min": "Use at least {{min}} characters",
+      "mismatch": "Passwords do not match",
+      "same": "Choose a password different from the current one",
+      "wrong": "Current password is incorrect.",
+      "failed": "Could not change the password. Try again."
+    }
+  },
+  "boot": {
+    "checking": "Checking your session",
+    "title": "Preparing demo data…",
+    "failedTitle": "Setup stopped",
+    "lead": "First start takes a minute. This page opens the app by itself when everything is ready.",
+    "failedLead": "Something went wrong while preparing the demo. Run: docker compose logs backend",
+    "footer": "Synthetic data only · Advisory only — a human approves",
+    "step": {
+      "waiting_for_db": "Starting the database",
+      "migrating": "Updating the database schema",
+      "seeding": "Generating synthetic demo data",
+      "training": "Checking forecast models",
+      "precomputing": "Preparing forecasts for every agent",
+      "finalizing": "Final checks"
+    },
+    "retrying": "Cannot reach the server. Trying again…"
   }
 }
