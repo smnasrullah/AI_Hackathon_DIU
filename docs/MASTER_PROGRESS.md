@@ -7,7 +7,7 @@
 | 2 Demo-safe help requests | done | simulate bypasses cap/cooldown/recent-ask (admin call only), demo reset, demo defaults + banner, auto cap 1/agent/float/day, start delay only after fresh bootstrap; e2e story uses reset (verified in phase 5) |
 | 3 Frontend follow-up | done | owner-only cancel, Urgent/last-wave flags (list, detail, map), Help tab + badge, opt-out toggle, scheduler card, dry-run list, Load more, 12 s/60 s polls, a11y + e2e green |
 | 4 npm audit | done | 3 findings (maplibre-gl critical, react-router moderate x2), all need major upgrades: not applied, decision needed; not exploitable as used |
-| 5 Full verification | todo | |
+| 5 Full verification | done | fast tier, -Up -E2E twice without reset (help story), -Slow all green; fresh DB on agentpulse-verify ready in 203 s (cached images), start delay held only on fresh bootstrap |
 | 6 Docs | todo | |
 
 ## Open problems
