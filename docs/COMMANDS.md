@@ -21,11 +21,11 @@ never run npm / tsc / pytest on the host.
 | Flag | Runs | Measured on the dev PC |
 |---|---|---|
 | (none) | FAST tier: ruff, `pytest -m "not slow"`, tsc, eslint, vitest | ~2 min |
-| `-Backend` | ruff + fast pytest | ~1.2 min |
+| `-Backend` | `secrets` (git scan) + ruff + fast pytest | ~2.5 min |
 | `-Frontend` | tsc + eslint + vitest | ~55 s |
 | `-Slow` | `pytest -m slow` (ML gate, full synthetic set) | ~15 s |
 | `-Up` | rebuild app images with the `/dev/kit` route and start the stack | 15 s cached, minutes on first build |
-| `-E2E` | `bootstrap.py e2e-fixtures`, then Playwright smoke against the running stack | ~1.5 min |
+| `-E2E` | `secrets`, `bootstrap.py e2e-fixtures`, then Playwright: route smoke, axe a11y + 390/1440 layout, security, bundle budget | ~4.5 min |
 | `-Full` | everything: all pytest, frontend, `-Up`, e2e | |
 
 Behaviour:
@@ -34,6 +34,9 @@ Behaviour:
   requirements or package files change (stamps in `scripts/.check-build-*.stamp`). Source is mounted.
 - Every step has a hard timeout. A second concurrent run prints `BUSY` (lock `scripts/.check.lock`).
   Check containers (`agentpulse-check-*`) older than 15 min are removed at start.
+- `secrets` (host git, with `-Backend` and `-E2E`): fails on a tracked `.env`, key-shaped strings
+  (Anthropic / OpenAI / AWS / GitHub / Slack / private keys) or any long `.env` secret value found
+  in a tracked file. It prints file names only, never values.
 - `-E2E` refuses to run when the stack is not ready or the frontend was built without `/dev/kit`
   (`run.bat` builds without it); run `-Up` first.
 

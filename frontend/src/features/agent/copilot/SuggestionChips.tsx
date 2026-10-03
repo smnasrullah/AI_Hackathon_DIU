@@ -24,7 +24,7 @@ export function SuggestionChips({ onPick, disabled = false }: { onPick: (questio
           type="button"
           disabled={disabled}
           onClick={() => onPick(item)}
-          className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-line bg-surface-2 px-3 text-left text-small font-semibold text-fg hover:bg-surface-3 disabled:opacity-50"
+          className="ap-press inline-flex min-h-9 items-center gap-1.5 rounded-full border border-line bg-surface-2 px-3 text-left text-small font-semibold text-fg hover:bg-surface-3 disabled:opacity-50"
         >
           <MessageCircleQuestion aria-hidden className="size-4 shrink-0 text-pulse-fg" />
           {item}

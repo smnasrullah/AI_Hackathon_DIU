@@ -42,7 +42,7 @@ export function SwapCard({ swap, onOpen, className }: SwapCardProps) {
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
         <MoneyText value={swap.amount_bdt} className="font-display text-h2 font-bold text-fg" />
-        <span className={swap.float_type === "cash" ? "text-cash" : "text-emoney"}>{t(`float.${swap.float_type}`)}</span>
+        <span className={swap.float_type === "cash" ? "text-cash-fg" : "text-emoney-fg"}>{t(`float.${swap.float_type}`)}</span>
         <span className="num inline-flex items-center gap-1">
           <Route aria-hidden className="size-3.5" />
           {localizeDigits(t("swaps.distance", { km: formatNumber(swap.distance_km, digits, { fraction: 1 }) }), digits)}

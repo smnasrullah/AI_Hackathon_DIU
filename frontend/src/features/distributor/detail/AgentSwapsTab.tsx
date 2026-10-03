@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useSwaps } from "../../../api/hooks/swaps";
 import { SkeletonRows } from "../../../components/ui/Skeleton";
+import { StaggerItem, StaggerList } from "../../../components/ui/Stagger";
 import { EmptyState, ErrorState } from "../../../components/ui/StatePanel";
 import { SwapCard } from "../swaps/SwapCard";
 
@@ -28,15 +29,15 @@ export function AgentSwapsTab({ agentId }: { agentId: number }) {
   }
   return (
     <div className="space-y-3">
-      <ul className="grid gap-3 md:grid-cols-2">
+      <StaggerList className="grid gap-3 md:grid-cols-2">
         {mine.map((s) => (
-          <li key={s.id} className="space-y-1">
+          <StaggerItem key={s.id} className="space-y-1">
             <p className="text-xs font-semibold text-muted">{t(`swaps.status.${s.status}`)}</p>
             <SwapCard swap={s} />
-          </li>
+          </StaggerItem>
         ))}
-      </ul>
-      <button type="button" onClick={() => void q.refetch()} className="inline-flex min-h-11 items-center gap-2 text-small font-semibold text-muted hover:text-fg">
+      </StaggerList>
+      <button type="button" onClick={() => void q.refetch()} className="ap-press inline-flex min-h-11 items-center gap-2 text-small font-semibold text-muted hover:text-fg">
         <RotateCw aria-hidden className="size-4" />
         {t("detail.refresh")}
       </button>

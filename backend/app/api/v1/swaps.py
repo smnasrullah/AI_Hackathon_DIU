@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 
 from app.core.csv_export import CSV_RESPONSES, csv_response
 from app.core.deps import CurrentUser, SessionDep, require_roles
+from app.core.params import IdPath, PageQuery
 from app.models import User
 from app.models.enums import SwapStatus, UserRole
 from app.schemas.swap import SwapDecisionIn, SwapItem, SwapPage, SwapRespondIn
@@ -26,7 +27,7 @@ def list_swaps(
     user: CurrentUser,
     session: SessionDep,
     swap_status: Annotated[SwapStatus | None, Query(alias="status")] = None,
-    page: Annotated[int, Query(ge=1)] = 1,
+    page: PageQuery = 1,
     page_size: Annotated[int, Query(ge=1, le=100)] = 20,
 ) -> SwapPage:
     """Swap suggestions in scope (agent: own as donor or receiver; distributor: own agents)."""
@@ -49,7 +50,7 @@ def export_swaps(
 
 
 @router.post("/{swap_id}/decision", response_model=SwapItem)
-def decide(swap_id: int, body: SwapDecisionIn, user: Distributor,
+def decide(swap_id: IdPath, body: SwapDecisionIn, user: Distributor,
            session: SessionDep) -> SwapItem:
     """Distributor approves or rejects with a note (audit_log). Advisory: no money moves."""
     try:
@@ -61,7 +62,7 @@ def decide(swap_id: int, body: SwapDecisionIn, user: Distributor,
 
 
 @router.post("/{swap_id}/respond", response_model=SwapItem)
-def respond(swap_id: int, body: SwapRespondIn, user: AgentUser, session: SessionDep) -> SwapItem:
+def respond(swap_id: IdPath, body: SwapRespondIn, user: AgentUser, session: SessionDep) -> SwapItem:
     """Donor or receiver agent accepts or declines (audit_log); the distributor still decides."""
     try:
         item = swaps.respond(session, user, swap_id, body.response, body.note)

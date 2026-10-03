@@ -24,6 +24,8 @@ COPY . .
 
 FROM base AS runtime
 COPY . .
+# Shown on /admin/data (compose passes the repo's docs/ as the "docs" build context).
+COPY --from=docs SYNTHETIC_ASSUMPTIONS.md ./docs/
 # Guard against CRLF checkouts on Windows hosts.
 RUN sed -i 's/\r$//' entrypoint.sh scripts/bootstrap.sh \
     && chmod +x entrypoint.sh scripts/bootstrap.sh

@@ -20,19 +20,26 @@ from ml.registry import (
 )
 
 
+def _digest(manifest: dict[str, Any]) -> str:
+    files: dict[str, str] = manifest["files"]
+    return hashlib.sha256("".join(files[k] for k in sorted(files)).encode()).hexdigest()
+
+
+def _find(session: Session, model_name: str, version: str) -> ModelVersion | None:
+    return session.scalar(select(ModelVersion).where(
+        ModelVersion.model_name == model_name, ModelVersion.version == version))
+
+
 def _activate(session: Session, model_name: str, manifest: dict[str, Any],
               metrics: dict[str, Any]) -> ModelVersion:
     """Upsert one manifest's model as the only active version of its name (idempotent)."""
     version = str(manifest["model_version"])
-    files: dict[str, str] = manifest["files"]
-    digest = hashlib.sha256("".join(files[k] for k in sorted(files)).encode()).hexdigest()
-    row = session.scalar(select(ModelVersion).where(
-        ModelVersion.model_name == model_name, ModelVersion.version == version))
+    row = _find(session, model_name, version)
     if row is None:
         row = ModelVersion(model_name=model_name, version=version)
         session.add(row)
     row.trained_at = datetime.fromisoformat(manifest["trained_at"])
-    row.artifact_sha256 = digest
+    row.artifact_sha256 = _digest(manifest)
     row.metrics = metrics
     session.execute(update(ModelVersion).where(ModelVersion.model_name == model_name,
                                                ModelVersion.version != version)
@@ -58,6 +65,25 @@ def register_anomaly_model(session: Session, artifacts_dir: Path) -> ModelVersio
     if not ok or manifest is None:
         raise ArtifactError(f"anomaly artifacts invalid: {why}")
     return _activate(session, ANOMALY_MODEL, manifest, manifest["anomaly"]["metrics"])
+
+
+def register_candidate(session: Session, model_name: str, manifest: dict[str, Any],
+                       metrics: dict[str, Any]) -> tuple[ModelVersion, bool]:
+    """Record a retrained model as an inactive version; serving keeps the active one.
+
+    Returns (row, reproduced): the same seed and data give the same version string, so a
+    retrain that matches an existing version is a reproducibility check, not a new row.
+    """
+    version = str(manifest["model_version"])
+    row = _find(session, model_name, version)
+    if row is not None:
+        return row, True
+    row = ModelVersion(model_name=model_name, version=version, is_active=False,
+                       trained_at=datetime.fromisoformat(manifest["trained_at"]),
+                       artifact_sha256=_digest(manifest), metrics=metrics)
+    session.add(row)
+    session.flush()
+    return row, False
 
 
 def active_model(session: Session, model_name: str) -> ModelVersion | None:

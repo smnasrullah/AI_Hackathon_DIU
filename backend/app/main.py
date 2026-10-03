@@ -1,10 +1,13 @@
 import logging
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1 import api_router
 from app.api.v1.auth import demo_router
 from app.core.config import get_settings
+from app.core.errors import install_error_handlers
+from app.core.middleware import RequestGuard
 
 log = logging.getLogger("app")
 
@@ -17,6 +20,15 @@ def create_app() -> FastAPI:
         app.include_router(demo_router, prefix="/api/v1")
         log.warning("DEMO_MODE=true: one-click POST /api/v1/auth/demo-login is enabled. "
                     "Set DEMO_MODE=false for any public hosting.")
+    install_error_handlers(app)
+    app.add_middleware(RequestGuard, per_min=settings.api_rate_per_min,
+                       login_per_min=settings.login_rate_per_min,
+                       max_body=settings.max_body_bytes)
+    if settings.cors_origins:  # outermost, so preflights and 429s carry the CORS headers
+        app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins,
+                           allow_credentials=True,
+                           allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
+                           allow_headers=["Authorization", "Content-Type"], max_age=600)
     return app
 
 

@@ -11,7 +11,6 @@ import { RootErrorPage } from "../features/shared/RootErrorPage";
 import { ForbiddenPage, NotFoundPage, ServerErrorPage } from "../features/shared/StatusPages";
 import { PublicLayout } from "./layouts/PublicLayout";
 import { adminPages, agentPages, distributorPages, loginPage, responsibleAiPage, type PageDef } from "./routes";
-import { AppShell } from "./shell/AppShell";
 
 /** Design kit: dev server always; production bundle only when built with VITE_DEV_KIT=true (e2e). */
 const DEV_KIT = import.meta.env.DEV || import.meta.env.VITE_DEV_KIT === "true";
@@ -24,6 +23,8 @@ function page(load: () => Promise<ComponentType>): Lazy {
 }
 
 // Login is split too: its form stack (react-hook-form, zod) stays out of the initial bundle.
+// The signed-in shell (nav, command palette, menus, tour) is its own chunk: not on landing or login.
+const shell = page(() => import("./shell/AppShell").then((m) => m.AppShell));
 const login = page(() => import("../features/auth/LoginPage").then((m) => m.LoginPage));
 const settings = page(() => import("../features/account/SettingsPage").then((m) => m.SettingsPage));
 const profile = page(() => import("../features/account/ProfilePage").then((m) => m.ProfilePage));
@@ -46,6 +47,13 @@ const swapQueue = page(() => import("../features/distributor/swaps/SwapsPage").t
 const anomalies = page(() => import("../features/distributor/anomalies/AnomaliesPage").then((m) => m.AnomaliesPage));
 const impact = page(() => import("../features/distributor/impact/ImpactPage").then((m) => m.ImpactPage));
 const briefing = page(() => import("../features/distributor/briefing/BriefingPage").then((m) => m.BriefingPage));
+const adminOverview = page(() => import("../features/admin/overview/AdminOverviewPage").then((m) => m.AdminOverviewPage));
+const adminEvents = page(() => import("../features/admin/events/AdminEventsPage").then((m) => m.AdminEventsPage));
+const adminData = page(() => import("../features/admin/data/AdminDataPage").then((m) => m.AdminDataPage));
+const adminModels = page(() => import("../features/admin/models/AdminModelsPage").then((m) => m.AdminModelsPage));
+const adminUsers = page(() => import("../features/admin/users/AdminUsersPage").then((m) => m.AdminUsersPage));
+const adminAudit = page(() => import("../features/admin/audit/AuditLogPage").then((m) => m.AuditLogPage));
+const adminLlm = page(() => import("../features/admin/llm/AdminLlmPage").then((m) => m.AdminLlmPage));
 const responsibleAi = page(() => import("../features/responsibleAi/ResponsibleAiPage").then((m) => m.ResponsibleAiPage));
 
 /** Pages built so far, keyed by role-relative path; the rest render a placeholder. */
@@ -69,6 +77,17 @@ const DISTRIBUTOR_BUILT: Record<string, Lazy> = {
   "anomalies/:id": anomalies,
   impact,
   briefing,
+};
+
+const ADMIN_BUILT: Record<string, Lazy> = {
+  "": adminOverview,
+  events: adminEvents,
+  data: adminData,
+  models: adminModels,
+  users: adminUsers,
+  "audit-log": adminAudit,
+  audit: adminAudit,
+  llm: adminLlm,
 };
 
 function children(pages: PageDef[], built: Record<string, Lazy> = BUILT): RouteObject[] {
@@ -97,17 +116,22 @@ const appRoutes: RouteObject[] = [
   },
   {
     // Every signed-in page shares the shell; each role area adds its own guard.
-    element: guarded(ALL_ROLES, <AppShell />),
+    element: guarded(ALL_ROLES, <Outlet />),
     children: [
-      { path: "/agent", element: guarded(["agent"], <Outlet />), children: children(agentPages, AGENT_BUILT) },
-      { path: "/distributor", element: guarded(["distributor"], <Outlet />), children: children(distributorPages, DISTRIBUTOR_BUILT) },
-      { path: "/admin", element: guarded(["admin"], <Outlet />), children: children(adminPages) },
-      { path: responsibleAiPage.path, lazy: responsibleAi },
-      { path: "/settings", lazy: settings },
-      { path: "/profile", lazy: profile },
-      { path: "/help", lazy: help },
-      { path: "/about", lazy: about },
-      { path: "/notifications", lazy: notifications },
+      {
+        lazy: shell,
+        children: [
+          { path: "/agent", element: guarded(["agent"], <Outlet />), children: children(agentPages, AGENT_BUILT) },
+          { path: "/distributor", element: guarded(["distributor"], <Outlet />), children: children(distributorPages, DISTRIBUTOR_BUILT) },
+          { path: "/admin", element: guarded(["admin"], <Outlet />), children: children(adminPages, ADMIN_BUILT) },
+          { path: responsibleAiPage.path, lazy: responsibleAi },
+          { path: "/settings", lazy: settings },
+          { path: "/profile", lazy: profile },
+          { path: "/help", lazy: help },
+          { path: "/about", lazy: about },
+          { path: "/notifications", lazy: notifications },
+        ],
+      },
     ],
   },
   ...(DEV_KIT ? [{ path: "/dev/kit", element: <DevKitRoute /> }] : []),

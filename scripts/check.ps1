@@ -86,6 +86,41 @@ function Invoke-Tool([string]$Name, [int]$TimeoutSec, [string]$Service, [string[
     '--rm', '--no-deps', '-T', '--name', $c, $Service) + $ToolCmd) $c
 }
 
+# No secret in git: no tracked .env, no known key shapes, and none of this machine's .env secret
+# values in any tracked file. Prints file names only, never a value.
+$secretShapes = 'sk-ant-[A-Za-z0-9_-]{20,}|sk-(proj-)?[A-Za-z0-9]{32,}|AKIA[0-9A-Z]{16}|' +
+  'gh[pousr]_[A-Za-z0-9]{36}|xox[abprs]-[A-Za-z0-9-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----'
+function Test-Secrets {
+  $sw = [Diagnostics.Stopwatch]::StartNew()
+  $git = (Get-Command git.exe, git -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1).Source
+  if (-not $git) { Write-Host 'SKIP  secrets      git not found'; return }
+  $files = @(& $git ls-files)
+  if ($LASTEXITCODE -ne 0) { $files = @(); $bad = @('git ls-files failed') } else { $bad = @() }
+  $bad += @($files | Where-Object { $_ -match '(^|/)\.env(\.|$)' -and $_ -notmatch '\.example$' } |
+    ForEach-Object { "tracked env file: $_" })
+  $bad += @(& $git grep -I -l -E $secretShapes 2>$null | ForEach-Object { "key-shaped string: $_" })
+  $secretKeys = '^\s*(JWT_SECRET|LLM_API_KEY|POSTGRES_PASSWORD|DEMO_\w+_PASSWORD)\s*=\s*(.+?)\s*$'
+  $published = @{}
+  if (Test-Path .env.example) {
+    foreach ($line in Get-Content .env.example) { if ($line -match $secretKeys) { $published[$Matches[1]] = $Matches[2] } }
+  }
+  if (Test-Path .env) {
+    foreach ($line in Get-Content .env) {
+      if ($line -match $secretKeys) {
+        $key = $Matches[1]; $value = $Matches[2].Trim('"', "'")
+        # Short values and the published .env.example defaults (demo passwords) are not secrets.
+        if ($value.Length -lt 16 -or $value -eq $published[$key]) { continue }
+        $bad += @(& $git grep -I -l -F -e $value 2>$null | ForEach-Object { "value of ${key}: $_" })
+      }
+    }
+  }
+  $t = '{0,6:N1}s' -f $sw.Elapsed.TotalSeconds
+  if (-not $bad) { Write-Host ("PASS  {0,-12} {1}" -f 'secrets', $t); return }
+  Write-Host ("FAIL  {0,-12} {1}  (exit 1)" -f 'secrets', $t)
+  $bad | Select-Object -First 30 | ForEach-Object { Write-Host "      $_" }
+  $script:failed++
+}
+
 # Rebuild an image only when it is missing or its Dockerfile / dependency files changed.
 function Update-Images([string]$ProfileName, [string[]]$Services, [string[]]$Inputs) {
   $files = $Inputs | ForEach-Object { Get-ChildItem $_ -ErrorAction SilentlyContinue } | Sort-Object FullName
@@ -100,6 +135,7 @@ function Update-Images([string]$ProfileName, [string[]]$Services, [string[]]$Inp
 
 try {
   Remove-StaleContainers
+  if ($runBackend -or $runE2E) { Test-Secrets }
   if ($runBackend -or $runSlow) {
     Update-Images 'tools' @('backend-tools') @('backend/Dockerfile', 'backend/requirements*.txt')
   }

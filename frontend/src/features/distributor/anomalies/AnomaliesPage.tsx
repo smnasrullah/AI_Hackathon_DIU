@@ -7,6 +7,7 @@ import type { AnomalyStatus } from "../../../api/types";
 import { Pagination } from "../../../components/ui/Pagination";
 import { SegmentedControl } from "../../../components/ui/SegmentedControl";
 import { SkeletonRows } from "../../../components/ui/Skeleton";
+import { StaggerItem, StaggerList } from "../../../components/ui/Stagger";
 import { EmptyState, ErrorState } from "../../../components/ui/StatePanel";
 import { TimeText } from "../../../components/ui/TimeText";
 import { cn } from "../../../lib/cn";
@@ -81,9 +82,9 @@ export function AnomaliesPage() {
         />
       ) : (
         <>
-          <ul className="space-y-2">
+          <StaggerList className="space-y-2">
             {q.data.items.map((a) => (
-              <li key={a.id}>
+              <StaggerItem key={a.id}>
                 <Link
                   to={`/distributor/anomalies/${a.id}${search}`}
                   aria-current={a.id === selected ? "page" : undefined}
@@ -105,9 +106,9 @@ export function AnomaliesPage() {
                     </span>
                   </span>
                 </Link>
-              </li>
+              </StaggerItem>
             ))}
-          </ul>
+          </StaggerList>
           <Pagination page={page} pageSize={PAGE_SIZE} total={q.data.total} onPageChange={(p) => setQuery({ page: p })} />
         </>
       )}

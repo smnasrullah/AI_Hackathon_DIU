@@ -92,7 +92,8 @@ _EMONEY = _rx(r"\be-?money\b", r"\be money\b", r"\bdigital\b", r"ই-?মান�
 
 
 def normalise(message: str) -> str:
-    return numbers.normalise(unicodedata.normalize("NFC", message))
+    # NFKC folds full-width look-alikes; zero-width / bidi characters cannot split a keyword.
+    return numbers.normalise(unicodedata.normalize("NFKC", guard.strip_control(message)))
 
 
 def is_blocked(text: str, own_code: str) -> bool:

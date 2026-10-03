@@ -71,7 +71,7 @@ function Row({ item, onOpen }: { item: NotificationItem; onOpen?: () => void }) 
             type="button"
             onClick={read}
             aria-label={`${t("inbox.markRead")}: ${text}`}
-            className="grid size-9 place-items-center rounded-full text-muted hover:bg-surface-3 hover:text-fg"
+            className="ap-press grid size-9 place-items-center rounded-full text-muted hover:bg-surface-3 hover:text-fg"
           >
             <Check aria-hidden className="size-4" />
           </button>

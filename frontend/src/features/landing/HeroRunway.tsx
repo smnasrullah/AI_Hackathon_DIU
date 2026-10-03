@@ -159,7 +159,7 @@ export function HeroRunway({ minute, onScrub }: HeroRunwayProps) {
               <motion.div
                 key="flag"
                 aria-hidden
-                className="absolute flex -translate-x-full items-center gap-1 whitespace-nowrap rounded-full bg-act px-2 py-1 text-xs font-semibold text-white shadow-soft"
+                className="absolute flex -translate-x-full items-center gap-1 whitespace-nowrap rounded-full bg-act-solid px-2 py-1 text-xs font-semibold text-white shadow-soft"
                 style={{ left: `${dayPos(STOCKOUT_MIN) * 100}%`, top: "38%" }}
                 initial={reduced ? { opacity: 0 } : { opacity: 0, y: -28 }}
                 animate={{ opacity: 1, y: 0 }}

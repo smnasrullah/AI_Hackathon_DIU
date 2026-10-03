@@ -96,6 +96,37 @@ export type PeerFeature = S["PeerFeature"];
 export type SwapStatus = S["SwapStatus"];
 export type RiskSort = NonNullable<RiskListQuery["sort"]>;
 
+// Admin console
+export type UserRole = S["UserRole"];
+export type AdminOverview = S["AdminOverview"];
+export type AdminUser = S["AdminUser"];
+export type AdminUserPage = S["AdminUserPage"];
+export type AdminUserCreate = S["AdminUserCreate"];
+export type AdminUserUpdate = S["AdminUserUpdate"];
+export type OrgDirectory = S["OrgDirectory"];
+export type AuditItem = S["AuditItem"];
+export type AuditPage = S["AuditPage"];
+export type DataSummary = S["DataSummary"];
+export type AssumptionsDoc = S["AssumptionsDoc"];
+export type ModelRegistry = S["ModelRegistry"];
+export type ModelVersionItem = S["ModelVersionItem"];
+export type DriftReport = S["DriftReport"];
+export type DriftFloat = S["DriftFloat"];
+export type DriftStatus = DriftReport["status"];
+export type JobOut = S["JobOut"];
+export type JobList = S["JobList"];
+export type JobKind = JobOut["kind"];
+export type JobStatus = JobOut["status"];
+export type LlmLogItem = S["LlmLogItem"];
+export type LlmLogPage = S["LlmLogPage"];
+export type LlmUsage = S["LlmUsage"];
+export type LlmIntent = S["LlmIntent"];
+export type GuardResult = S["GuardResult"];
+export type EventIn = S["EventIn"];
+export type AdminUserQuery = QueryOf<"list_users_api_v1_admin_users_get">;
+export type AuditQuery = QueryOf<"list_audit_api_v1_admin_audit_log_get">;
+export type LlmLogQuery = QueryOf<"llm_logs_api_v1_admin_llm_logs_get">;
+
 export type RiskListQuery = QueryOf<"list_risk_api_v1_agents_risk_get">;
 export type SwapListQuery = QueryOf<"list_swaps_api_v1_swaps_get">;
 export type RequestListQuery = QueryOf<"list_requests_api_v1_recommendation_requests_get">;

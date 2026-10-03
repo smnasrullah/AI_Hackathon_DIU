@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.core.deps import SessionDep, require_roles
+from app.core.params import IdPath, PageQuery
 from app.models import User
 from app.models.enums import AnomalyStatus, UserRole
 from app.schemas.anomaly import AnomalyDetail, AnomalyPage, AnomalyReviewIn
@@ -30,7 +31,7 @@ def list_anomalies(
     user: Reviewer,
     session: SessionDep,
     anomaly_status: Annotated[AnomalyStatus | None, Query(alias="status")] = None,
-    page: Annotated[int, Query(ge=1)] = 1,
+    page: PageQuery = 1,
     page_size: Annotated[int, Query(ge=1, le=100)] = 20,
 ) -> AnomalyPage:
     """Isolation Forest flags in scope (distributor: own agents; admin: all), open first."""
@@ -39,7 +40,7 @@ def list_anomalies(
 
 
 @router.get("/{anomaly_id}", response_model=AnomalyDetail)
-def get_anomaly(anomaly_id: int, user: Reviewer, session: SessionDep) -> AnomalyDetail:
+def get_anomaly(anomaly_id: IdPath, user: Reviewer, session: SessionDep) -> AnomalyDetail:
     """One flag with its peer-group distribution per feature and the top reasons."""
     _ready(session)
     try:
@@ -49,7 +50,7 @@ def get_anomaly(anomaly_id: int, user: Reviewer, session: SessionDep) -> Anomaly
 
 
 @router.post("/{anomaly_id}/review", response_model=AnomalyDetail)
-def review_anomaly(anomaly_id: int, body: AnomalyReviewIn, user: Reviewer,
+def review_anomaly(anomaly_id: IdPath, body: AnomalyReviewIn, user: Reviewer,
                    session: SessionDep) -> AnomalyDetail:
     """Human review: confirmed or dismissed with a note (audit_log). Nothing else happens."""
     _ready(session)

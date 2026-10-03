@@ -72,6 +72,8 @@ class User(Base):
             " OR role = 'admin'",
             name="ck_users_role_scope",
         ),
+        Index("ix_users_agent_id", "agent_id"),
+        Index("ix_users_distributor_id", "distributor_id"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)

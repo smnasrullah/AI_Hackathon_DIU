@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.api.v1 import (
     admin,
+    admin_ops,
     agents,
     anomalies,
     auth,
@@ -31,6 +32,7 @@ api_router.include_router(users.router)
 api_router.include_router(notifications.router)
 api_router.include_router(search.router)
 api_router.include_router(admin.router)
+api_router.include_router(admin_ops.router)
 # Before agents: the static /agents/risk must win over /agents/{agent_id}.
 api_router.include_router(risk.router)
 api_router.include_router(agents.router)

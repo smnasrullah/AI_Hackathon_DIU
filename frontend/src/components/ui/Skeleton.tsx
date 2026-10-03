@@ -68,6 +68,23 @@ export function SkeletonRunway({ className }: { className?: string }) {
   );
 }
 
+/** Shaped like a titled panel with label / value rows (admin and settings sections). */
+export function SkeletonPanel({ rows = 4, className }: { rows?: number; className?: string }) {
+  return (
+    <Loading className={cn("rounded-[var(--radius-card)] border border-line bg-surface p-5", className)}>
+      <Skeleton className="h-6 w-40" />
+      <div className="mt-4 space-y-3">
+        {Array.from({ length: rows }, (_, i) => (
+          <div key={i} className="flex items-center justify-between gap-3">
+            <Skeleton className="h-3.5 w-24" />
+            <Skeleton className="h-5 w-16 rounded-full" />
+          </div>
+        ))}
+      </div>
+    </Loading>
+  );
+}
+
 /** Shaped like a CountdownCard / BentoTile. */
 export function SkeletonCard({ className }: { className?: string }) {
   return (

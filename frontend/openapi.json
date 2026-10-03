@@ -1,6 +1,397 @@
 {
  "components": {
   "schemas": {
+   "ActiveModel": {
+    "properties": {
+     "model_name": {
+      "title": "Model Name",
+      "type": "string"
+     },
+     "trained_at": {
+      "format": "date-time",
+      "title": "Trained At",
+      "type": "string"
+     },
+     "version": {
+      "title": "Version",
+      "type": "string"
+     }
+    },
+    "required": [
+     "model_name",
+     "version",
+     "trained_at"
+    ],
+    "title": "ActiveModel",
+    "type": "object"
+   },
+   "AdminOverview": {
+    "properties": {
+     "active_models": {
+      "items": {
+       "$ref": "#/components/schemas/ActiveModel"
+      },
+      "title": "Active Models",
+      "type": "array"
+     },
+     "agents": {
+      "title": "Agents",
+      "type": "integer"
+     },
+     "distributors": {
+      "title": "Distributors",
+      "type": "integer"
+     },
+     "events": {
+      "title": "Events",
+      "type": "integer"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "latest_job": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/JobOut"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "llm_calls_today": {
+      "title": "Llm Calls Today",
+      "type": "integer"
+     },
+     "llm_daily_cap": {
+      "title": "Llm Daily Cap",
+      "type": "integer"
+     },
+     "open_anomalies": {
+      "title": "Open Anomalies",
+      "type": "integer"
+     },
+     "open_requests": {
+      "title": "Open Requests",
+      "type": "integer"
+     },
+     "pending_swaps": {
+      "title": "Pending Swaps",
+      "type": "integer"
+     },
+     "recent_audit": {
+      "items": {
+       "$ref": "#/components/schemas/AuditItem"
+      },
+      "title": "Recent Audit",
+      "type": "array"
+     },
+     "users": {
+      "items": {
+       "$ref": "#/components/schemas/RoleCount"
+      },
+      "title": "Users",
+      "type": "array"
+     }
+    },
+    "required": [
+     "users",
+     "distributors",
+     "agents",
+     "events",
+     "open_anomalies",
+     "pending_swaps",
+     "open_requests",
+     "llm_calls_today",
+     "llm_daily_cap",
+     "active_models",
+     "latest_job",
+     "recent_audit",
+     "generated_at"
+    ],
+    "title": "AdminOverview",
+    "type": "object"
+   },
+   "AdminUser": {
+    "properties": {
+     "agent_code": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Agent Code"
+     },
+     "agent_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Agent Id"
+     },
+     "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+     },
+     "distributor_code": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Distributor Code"
+     },
+     "distributor_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Distributor Id"
+     },
+     "email": {
+      "title": "Email",
+      "type": "string"
+     },
+     "full_name": {
+      "title": "Full Name",
+      "type": "string"
+     },
+     "id": {
+      "format": "uuid",
+      "title": "Id",
+      "type": "string"
+     },
+     "is_active": {
+      "title": "Is Active",
+      "type": "boolean"
+     },
+     "is_demo": {
+      "title": "Is Demo",
+      "type": "boolean"
+     },
+     "last_login_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Login At"
+     },
+     "role": {
+      "$ref": "#/components/schemas/UserRole"
+     }
+    },
+    "required": [
+     "id",
+     "email",
+     "full_name",
+     "role",
+     "agent_id",
+     "agent_code",
+     "distributor_id",
+     "distributor_code",
+     "is_active",
+     "is_demo",
+     "last_login_at",
+     "created_at"
+    ],
+    "title": "AdminUser",
+    "type": "object"
+   },
+   "AdminUserCreate": {
+    "additionalProperties": false,
+    "description": "agent -> agent_id required; distributor -> distributor_id required; admin -> neither.",
+    "properties": {
+     "agent_id": {
+      "anyOf": [
+       {
+        "maximum": 2147483647.0,
+        "minimum": 1.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Agent Id"
+     },
+     "distributor_id": {
+      "anyOf": [
+       {
+        "maximum": 2147483647.0,
+        "minimum": 1.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Distributor Id"
+     },
+     "email": {
+      "maxLength": 254,
+      "minLength": 3,
+      "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
+      "title": "Email",
+      "type": "string"
+     },
+     "full_name": {
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Full Name",
+      "type": "string"
+     },
+     "password": {
+      "maxLength": 128,
+      "minLength": 8,
+      "title": "Password",
+      "type": "string"
+     },
+     "role": {
+      "$ref": "#/components/schemas/UserRole"
+     }
+    },
+    "required": [
+     "email",
+     "full_name",
+     "role",
+     "password"
+    ],
+    "title": "AdminUserCreate",
+    "type": "object"
+   },
+   "AdminUserPage": {
+    "properties": {
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/AdminUser"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "page": {
+      "title": "Page",
+      "type": "integer"
+     },
+     "page_size": {
+      "title": "Page Size",
+      "type": "integer"
+     },
+     "total": {
+      "title": "Total",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "items",
+     "total",
+     "page",
+     "page_size"
+    ],
+    "title": "AdminUserPage",
+    "type": "object"
+   },
+   "AdminUserUpdate": {
+    "additionalProperties": false,
+    "description": "Only sent fields change. Changing role re-checks the agent / distributor link.",
+    "properties": {
+     "agent_id": {
+      "anyOf": [
+       {
+        "maximum": 2147483647.0,
+        "minimum": 1.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Agent Id"
+     },
+     "distributor_id": {
+      "anyOf": [
+       {
+        "maximum": 2147483647.0,
+        "minimum": 1.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Distributor Id"
+     },
+     "full_name": {
+      "anyOf": [
+       {
+        "maxLength": 120,
+        "minLength": 1,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Full Name"
+     },
+     "is_active": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Is Active"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "maxLength": 500,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     },
+     "role": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/UserRole"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "title": "AdminUserUpdate",
+    "type": "object"
+   },
    "AgentExplanation": {
     "properties": {
      "agent_id": {
@@ -1027,6 +1418,145 @@
     "title": "AnomalyStatus",
     "type": "string"
    },
+   "AssumptionsDoc": {
+    "properties": {
+     "markdown": {
+      "title": "Markdown",
+      "type": "string"
+     },
+     "title": {
+      "title": "Title",
+      "type": "string"
+     }
+    },
+    "required": [
+     "title",
+     "markdown"
+    ],
+    "title": "AssumptionsDoc",
+    "type": "object"
+   },
+   "AuditItem": {
+    "properties": {
+     "action": {
+      "title": "Action",
+      "type": "string"
+     },
+     "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+     },
+     "entity_id": {
+      "title": "Entity Id",
+      "type": "string"
+     },
+     "entity_type": {
+      "title": "Entity Type",
+      "type": "string"
+     },
+     "id": {
+      "title": "Id",
+      "type": "integer"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     },
+     "payload": {
+      "title": "Payload",
+      "type": "string"
+     },
+     "user_email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "User Email"
+     },
+     "user_role": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/UserRole"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "required": [
+     "id",
+     "created_at",
+     "user_email",
+     "user_role",
+     "action",
+     "entity_type",
+     "entity_id",
+     "note",
+     "payload"
+    ],
+    "title": "AuditItem",
+    "type": "object"
+   },
+   "AuditPage": {
+    "properties": {
+     "actions": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Actions",
+      "type": "array"
+     },
+     "entity_types": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Entity Types",
+      "type": "array"
+     },
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/AuditItem"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "page": {
+      "title": "Page",
+      "type": "integer"
+     },
+     "page_size": {
+      "title": "Page Size",
+      "type": "integer"
+     },
+     "total": {
+      "title": "Total",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "items",
+     "total",
+     "page",
+     "page_size",
+     "actions",
+     "entity_types"
+    ],
+    "title": "AuditPage",
+    "type": "object"
+   },
    "BalancePoint": {
     "properties": {
      "expected": {
@@ -1148,6 +1678,8 @@
      "agent_id": {
       "anyOf": [
        {
+        "maximum": 2147483647.0,
+        "minimum": 1.0,
         "type": "integer"
        },
        {
@@ -1198,6 +1730,24 @@
      "items"
     ],
     "title": "CopilotSuggestions",
+    "type": "object"
+   },
+   "DataCount": {
+    "properties": {
+     "rows": {
+      "title": "Rows",
+      "type": "integer"
+     },
+     "table": {
+      "title": "Table",
+      "type": "string"
+     }
+    },
+    "required": [
+     "table",
+     "rows"
+    ],
+    "title": "DataCount",
     "type": "object"
    },
    "DataInfo": {
@@ -1319,6 +1869,66 @@
     "title": "DataPeriod",
     "type": "object"
    },
+   "DataSummary": {
+    "properties": {
+     "configured_seed": {
+      "title": "Configured Seed",
+      "type": "integer"
+     },
+     "counts": {
+      "items": {
+       "$ref": "#/components/schemas/DataCount"
+      },
+      "title": "Counts",
+      "type": "array"
+     },
+     "data_version": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Data Version"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "labelled_anomalous_agents": {
+      "title": "Labelled Anomalous Agents",
+      "type": "integer"
+     },
+     "period": {
+      "$ref": "#/components/schemas/DataPeriod"
+     },
+     "seed": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Seed"
+     }
+    },
+    "required": [
+     "seed",
+     "configured_seed",
+     "data_version",
+     "period",
+     "counts",
+     "labelled_anomalous_agents",
+     "generated_at"
+    ],
+    "title": "DataSummary",
+    "type": "object"
+   },
    "DemoLoginRequest": {
     "additionalProperties": false,
     "properties": {
@@ -1330,6 +1940,196 @@
      "role"
     ],
     "title": "DemoLoginRequest",
+    "type": "object"
+   },
+   "DriftBucket": {
+    "properties": {
+     "horizon": {
+      "title": "Horizon",
+      "type": "string"
+     },
+     "mae": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Mae"
+     },
+     "ratio": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ratio"
+     },
+     "reference_mae": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reference Mae"
+     },
+     "status": {
+      "enum": [
+       "stable",
+       "watch",
+       "drift",
+       "no_data"
+      ],
+      "title": "Status",
+      "type": "string"
+     }
+    },
+    "required": [
+     "horizon",
+     "mae",
+     "reference_mae",
+     "ratio",
+     "status"
+    ],
+    "title": "DriftBucket",
+    "type": "object"
+   },
+   "DriftFloat": {
+    "properties": {
+     "buckets": {
+      "items": {
+       "$ref": "#/components/schemas/DriftBucket"
+      },
+      "title": "Buckets",
+      "type": "array"
+     },
+     "by_horizon": {
+      "items": {
+       "$ref": "#/components/schemas/DriftPoint"
+      },
+      "title": "By Horizon",
+      "type": "array"
+     },
+     "float_type": {
+      "$ref": "#/components/schemas/FloatType"
+     },
+     "hours_compared": {
+      "title": "Hours Compared",
+      "type": "integer"
+     },
+     "status": {
+      "enum": [
+       "stable",
+       "watch",
+       "drift",
+       "no_data"
+      ],
+      "title": "Status",
+      "type": "string"
+     }
+    },
+    "required": [
+     "float_type",
+     "buckets",
+     "by_horizon",
+     "hours_compared",
+     "status"
+    ],
+    "title": "DriftFloat",
+    "type": "object"
+   },
+   "DriftPoint": {
+    "properties": {
+     "horizon_h": {
+      "title": "Horizon H",
+      "type": "integer"
+     },
+     "mae": {
+      "title": "Mae",
+      "type": "number"
+     }
+    },
+    "required": [
+     "horizon_h",
+     "mae"
+    ],
+    "title": "DriftPoint",
+    "type": "object"
+   },
+   "DriftReport": {
+    "properties": {
+     "drift_ratio": {
+      "title": "Drift Ratio",
+      "type": "number"
+     },
+     "floats": {
+      "items": {
+       "$ref": "#/components/schemas/DriftFloat"
+      },
+      "title": "Floats",
+      "type": "array"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "model_version": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Model Version"
+     },
+     "origin": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Origin"
+     },
+     "status": {
+      "enum": [
+       "stable",
+       "watch",
+       "drift",
+       "no_data"
+      ],
+      "title": "Status",
+      "type": "string"
+     },
+     "watch_ratio": {
+      "title": "Watch Ratio",
+      "type": "number"
+     }
+    },
+    "required": [
+     "model_version",
+     "origin",
+     "watch_ratio",
+     "drift_ratio",
+     "floats",
+     "status",
+     "generated_at"
+    ],
+    "title": "DriftReport",
     "type": "object"
    },
    "EqualService": {
@@ -2354,6 +3154,172 @@
     "title": "ImpactTotals",
     "type": "object"
    },
+   "JobIn": {
+    "additionalProperties": false,
+    "properties": {
+     "kind": {
+      "enum": [
+       "generate_data",
+       "retrain_forecast",
+       "retrain_anomaly"
+      ],
+      "title": "Kind",
+      "type": "string"
+     }
+    },
+    "required": [
+     "kind"
+    ],
+    "title": "JobIn",
+    "type": "object"
+   },
+   "JobList": {
+    "properties": {
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/JobOut"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "running": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/JobOut"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "required": [
+     "items",
+     "running"
+    ],
+    "title": "JobList",
+    "type": "object"
+   },
+   "JobOut": {
+    "properties": {
+     "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+     },
+     "error": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Error"
+     },
+     "finished_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Finished At"
+     },
+     "id": {
+      "title": "Id",
+      "type": "integer"
+     },
+     "kind": {
+      "enum": [
+       "generate_data",
+       "retrain_forecast",
+       "retrain_anomaly"
+      ],
+      "title": "Kind",
+      "type": "string"
+     },
+     "progress": {
+      "title": "Progress",
+      "type": "integer"
+     },
+     "result": {
+      "items": {
+       "$ref": "#/components/schemas/JobResultItem"
+      },
+      "title": "Result",
+      "type": "array"
+     },
+     "started_by_email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Started By Email"
+     },
+     "status": {
+      "enum": [
+       "queued",
+       "running",
+       "succeeded",
+       "failed"
+      ],
+      "title": "Status",
+      "type": "string"
+     },
+     "step": {
+      "title": "Step",
+      "type": "string"
+     },
+     "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "kind",
+     "status",
+     "progress",
+     "step",
+     "error",
+     "result",
+     "started_by_email",
+     "created_at",
+     "updated_at",
+     "finished_at"
+    ],
+    "title": "JobOut",
+    "type": "object"
+   },
+   "JobResultItem": {
+    "description": "One labelled outcome value (row counts, model version, metric deltas).",
+    "properties": {
+     "key": {
+      "title": "Key",
+      "type": "string"
+     },
+     "value": {
+      "title": "Value",
+      "type": "string"
+     }
+    },
+    "required": [
+     "key",
+     "value"
+    ],
+    "title": "JobResultItem",
+    "type": "object"
+   },
    "Lang": {
     "enum": [
      "bn",
@@ -2395,6 +3361,160 @@
     ],
     "title": "LlmIntent",
     "type": "string"
+   },
+   "LlmLogItem": {
+    "properties": {
+     "cache_hit": {
+      "title": "Cache Hit",
+      "type": "boolean"
+     },
+     "completion_tokens": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Completion Tokens"
+     },
+     "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+     },
+     "error": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Error"
+     },
+     "generated_by": {
+      "$ref": "#/components/schemas/GeneratedBy"
+     },
+     "guard_result": {
+      "$ref": "#/components/schemas/GuardResult"
+     },
+     "id": {
+      "title": "Id",
+      "type": "integer"
+     },
+     "intent": {
+      "$ref": "#/components/schemas/LlmIntent"
+     },
+     "lang": {
+      "$ref": "#/components/schemas/Lang"
+     },
+     "latency_ms": {
+      "title": "Latency Ms",
+      "type": "integer"
+     },
+     "model": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Model"
+     },
+     "prompt_tokens": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Prompt Tokens"
+     },
+     "provider": {
+      "title": "Provider",
+      "type": "string"
+     },
+     "user_email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "User Email"
+     },
+     "user_id": {
+      "anyOf": [
+       {
+        "format": "uuid",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "User Id"
+     }
+    },
+    "required": [
+     "id",
+     "created_at",
+     "user_id",
+     "user_email",
+     "intent",
+     "provider",
+     "model",
+     "lang",
+     "prompt_tokens",
+     "completion_tokens",
+     "latency_ms",
+     "generated_by",
+     "guard_result",
+     "cache_hit",
+     "error"
+    ],
+    "title": "LlmLogItem",
+    "type": "object"
+   },
+   "LlmLogPage": {
+    "properties": {
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/LlmLogItem"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "page": {
+      "title": "Page",
+      "type": "integer"
+     },
+     "page_size": {
+      "title": "Page Size",
+      "type": "integer"
+     },
+     "total": {
+      "title": "Total",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "items",
+     "total",
+     "page",
+     "page_size"
+    ],
+    "title": "LlmLogPage",
+    "type": "object"
    },
    "LlmStatus": {
     "properties": {
@@ -2617,6 +3737,143 @@
     "title": "LlmText",
     "type": "object"
    },
+   "LlmUsage": {
+    "properties": {
+     "avg_latency_ms": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Avg Latency Ms"
+     },
+     "cache_hit_rate": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cache Hit Rate"
+     },
+     "calls_today": {
+      "title": "Calls Today",
+      "type": "integer"
+     },
+     "cap_used": {
+      "title": "Cap Used",
+      "type": "number"
+     },
+     "daily_cap": {
+      "title": "Daily Cap",
+      "type": "integer"
+     },
+     "days": {
+      "items": {
+       "$ref": "#/components/schemas/LlmUsageDay"
+      },
+      "title": "Days",
+      "type": "array"
+     },
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "guard_failures": {
+      "title": "Guard Failures",
+      "type": "integer"
+     },
+     "p95_latency_ms": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "P95 Latency Ms"
+     },
+     "total_calls": {
+      "title": "Total Calls",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "days",
+     "calls_today",
+     "daily_cap",
+     "cap_used",
+     "total_calls",
+     "cache_hit_rate",
+     "avg_latency_ms",
+     "p95_latency_ms",
+     "guard_failures",
+     "generated_at"
+    ],
+    "title": "LlmUsage",
+    "type": "object"
+   },
+   "LlmUsageDay": {
+    "properties": {
+     "cache_hits": {
+      "title": "Cache Hits",
+      "type": "integer"
+     },
+     "calls": {
+      "title": "Calls",
+      "type": "integer"
+     },
+     "completion_tokens": {
+      "title": "Completion Tokens",
+      "type": "integer"
+     },
+     "day": {
+      "format": "date",
+      "title": "Day",
+      "type": "string"
+     },
+     "guard_failures": {
+      "title": "Guard Failures",
+      "type": "integer"
+     },
+     "live_calls": {
+      "title": "Live Calls",
+      "type": "integer"
+     },
+     "prompt_tokens": {
+      "title": "Prompt Tokens",
+      "type": "integer"
+     },
+     "replay": {
+      "title": "Replay",
+      "type": "integer"
+     },
+     "template": {
+      "title": "Template",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "day",
+     "calls",
+     "live_calls",
+     "cache_hits",
+     "replay",
+     "template",
+     "guard_failures",
+     "prompt_tokens",
+     "completion_tokens"
+    ],
+    "title": "LlmUsageDay",
+    "type": "object"
+   },
    "LoginRequest": {
     "additionalProperties": false,
     "properties": {
@@ -2821,6 +4078,24 @@
     "title": "MapSwap",
     "type": "object"
    },
+   "MetricItem": {
+    "properties": {
+     "key": {
+      "title": "Key",
+      "type": "string"
+     },
+     "value": {
+      "title": "Value",
+      "type": "number"
+     }
+    },
+    "required": [
+     "key",
+     "value"
+    ],
+    "title": "MetricItem",
+    "type": "object"
+   },
    "ModelCard": {
     "properties": {
      "advisory_only": {
@@ -2943,9 +4218,86 @@
     "title": "ModelInfo",
     "type": "object"
    },
+   "ModelRegistry": {
+    "properties": {
+     "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+     },
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/ModelVersionItem"
+      },
+      "title": "Items",
+      "type": "array"
+     }
+    },
+    "required": [
+     "items",
+     "generated_at"
+    ],
+    "title": "ModelRegistry",
+    "type": "object"
+   },
+   "ModelVersionItem": {
+    "properties": {
+     "artifact_sha256": {
+      "title": "Artifact Sha256",
+      "type": "string"
+     },
+     "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+     },
+     "id": {
+      "title": "Id",
+      "type": "integer"
+     },
+     "is_active": {
+      "title": "Is Active",
+      "type": "boolean"
+     },
+     "metrics": {
+      "items": {
+       "$ref": "#/components/schemas/MetricItem"
+      },
+      "title": "Metrics",
+      "type": "array"
+     },
+     "model_name": {
+      "title": "Model Name",
+      "type": "string"
+     },
+     "trained_at": {
+      "format": "date-time",
+      "title": "Trained At",
+      "type": "string"
+     },
+     "version": {
+      "title": "Version",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "model_name",
+     "version",
+     "trained_at",
+     "is_active",
+     "artifact_sha256",
+     "metrics",
+     "created_at"
+    ],
+    "title": "ModelVersionItem",
+    "type": "object"
+   },
    "NarrateIn": {
     "properties": {
      "agent_id": {
+      "maximum": 2147483647.0,
+      "minimum": 1.0,
       "title": "Agent Id",
       "type": "integer"
      },
@@ -3119,6 +4471,81 @@
     ],
     "title": "NotificationType",
     "type": "string"
+   },
+   "OrgAgent": {
+    "properties": {
+     "code": {
+      "title": "Code",
+      "type": "string"
+     },
+     "distributor_id": {
+      "title": "Distributor Id",
+      "type": "integer"
+     },
+     "id": {
+      "title": "Id",
+      "type": "integer"
+     },
+     "name": {
+      "title": "Name",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "code",
+     "name",
+     "distributor_id"
+    ],
+    "title": "OrgAgent",
+    "type": "object"
+   },
+   "OrgDirectory": {
+    "properties": {
+     "agents": {
+      "items": {
+       "$ref": "#/components/schemas/OrgAgent"
+      },
+      "title": "Agents",
+      "type": "array"
+     },
+     "distributors": {
+      "items": {
+       "$ref": "#/components/schemas/OrgDistributor"
+      },
+      "title": "Distributors",
+      "type": "array"
+     }
+    },
+    "required": [
+     "distributors",
+     "agents"
+    ],
+    "title": "OrgDirectory",
+    "type": "object"
+   },
+   "OrgDistributor": {
+    "properties": {
+     "code": {
+      "title": "Code",
+      "type": "string"
+     },
+     "id": {
+      "title": "Id",
+      "type": "integer"
+     },
+     "name": {
+      "title": "Name",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "code",
+     "name"
+    ],
+    "title": "OrgDistributor",
+    "type": "object"
    },
    "PeerFeature": {
     "description": "One feature of the flagged window against the same window of its peer group.",
@@ -3882,6 +5309,28 @@
     ],
     "title": "RiskLevelCode",
     "type": "string"
+   },
+   "RoleCount": {
+    "properties": {
+     "active": {
+      "title": "Active",
+      "type": "integer"
+     },
+     "role": {
+      "$ref": "#/components/schemas/UserRole"
+     },
+     "total": {
+      "title": "Total",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "role",
+     "total",
+     "active"
+    ],
+    "title": "RoleCount",
+    "type": "object"
    },
    "RuleStep": {
     "properties": {
@@ -4856,10 +6305,249 @@
  },
  "openapi": "3.1.0",
  "paths": {
+  "/api/v1/admin/audit-log": {
+   "get": {
+    "description": "Human decisions and admin changes, newest first, with the action / entity facets.",
+    "operationId": "list_audit_api_v1_admin_audit_log_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "page",
+      "required": false,
+      "schema": {
+       "default": 1,
+       "maximum": 10000,
+       "minimum": 1,
+       "title": "Page",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page_size",
+      "required": false,
+      "schema": {
+       "default": 50,
+       "maximum": 200,
+       "minimum": 1,
+       "title": "Page Size",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "action",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 80,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Action"
+      }
+     },
+     {
+      "in": "query",
+      "name": "entity_type",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 80,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Entity Type"
+      }
+     },
+     {
+      "description": "e-mail contains",
+      "in": "query",
+      "name": "user",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 120,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "e-mail contains",
+       "title": "User"
+      }
+     },
+     {
+      "in": "query",
+      "name": "from",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date-time",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "From"
+      }
+     },
+     {
+      "in": "query",
+      "name": "to",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date-time",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "To"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AuditPage"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "List Audit",
+    "tags": [
+     "admin"
+    ]
+   }
+  },
   "/api/v1/admin/audit-log/export.csv": {
    "get": {
-    "description": "Every human decision (swap, anomaly, request), newest first. Admin only.",
+    "description": "Every human decision (swap, anomaly, request, admin change), newest first; same filters\nas the list.",
     "operationId": "export_audit_log_api_v1_admin_audit_log_export_csv_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "action",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 80,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Action"
+      }
+     },
+     {
+      "in": "query",
+      "name": "entity_type",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 80,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Entity Type"
+      }
+     },
+     {
+      "description": "e-mail contains",
+      "in": "query",
+      "name": "user",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 120,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "e-mail contains",
+       "title": "User"
+      }
+     },
+     {
+      "in": "query",
+      "name": "from",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date-time",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "From"
+      }
+     },
+     {
+      "in": "query",
+      "name": "to",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "format": "date-time",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "To"
+      }
+     }
+    ],
     "responses": {
      "200": {
       "content": {
@@ -4870,6 +6558,16 @@
        }
       },
       "description": "CSV file"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
      }
     },
     "security": [
@@ -4878,6 +6576,687 @@
      }
     ],
     "summary": "Export Audit Log",
+    "tags": [
+     "admin"
+    ]
+   }
+  },
+  "/api/v1/admin/data": {
+   "get": {
+    "description": "Seed, data version, period (holdout, SIM_NOW) and row counts of the synthetic dataset.",
+    "operationId": "get_data_api_v1_admin_data_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DataSummary"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Data",
+    "tags": [
+     "admin"
+    ]
+   }
+  },
+  "/api/v1/admin/data/assumptions": {
+   "get": {
+    "description": "docs/SYNTHETIC_ASSUMPTIONS.md as Markdown text.",
+    "operationId": "get_assumptions_api_v1_admin_data_assumptions_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AssumptionsDoc"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Assumptions",
+    "tags": [
+     "admin"
+    ]
+   }
+  },
+  "/api/v1/admin/drift": {
+   "get": {
+    "description": "Forecast-error drift: cached forecast vs logged demand, against the holdout MAE.",
+    "operationId": "get_drift_api_v1_admin_drift_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DriftReport"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Drift",
+    "tags": [
+     "admin"
+    ]
+   }
+  },
+  "/api/v1/admin/jobs": {
+   "get": {
+    "description": "The 20 most recent jobs and the one running, if any.",
+    "operationId": "list_jobs_api_v1_admin_jobs_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/JobList"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "List Jobs",
+    "tags": [
+     "admin"
+    ]
+   },
+   "post": {
+    "description": "Start generate_data, retrain_forecast or retrain_anomaly in the background; poll\nGET /admin/jobs/{id} for progress. One job at a time (409 job_running). Retrained models are\nrecorded inactive; serving keeps the committed model.",
+    "operationId": "start_job_api_v1_admin_jobs_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/JobIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "202": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/JobOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Start Job",
+    "tags": [
+     "admin"
+    ]
+   }
+  },
+  "/api/v1/admin/jobs/{job_id}": {
+   "get": {
+    "operationId": "get_job_api_v1_admin_jobs__job_id__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "job_id",
+      "required": true,
+      "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
+       "title": "Job Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/JobOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Job",
+    "tags": [
+     "admin"
+    ]
+   }
+  },
+  "/api/v1/admin/llm/logs": {
+   "get": {
+    "description": "llm_call_log newest first: tokens, latency, generated_by, cache hit, guard result.",
+    "operationId": "llm_logs_api_v1_admin_llm_logs_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "intent",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/LlmIntent"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Intent"
+      }
+     },
+     {
+      "in": "query",
+      "name": "generated_by",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/GeneratedBy"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Generated By"
+      }
+     },
+     {
+      "in": "query",
+      "name": "guard_result",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/GuardResult"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Guard Result"
+      }
+     },
+     {
+      "in": "query",
+      "name": "cache_hit",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Cache Hit"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page",
+      "required": false,
+      "schema": {
+       "default": 1,
+       "maximum": 10000,
+       "minimum": 1,
+       "title": "Page",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page_size",
+      "required": false,
+      "schema": {
+       "default": 50,
+       "maximum": 200,
+       "minimum": 1,
+       "title": "Page Size",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LlmLogPage"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Llm Logs",
+    "tags": [
+     "admin"
+    ]
+   }
+  },
+  "/api/v1/admin/llm/usage": {
+   "get": {
+    "description": "Calls per UTC day by outcome, tokens, latency, cache hit rate and today's cap usage.",
+    "operationId": "llm_usage_api_v1_admin_llm_usage_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "days",
+      "required": false,
+      "schema": {
+       "default": 7,
+       "maximum": 30,
+       "minimum": 1,
+       "title": "Days",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LlmUsage"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Llm Usage",
+    "tags": [
+     "admin"
+    ]
+   }
+  },
+  "/api/v1/admin/models": {
+   "get": {
+    "description": "Every registered model version (active first) with its stored holdout metrics.",
+    "operationId": "get_models_api_v1_admin_models_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ModelRegistry"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Models",
+    "tags": [
+     "admin"
+    ]
+   }
+  },
+  "/api/v1/admin/org": {
+   "get": {
+    "description": "Distributors and agents (id, code, name) for linking users.",
+    "operationId": "get_org_api_v1_admin_org_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/OrgDirectory"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Org",
+    "tags": [
+     "admin"
+    ]
+   }
+  },
+  "/api/v1/admin/overview": {
+   "get": {
+    "description": "Counts by role, open work queues, active models, LLM calls vs cap, latest job, audit.",
+    "operationId": "get_overview_api_v1_admin_overview_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AdminOverview"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Overview",
+    "tags": [
+     "admin"
+    ]
+   }
+  },
+  "/api/v1/admin/users": {
+   "get": {
+    "description": "Users by role then e-mail; `q` matches e-mail or name.",
+    "operationId": "list_users_api_v1_admin_users_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "role",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/UserRole"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Role"
+      }
+     },
+     {
+      "in": "query",
+      "name": "status",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "enum": [
+          "active",
+          "disabled"
+         ],
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     },
+     {
+      "in": "query",
+      "name": "q",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 80,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Q"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page",
+      "required": false,
+      "schema": {
+       "default": 1,
+       "maximum": 10000,
+       "minimum": 1,
+       "title": "Page",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page_size",
+      "required": false,
+      "schema": {
+       "default": 25,
+       "maximum": 100,
+       "minimum": 1,
+       "title": "Page Size",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AdminUserPage"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "List Users",
+    "tags": [
+     "admin"
+    ]
+   },
+   "post": {
+    "description": "Create a user linked to an agent (agent) or distributor (distributor). audit_log.",
+    "operationId": "create_user_api_v1_admin_users_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AdminUserCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AdminUser"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Create User",
+    "tags": [
+     "admin"
+    ]
+   }
+  },
+  "/api/v1/admin/users/{user_id}": {
+   "patch": {
+    "description": "Name, role + link, or active flag. Disabling revokes every session. audit_log.",
+    "operationId": "update_user_api_v1_admin_users__user_id__patch",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "user_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "User Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AdminUserUpdate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AdminUser"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Update User",
     "tags": [
      "admin"
     ]
@@ -4968,6 +7347,7 @@
       "required": false,
       "schema": {
        "default": 1,
+       "maximum": 10000,
        "minimum": 1,
        "title": "Page",
        "type": "integer"
@@ -5145,6 +7525,8 @@
       "name": "agent_id",
       "required": true,
       "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
        "title": "Agent Id",
        "type": "integer"
       }
@@ -5193,6 +7575,8 @@
       "name": "agent_id",
       "required": true,
       "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
        "title": "Agent Id",
        "type": "integer"
       }
@@ -5259,6 +7643,8 @@
       "name": "agent_id",
       "required": true,
       "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
        "title": "Agent Id",
        "type": "integer"
       }
@@ -5336,6 +7722,8 @@
       "name": "agent_id",
       "required": true,
       "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
        "title": "Agent Id",
        "type": "integer"
       }
@@ -5396,6 +7784,8 @@
       "name": "agent_id",
       "required": true,
       "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
        "title": "Agent Id",
        "type": "integer"
       }
@@ -5444,6 +7834,8 @@
       "name": "agent_id",
       "required": true,
       "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
        "title": "Agent Id",
        "type": "integer"
       }
@@ -5492,6 +7884,8 @@
       "name": "agent_id",
       "required": true,
       "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
        "title": "Agent Id",
        "type": "integer"
       }
@@ -5540,6 +7934,8 @@
       "name": "agent_id",
       "required": true,
       "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
        "title": "Agent Id",
        "type": "integer"
       }
@@ -5588,6 +7984,8 @@
       "name": "agent_id",
       "required": true,
       "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
        "title": "Agent Id",
        "type": "integer"
       }
@@ -5663,6 +8061,7 @@
       "required": false,
       "schema": {
        "default": 1,
+       "maximum": 10000,
        "minimum": 1,
        "title": "Page",
        "type": "integer"
@@ -5724,6 +8123,8 @@
       "name": "anomaly_id",
       "required": true,
       "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
        "title": "Anomaly Id",
        "type": "integer"
       }
@@ -5772,6 +8173,8 @@
       "name": "anomaly_id",
       "required": true,
       "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
        "title": "Anomaly Id",
        "type": "integer"
       }
@@ -5838,6 +8241,8 @@
       "name": "anomaly_id",
       "required": true,
       "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
        "title": "Anomaly Id",
        "type": "integer"
       }
@@ -5897,6 +8302,7 @@
       "schema": {
        "anyOf": [
         {
+         "maxLength": 512,
          "type": "string"
         },
         {
@@ -6045,6 +8451,7 @@
       "schema": {
        "anyOf": [
         {
+         "maxLength": 512,
          "type": "string"
         },
         {
@@ -6113,6 +8520,7 @@
       "schema": {
        "anyOf": [
         {
+         "maxLength": 512,
          "type": "string"
         },
         {
@@ -6385,6 +8793,7 @@
       "required": false,
       "schema": {
        "default": 1,
+       "maximum": 10000,
        "minimum": 1,
        "title": "Page",
        "type": "integer"
@@ -6491,6 +8900,8 @@
       "name": "event_id",
       "required": true,
       "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
        "title": "Event Id",
        "type": "integer"
       }
@@ -6530,6 +8941,8 @@
       "name": "event_id",
       "required": true,
       "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
        "title": "Event Id",
        "type": "integer"
       }
@@ -6909,6 +9322,7 @@
       "required": false,
       "schema": {
        "default": 1,
+       "maximum": 10000,
        "minimum": 1,
        "title": "Page",
        "type": "integer"
@@ -6995,6 +9409,8 @@
       "name": "notification_id",
       "required": true,
       "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
        "title": "Notification Id",
        "type": "integer"
       }
@@ -7060,6 +9476,7 @@
       "required": false,
       "schema": {
        "default": 1,
+       "maximum": 10000,
        "minimum": 1,
        "title": "Page",
        "type": "integer"
@@ -7121,6 +9538,8 @@
       "name": "request_id",
       "required": true,
       "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
        "title": "Request Id",
        "type": "integer"
       }
@@ -7186,6 +9605,8 @@
       "name": "request_id",
       "required": true,
       "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
        "title": "Request Id",
        "type": "integer"
       }
@@ -7244,6 +9665,8 @@
       "name": "request_id",
       "required": true,
       "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
        "title": "Request Id",
        "type": "integer"
       }
@@ -7309,6 +9732,8 @@
       "name": "recommendation_id",
       "required": true,
       "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
        "title": "Recommendation Id",
        "type": "integer"
       }
@@ -7529,6 +9954,7 @@
       "required": false,
       "schema": {
        "default": 1,
+       "maximum": 10000,
        "minimum": 1,
        "title": "Page",
        "type": "integer"
@@ -7645,6 +10071,8 @@
       "name": "swap_id",
       "required": true,
       "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
        "title": "Swap Id",
        "type": "integer"
       }
@@ -7703,6 +10131,8 @@
       "name": "swap_id",
       "required": true,
       "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
        "title": "Swap Id",
        "type": "integer"
       }

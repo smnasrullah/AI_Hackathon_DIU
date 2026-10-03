@@ -8,6 +8,7 @@ import { useSwaps } from "../../../api/hooks/swaps";
 import type { MapAgent, RiskLevel } from "../../../api/types";
 import { BentoTile } from "../../../components/signature/BentoTile";
 import { SkeletonCard } from "../../../components/ui/Skeleton";
+import { StaggerGroup } from "../../../components/ui/Stagger";
 import { RISK_STYLE } from "../../../components/ui/risk";
 import { cn } from "../../../lib/cn";
 import { localizeDigits } from "../../../lib/format";
@@ -31,7 +32,7 @@ function TileState({ q, children }: { q: TileQuery; children: ReactNode }) {
     return (
       <div role="alert" className="flex h-full flex-col items-start justify-between gap-3 rounded-[var(--radius-card)] border border-line bg-surface p-5">
         <p className="text-small text-muted">{t("state.errorTitle")}</p>
-        <button type="button" onClick={() => void q.refetch()} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line px-4 text-small font-semibold">
+        <button type="button" onClick={() => void q.refetch()} className="ap-press inline-flex min-h-11 items-center gap-2 rounded-full border border-line px-4 text-small font-semibold">
           <RotateCw aria-hidden className={cn("size-4", q.isFetching && "animate-spin")} />
           {t("common.retry")}
         </button>
@@ -64,7 +65,7 @@ export function KpiRow({ agents, mapQuery, hour }: KpiRowProps) {
   }
 
   return (
-    <section aria-label={t("controlRoom.kpi.label")} className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5" data-testid="kpi-row">
+    <StaggerGroup role="region" aria-label={t("controlRoom.kpi.label")} className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5" data-testid="kpi-row">
       {ALL_LEVELS.map((level) => (
         <TileState key={level} q={mapQuery}>
           <button
@@ -108,6 +109,6 @@ export function KpiRow({ agents, mapQuery, hour }: KpiRowProps) {
           />
         </Link>
       </TileState>
-    </section>
+    </StaggerGroup>
   );
 }

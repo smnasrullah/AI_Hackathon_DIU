@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 
+from app.core.params import DbId
 from app.llm.copilot.intents import Route
 from app.llm.copilot.tools import ToolCall
 from app.models.enums import Lang
@@ -10,7 +11,7 @@ class CopilotChatIn(BaseModel):
     message: str = Field(min_length=1, max_length=2000)  # sanitized and cut to 500 chars
     lang: Lang | None = None  # default: user's language
     # Agents: own account (omit, or their own id). Distributors / admins: required.
-    agent_id: int | None = None
+    agent_id: DbId | None = None
 
 
 class CopilotSuggestions(BaseModel):

@@ -31,6 +31,9 @@
   --color-safe: var(--risk-safe);
   --color-watch: var(--risk-watch);
   --color-act: var(--risk-act);
+  --color-cash-fg: var(--cash-fg);
+  --color-emoney-fg: var(--emoney-fg);
+  --color-act-solid: var(--act-solid);
   --color-safe-fg: var(--risk-safe-fg);
   --color-watch-fg: var(--risk-watch-fg);
   --color-act-fg: var(--risk-act-fg);
@@ -65,6 +68,10 @@
   --shadow-glow: var(--glow);
 
   --ease-brand: var(--ease-curve);
+
+  /* Every Tailwind transition-* uses the motion.ts base duration and easing. */
+  --default-transition-duration: 200ms;
+  --default-transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 html,
@@ -91,6 +98,12 @@ body:lang(bn) {
   font-size: 17px;
 }
 
+/* Bangla stacks vowel signs above and below the line: headings need more leading than the Latin scale
+   (unlayered, so it wins over the text-h1 / text-display line heights). */
+:lang(bn) :is(h1, h2, h3, h4) {
+  line-height: 1.35;
+}
+
 /* Numbers: JetBrains Mono, tabular, in every language. */
 .num {
   font-family: var(--font-mono);
@@ -108,7 +121,8 @@ body:lang(bn) {
   box-shadow: var(--elev-soft);
 }
 
-[data-low-end="true"] .glass {
+[data-low-end="true"] .glass,
+[data-low-end="true"] [class*="backdrop-blur"] {
   backdrop-filter: none;
 }
 

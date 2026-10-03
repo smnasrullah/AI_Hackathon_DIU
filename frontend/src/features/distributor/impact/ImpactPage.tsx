@@ -5,6 +5,7 @@ import { useImpactComparison, useImpactSummary } from "../../../api/hooks/system
 import type { ImpactSummary } from "../../../api/types";
 import { BentoTile } from "../../../components/signature/BentoTile";
 import { SkeletonCard, SkeletonText } from "../../../components/ui/Skeleton";
+import { StaggerGroup } from "../../../components/ui/Stagger";
 import { SourceChip } from "../../../components/ui/SourceChip";
 import { ErrorState } from "../../../components/ui/StatePanel";
 import { StatChip } from "../../../components/ui/StatChip";
@@ -90,7 +91,7 @@ export function ImpactPage() {
         </div>
       </header>
 
-      <div className="grid gap-4 md:grid-cols-3" data-testid="impact-bento">
+      <StaggerGroup className="grid gap-4 md:grid-cols-3" data-testid="impact-bento">
         <BentoTile
           className="md:col-span-2 md:row-span-2"
           title={t("impact.tile.hours")}
@@ -109,7 +110,7 @@ export function ImpactPage() {
         <BentoTile title={t("impact.tile.trips")} value={d.van_trips_avoided} icon={Truck} sparkline={dailySeries(days, "van_trips_avoided")} />
         <BentoTile title={t("impact.tile.vanCost")} value={d.van_cost_avoided_bdt} format="money" icon={Fuel} sparkline={dailySeries(days, "van_cost_avoided_bdt")} />
         <BentoTile title={t("impact.tile.fee")} value={d.fee_saved_bdt} format="money" icon={Coins} sparkline={dailySeries(days, "fee_saved_bdt")} />
-      </div>
+      </StaggerGroup>
       {comparison.isError ? <p className="text-xs text-muted">{t("impact.noDaily")}</p> : null}
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">

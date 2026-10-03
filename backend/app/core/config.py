@@ -48,6 +48,14 @@ class Settings(BaseSettings):
     demo_mode: bool = True
     demo_login_per_min: int = 10  # per client IP
 
+    # Browser origins allowed to call the API cross-site. Empty (default): same-origin only,
+    # which is how nginx serves the app; no CORS headers are sent at all.
+    cors_origins: list[str] = []
+    # Per client IP, every /api request / POST /auth/login; then 429 rate_limited.
+    api_rate_per_min: int = 1200
+    login_rate_per_min: int = 60
+    max_body_bytes: int = 1_048_576
+
     # Optional override of app/rules/risk_rules.DEFAULT_CUTS: {"6": [amber, red], ...}.
     risk_thresholds: dict[int, list[float]] = {}
     # app/rules/rebalance_rules.py + swap_rules.py; defaults mirror the rule dataclasses.

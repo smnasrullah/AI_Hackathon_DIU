@@ -104,7 +104,7 @@ export function FilterPanel({ all, shown }: FilterPanelProps) {
           {localizeDigits(t("controlRoom.filters.count", { shown, total: all.length }), digits)}
         </span>
         {dirty ? (
-          <button type="button" onClick={resetFilters} className="inline-flex min-h-8 items-center gap-1 rounded-full px-2 font-semibold text-pulse-fg hover:underline">
+          <button type="button" onClick={resetFilters} className="ap-press inline-flex min-h-8 items-center gap-1 rounded-full px-2 font-semibold text-pulse-fg hover:underline">
             <FilterX aria-hidden className="size-3.5" />
             {t("controlRoom.filters.reset")}
           </button>

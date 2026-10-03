@@ -52,7 +52,7 @@ def test_demo_login_not_registered_when_off(
     get_settings.cache_clear()
     off = TestClient(create_app())
     res = off.post(f"{API}/auth/demo-login", json={"role": "admin"})
-    assert res.status_code == 404 and res.json()["detail"] == "Not Found"
+    assert res.status_code == 404 and res.json()["detail"] == "not_found"
     assert not any(getattr(r, "path", "") == f"{API}/auth/demo-login" for r in off.app.routes)
     assert off.get(f"{API}/system/status").json()["demo_mode"] is False
 

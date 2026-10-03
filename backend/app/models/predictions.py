@@ -104,6 +104,7 @@ class RiskLevel(Base):
         CheckConstraint("horizon_h IN (6, 24, 72)", name="ck_risk_levels_horizon"),
         Index("ix_risk_levels_agent_ts", "agent_id", "ts"),
         Index("ix_risk_levels_level", "level"),
+        Index("ix_risk_levels_version_horizon", "model_version_id", "horizon_h"),
     )
 
     id: Mapped[int] = mapped_column(BigIntPK, primary_key=True)

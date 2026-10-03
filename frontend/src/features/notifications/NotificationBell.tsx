@@ -12,12 +12,12 @@ import { toast } from "../../components/ui/toastStore";
 import { formatNumber } from "../../lib/format";
 import { useReducedMotionPref } from "../../lib/motionPrefs";
 import { useLocale } from "../../lib/prefs";
-import { SPRING } from "../../styles/motion";
+import { DUR, SPRING } from "../../styles/motion";
 import { InboxEmpty } from "./InboxEmpty";
 import { NotificationList } from "./NotificationList";
 
 const PANEL_SIZE = 20;
-const SHAKE = { rotate: [0, -14, 12, -8, 6, 0], transition: { duration: 0.6 } };
+const SHAKE = { rotate: [0, -14, 12, -8, 6, 0], transition: { duration: DUR.reveal } };
 
 /** Bell with unread badge: shakes once when new ones arrive; the panel slides in. */
 export function NotificationBell() {
@@ -86,7 +86,7 @@ export function NotificationBell() {
               type="button"
               onClick={readAll}
               disabled={unread === 0 || markAll.isPending}
-              className="inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 text-small font-semibold text-pulse-fg hover:bg-surface-2 disabled:opacity-50"
+              className="ap-press inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 text-small font-semibold text-pulse-fg hover:bg-surface-2 disabled:opacity-50"
             >
               <CheckCheck aria-hidden className="size-4" />
               {t("inbox.markAll")}

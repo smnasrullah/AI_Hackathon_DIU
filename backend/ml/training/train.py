@@ -11,6 +11,7 @@ import hashlib
 import json
 import logging
 import sys
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -66,7 +67,8 @@ def sample_rows(n_agents: int, holdout_h: int, seed: int
     return rows[keep], origins[keep], hs[keep]
 
 
-def fit(panel: Panel, seed: int, rounds: int, holdout_h: int) -> tuple[dict[str, list[str]], int]:
+def fit(panel: Panel, seed: int, rounds: int, holdout_h: int,
+        on_step: Callable[[str], None] | None = None) -> tuple[dict[str, list[str]], int]:
     rows, origins, hs = sample_rows(len(panel.agent_ids), holdout_h, seed)
     models: dict[str, list[str]] = {}
     for target in TARGETS:
@@ -79,6 +81,8 @@ def fit(panel: Panel, seed: int, rounds: int, holdout_h: int) -> tuple[dict[str,
             booster = lgb.train(lgb_params(q, seed), data, num_boost_round=rounds)
             models[target].append(booster.model_to_string())
             log.info("trained %s q=%.1f on %d rows", target, q, len(z))
+            if on_step is not None:
+                on_step(f"fit:{target}:q{q}")
     return models, len(rows)
 
 
@@ -93,11 +97,17 @@ def _write(artifacts_dir: Path, models: dict[str, list[str]]) -> dict[str, str]:
     return files
 
 
-def run(artifacts_dir: Path, seed: int, rounds: int = ROUNDS) -> dict[str, Any]:
+def run(artifacts_dir: Path, seed: int, rounds: int = ROUNDS,
+        on_step: Callable[[str], None] | None = None) -> dict[str, Any]:
+    """`on_step` (admin retrain progress) hears "panel", "fit:<target>:q<q>", "evaluate"."""
     holdout_h = hour_index(HOLDOUT_START)
     with Session(get_engine()) as session:
         panel = load_panel(session)
-    models, n_rows = fit(panel, seed, rounds, holdout_h)
+    if on_step is not None:
+        on_step("panel")
+    models, n_rows = fit(panel, seed, rounds, holdout_h, on_step)
+    if on_step is not None:
+        on_step("evaluate")
     boosters = {t: [lgb.Booster(model_str=s) for s in models[t]] for t in TARGETS}
     metrics = evaluate(Forecaster(FORECAST_MODEL, "candidate", boosters), panel, holdout_h,
                        N_HOURS)

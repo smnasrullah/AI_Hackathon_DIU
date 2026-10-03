@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.core.config import get_settings
 from app.core.deps import CurrentUser, ScopedAgent, SessionDep, can_access_agent, require_roles
+from app.core.params import IdPath
 from app.llm import packs
 from app.llm.packs import Pack
 from app.llm.service import generate
@@ -58,7 +59,7 @@ def agent_briefing(agent: ScopedAgent, user: CurrentUser, session: SessionDep,
 
 
 @router.get("/anomalies/{anomaly_id}/narrative", response_model=LlmText)
-def anomaly_narrative(anomaly_id: int, user: Reviewer, session: SessionDep,
+def anomaly_narrative(anomaly_id: IdPath, user: Reviewer, session: SessionDep,
                       lang: LangQuery = None) -> LlmText:
     """Neutral investigation note for one flag, from its peer evidence only."""
     if not anomalies.is_ready(session):

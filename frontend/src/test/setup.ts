@@ -3,7 +3,9 @@ import { act, cleanup } from "@testing-library/react";
 import { MotionGlobalConfig } from "motion/react";
 import { afterEach, beforeEach, vi } from "vitest";
 
-import "../i18n";
+import { addLanguage } from "../i18n";
+import bn from "../i18n/bn.json";
+import en from "../i18n/en.json";
 import { usePrefsStore } from "../lib/prefs";
 import { queryClient } from "../lib/queryClient";
 import { clearAppStorage, resetAllStores } from "../lib/storeRegistry";
@@ -11,6 +13,10 @@ import { clearAppStorage, resetAllStores } from "../lib/storeRegistry";
 // Animations finish instantly: exit transitions (AnimatePresence) must not keep nodes mounted
 // for a frame-rate-dependent time, which made assertions flaky on a loaded CPU.
 MotionGlobalConfig.skipAnimations = true;
+
+// The app fetches one dictionary per language on demand; tests switch synchronously.
+addLanguage("en", en);
+addLanguage("bn", bn);
 
 // jsdom gaps that Radix popovers/menus and cmdk touch.
 class NoopResizeObserver {

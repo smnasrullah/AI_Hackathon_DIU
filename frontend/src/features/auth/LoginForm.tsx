@@ -191,7 +191,7 @@ export function LoginForm() {
               onClick={() => setShowPassword((v) => !v)}
               aria-label={t(showPassword ? "login.hide" : "login.show")}
               aria-pressed={showPassword}
-              className="grid size-11 place-items-center rounded-[var(--radius-input)] text-muted hover:text-fg"
+              className="ap-press grid size-11 place-items-center rounded-[var(--radius-input)] text-muted hover:text-fg"
             >
               {showPassword ? <EyeOff className="size-4" aria-hidden /> : <Eye className="size-4" aria-hidden />}
             </button>

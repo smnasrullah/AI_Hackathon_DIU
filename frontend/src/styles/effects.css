@@ -45,7 +45,8 @@
 @keyframes ap-fade-out { from { opacity: 1; } to { opacity: 0; } }
 
 .ap-loop[data-paused="true"],
-[data-paused="true"] .ap-loop {
+[data-paused="true"] .ap-loop,
+[data-page-hidden="true"] .ap-loop {
   animation-play-state: paused;
 }
 
@@ -56,6 +57,27 @@
 
 @media (prefers-reduced-motion: reduce) {
   .ap-loop { animation: none !important; }
+}
+
+/* Forced reduced motion (the /dev/kit toggle): transitions and one-shot keyframes go quiet too. */
+[data-reduced-motion="true"] *,
+[data-reduced-motion="true"] *::before,
+[data-reduced-motion="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Press physics for raw buttons that are not LiquidButton (scale .97, transform only). */
+.ap-press {
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+  transition-duration: var(--dur-fast);
+  transition-timing-function: var(--ease-curve);
+}
+.ap-press:not(:disabled):active { transform: scale(var(--press-scale)); }
+[data-reduced-motion="true"] .ap-press:active { transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .ap-press:active { transform: none; }
 }
 
 /* Aurora mesh: three blurred blobs drifting 40-60s. */

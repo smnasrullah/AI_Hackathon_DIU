@@ -14,6 +14,7 @@ import type { MapAgent, MapSwap } from "../../../api/types";
 import { formatMoney, formatNumber } from "../../../lib/format";
 import { useLoopActive, useReducedMotionPref } from "../../../lib/motionPrefs";
 import { useLocale } from "../../../lib/prefs";
+import { MS } from "../../../styles/motion";
 import { clearMarkers, syncClusterLabels, syncSwapChips } from "./mapMarkers";
 import { agentFeatures, BD_BOUNDS, swapLines } from "./mapModel";
 import { BOUNDARY_URL, LAND_OPACITY, LAYER, mapStyle, SRC } from "./mapStyle";
@@ -153,7 +154,7 @@ export default function RiskMap({ agents, swaps, selectedId, onSelect, onlineTil
   useEffect(() => {
     if (!map || lng === undefined || lat === undefined) return;
     if (map.getZoom() >= 7 && map.getBounds().contains([lng, lat])) return;
-    map.easeTo({ center: [lng, lat], zoom: Math.max(map.getZoom(), 8), duration: reduced ? 0 : 600 });
+    map.easeTo({ center: [lng, lat], zoom: Math.max(map.getZoom(), 8), duration: reduced ? 0 : MS.reveal });
   }, [map, lng, lat, reduced]);
 
   return (

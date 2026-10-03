@@ -4,6 +4,26 @@
  */
 
 export interface paths {
+    "/api/v1/admin/audit-log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Audit
+         * @description Human decisions and admin changes, newest first, with the action / entity facets.
+         */
+        get: operations["list_audit_api_v1_admin_audit_log_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/audit-log/export.csv": {
         parameters: {
             query?: never;
@@ -13,7 +33,8 @@ export interface paths {
         };
         /**
          * Export Audit Log
-         * @description Every human decision (swap, anomaly, request), newest first. Admin only.
+         * @description Every human decision (swap, anomaly, request, admin change), newest first; same filters
+         *     as the list.
          */
         get: operations["export_audit_log_api_v1_admin_audit_log_export_csv_get"];
         put?: never;
@@ -22,6 +43,253 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/data": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Data
+         * @description Seed, data version, period (holdout, SIM_NOW) and row counts of the synthetic dataset.
+         */
+        get: operations["get_data_api_v1_admin_data_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/data/assumptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Assumptions
+         * @description docs/SYNTHETIC_ASSUMPTIONS.md as Markdown text.
+         */
+        get: operations["get_assumptions_api_v1_admin_data_assumptions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/drift": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Drift
+         * @description Forecast-error drift: cached forecast vs logged demand, against the holdout MAE.
+         */
+        get: operations["get_drift_api_v1_admin_drift_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Jobs
+         * @description The 20 most recent jobs and the one running, if any.
+         */
+        get: operations["list_jobs_api_v1_admin_jobs_get"];
+        put?: never;
+        /**
+         * Start Job
+         * @description Start generate_data, retrain_forecast or retrain_anomaly in the background; poll
+         *     GET /admin/jobs/{id} for progress. One job at a time (409 job_running). Retrained models are
+         *     recorded inactive; serving keeps the committed model.
+         */
+        post: operations["start_job_api_v1_admin_jobs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/jobs/{job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Job */
+        get: operations["get_job_api_v1_admin_jobs__job_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/llm/logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Llm Logs
+         * @description llm_call_log newest first: tokens, latency, generated_by, cache hit, guard result.
+         */
+        get: operations["llm_logs_api_v1_admin_llm_logs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/llm/usage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Llm Usage
+         * @description Calls per UTC day by outcome, tokens, latency, cache hit rate and today's cap usage.
+         */
+        get: operations["llm_usage_api_v1_admin_llm_usage_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/models": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Models
+         * @description Every registered model version (active first) with its stored holdout metrics.
+         */
+        get: operations["get_models_api_v1_admin_models_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/org": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Org
+         * @description Distributors and agents (id, code, name) for linking users.
+         */
+        get: operations["get_org_api_v1_admin_org_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Overview
+         * @description Counts by role, open work queues, active models, LLM calls vs cap, latest job, audit.
+         */
+        get: operations["get_overview_api_v1_admin_overview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Users
+         * @description Users by role then e-mail; `q` matches e-mail or name.
+         */
+        get: operations["list_users_api_v1_admin_users_get"];
+        put?: never;
+        /**
+         * Create User
+         * @description Create a user linked to an agent (agent) or distributor (distributor). audit_log.
+         */
+        post: operations["create_user_api_v1_admin_users_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update User
+         * @description Name, role + link, or active flag. Disabling revokes every session. audit_log.
+         */
+        patch: operations["update_user_api_v1_admin_users__user_id__patch"];
         trace?: never;
     };
     "/api/v1/agents": {
@@ -1074,6 +1342,126 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ActiveModel */
+        ActiveModel: {
+            /** Model Name */
+            model_name: string;
+            /**
+             * Trained At
+             * Format: date-time
+             */
+            trained_at: string;
+            /** Version */
+            version: string;
+        };
+        /** AdminOverview */
+        AdminOverview: {
+            /** Active Models */
+            active_models: components["schemas"]["ActiveModel"][];
+            /** Agents */
+            agents: number;
+            /** Distributors */
+            distributors: number;
+            /** Events */
+            events: number;
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            latest_job: components["schemas"]["JobOut"] | null;
+            /** Llm Calls Today */
+            llm_calls_today: number;
+            /** Llm Daily Cap */
+            llm_daily_cap: number;
+            /** Open Anomalies */
+            open_anomalies: number;
+            /** Open Requests */
+            open_requests: number;
+            /** Pending Swaps */
+            pending_swaps: number;
+            /** Recent Audit */
+            recent_audit: components["schemas"]["AuditItem"][];
+            /** Users */
+            users: components["schemas"]["RoleCount"][];
+        };
+        /** AdminUser */
+        AdminUser: {
+            /** Agent Code */
+            agent_code: string | null;
+            /** Agent Id */
+            agent_id: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Distributor Code */
+            distributor_code: string | null;
+            /** Distributor Id */
+            distributor_id: number | null;
+            /** Email */
+            email: string;
+            /** Full Name */
+            full_name: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Is Active */
+            is_active: boolean;
+            /** Is Demo */
+            is_demo: boolean;
+            /** Last Login At */
+            last_login_at: string | null;
+            role: components["schemas"]["UserRole"];
+        };
+        /**
+         * AdminUserCreate
+         * @description agent -> agent_id required; distributor -> distributor_id required; admin -> neither.
+         */
+        AdminUserCreate: {
+            /** Agent Id */
+            agent_id?: number | null;
+            /** Distributor Id */
+            distributor_id?: number | null;
+            /** Email */
+            email: string;
+            /** Full Name */
+            full_name: string;
+            /** Password */
+            password: string;
+            role: components["schemas"]["UserRole"];
+        };
+        /** AdminUserPage */
+        AdminUserPage: {
+            /** Items */
+            items: components["schemas"]["AdminUser"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
+        /**
+         * AdminUserUpdate
+         * @description Only sent fields change. Changing role re-checks the agent / distributor link.
+         */
+        AdminUserUpdate: {
+            /** Agent Id */
+            agent_id?: number | null;
+            /** Distributor Id */
+            distributor_id?: number | null;
+            /** Full Name */
+            full_name?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
+            /** Note */
+            note?: string | null;
+            role?: components["schemas"]["UserRole"] | null;
+        };
         /** AgentExplanation */
         AgentExplanation: {
             /** Agent Id */
@@ -1498,6 +1886,51 @@ export interface components {
          * @enum {string}
          */
         AnomalyStatus: "open" | "confirmed" | "dismissed";
+        /** AssumptionsDoc */
+        AssumptionsDoc: {
+            /** Markdown */
+            markdown: string;
+            /** Title */
+            title: string;
+        };
+        /** AuditItem */
+        AuditItem: {
+            /** Action */
+            action: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Entity Id */
+            entity_id: string;
+            /** Entity Type */
+            entity_type: string;
+            /** Id */
+            id: number;
+            /** Note */
+            note: string | null;
+            /** Payload */
+            payload: string;
+            /** User Email */
+            user_email: string | null;
+            user_role: components["schemas"]["UserRole"] | null;
+        };
+        /** AuditPage */
+        AuditPage: {
+            /** Actions */
+            actions: string[];
+            /** Entity Types */
+            entity_types: string[];
+            /** Items */
+            items: components["schemas"]["AuditItem"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
         /** BalancePoint */
         BalancePoint: {
             /** Expected */
@@ -1555,6 +1988,13 @@ export interface components {
             items: string[];
             lang: components["schemas"]["Lang"];
         };
+        /** DataCount */
+        DataCount: {
+            /** Rows */
+            rows: number;
+            /** Table */
+            table: string;
+        };
         /** DataInfo */
         DataInfo: {
             /** Data Version */
@@ -1600,9 +2040,89 @@ export interface components {
              */
             start: string;
         };
+        /** DataSummary */
+        DataSummary: {
+            /** Configured Seed */
+            configured_seed: number;
+            /** Counts */
+            counts: components["schemas"]["DataCount"][];
+            /** Data Version */
+            data_version: string | null;
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Labelled Anomalous Agents */
+            labelled_anomalous_agents: number;
+            period: components["schemas"]["DataPeriod"];
+            /** Seed */
+            seed: number | null;
+        };
         /** DemoLoginRequest */
         DemoLoginRequest: {
             role: components["schemas"]["UserRole"];
+        };
+        /** DriftBucket */
+        DriftBucket: {
+            /** Horizon */
+            horizon: string;
+            /** Mae */
+            mae: number | null;
+            /** Ratio */
+            ratio: number | null;
+            /** Reference Mae */
+            reference_mae: number | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "stable" | "watch" | "drift" | "no_data";
+        };
+        /** DriftFloat */
+        DriftFloat: {
+            /** Buckets */
+            buckets: components["schemas"]["DriftBucket"][];
+            /** By Horizon */
+            by_horizon: components["schemas"]["DriftPoint"][];
+            float_type: components["schemas"]["FloatType"];
+            /** Hours Compared */
+            hours_compared: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "stable" | "watch" | "drift" | "no_data";
+        };
+        /** DriftPoint */
+        DriftPoint: {
+            /** Horizon H */
+            horizon_h: number;
+            /** Mae */
+            mae: number;
+        };
+        /** DriftReport */
+        DriftReport: {
+            /** Drift Ratio */
+            drift_ratio: number;
+            /** Floats */
+            floats: components["schemas"]["DriftFloat"][];
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Model Version */
+            model_version: string | null;
+            /** Origin */
+            origin: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "stable" | "watch" | "drift" | "no_data";
+            /** Watch Ratio */
+            watch_ratio: number;
         };
         /**
          * EqualService
@@ -1997,6 +2517,67 @@ export interface components {
              */
             start: string;
         };
+        /** JobIn */
+        JobIn: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "generate_data" | "retrain_forecast" | "retrain_anomaly";
+        };
+        /** JobList */
+        JobList: {
+            /** Items */
+            items: components["schemas"]["JobOut"][];
+            running: components["schemas"]["JobOut"] | null;
+        };
+        /** JobOut */
+        JobOut: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Error */
+            error: string | null;
+            /** Finished At */
+            finished_at: string | null;
+            /** Id */
+            id: number;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "generate_data" | "retrain_forecast" | "retrain_anomaly";
+            /** Progress */
+            progress: number;
+            /** Result */
+            result: components["schemas"]["JobResultItem"][];
+            /** Started By Email */
+            started_by_email: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "queued" | "running" | "succeeded" | "failed";
+            /** Step */
+            step: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * JobResultItem
+         * @description One labelled outcome value (row counts, model version, metric deltas).
+         */
+        JobResultItem: {
+            /** Key */
+            key: string;
+            /** Value */
+            value: string;
+        };
         /**
          * Lang
          * @enum {string}
@@ -2016,6 +2597,49 @@ export interface components {
          * @enum {string}
          */
         LlmIntent: "copilot" | "narrate" | "agent_briefing" | "distributor_briefing" | "anomaly_narrative";
+        /** LlmLogItem */
+        LlmLogItem: {
+            /** Cache Hit */
+            cache_hit: boolean;
+            /** Completion Tokens */
+            completion_tokens: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Error */
+            error: string | null;
+            generated_by: components["schemas"]["GeneratedBy"];
+            guard_result: components["schemas"]["GuardResult"];
+            /** Id */
+            id: number;
+            intent: components["schemas"]["LlmIntent"];
+            lang: components["schemas"]["Lang"];
+            /** Latency Ms */
+            latency_ms: number;
+            /** Model */
+            model: string | null;
+            /** Prompt Tokens */
+            prompt_tokens: number | null;
+            /** Provider */
+            provider: string;
+            /** User Email */
+            user_email: string | null;
+            /** User Id */
+            user_id: string | null;
+        };
+        /** LlmLogPage */
+        LlmLogPage: {
+            /** Items */
+            items: components["schemas"]["LlmLogItem"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
         /** LlmStatus */
         LlmStatus: {
             /** Calls Today */
@@ -2090,6 +2714,56 @@ export interface components {
             template_text: string;
             /** Text */
             text: string;
+        };
+        /** LlmUsage */
+        LlmUsage: {
+            /** Avg Latency Ms */
+            avg_latency_ms: number | null;
+            /** Cache Hit Rate */
+            cache_hit_rate: number | null;
+            /** Calls Today */
+            calls_today: number;
+            /** Cap Used */
+            cap_used: number;
+            /** Daily Cap */
+            daily_cap: number;
+            /** Days */
+            days: components["schemas"]["LlmUsageDay"][];
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Guard Failures */
+            guard_failures: number;
+            /** P95 Latency Ms */
+            p95_latency_ms: number | null;
+            /** Total Calls */
+            total_calls: number;
+        };
+        /** LlmUsageDay */
+        LlmUsageDay: {
+            /** Cache Hits */
+            cache_hits: number;
+            /** Calls */
+            calls: number;
+            /** Completion Tokens */
+            completion_tokens: number;
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Guard Failures */
+            guard_failures: number;
+            /** Live Calls */
+            live_calls: number;
+            /** Prompt Tokens */
+            prompt_tokens: number;
+            /** Replay */
+            replay: number;
+            /** Template */
+            template: number;
         };
         /** LoginRequest */
         LoginRequest: {
@@ -2170,6 +2844,13 @@ export interface components {
             /** Van Trip Saved */
             van_trip_saved: boolean;
         };
+        /** MetricItem */
+        MetricItem: {
+            /** Key */
+            key: string;
+            /** Value */
+            value: number;
+        };
         /** ModelCard */
         ModelCard: {
             /** Advisory Only */
@@ -2210,6 +2891,41 @@ export interface components {
             name: string;
             /** Purpose */
             purpose: string;
+            /**
+             * Trained At
+             * Format: date-time
+             */
+            trained_at: string;
+            /** Version */
+            version: string;
+        };
+        /** ModelRegistry */
+        ModelRegistry: {
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Items */
+            items: components["schemas"]["ModelVersionItem"][];
+        };
+        /** ModelVersionItem */
+        ModelVersionItem: {
+            /** Artifact Sha256 */
+            artifact_sha256: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Id */
+            id: number;
+            /** Is Active */
+            is_active: boolean;
+            /** Metrics */
+            metrics: components["schemas"]["MetricItem"][];
+            /** Model Name */
+            model_name: string;
             /**
              * Trained At
              * Format: date-time
@@ -2276,6 +2992,33 @@ export interface components {
          * @enum {string}
          */
         NotificationType: "risk_change" | "swap_offer" | "swap_decision" | "anomaly" | "system";
+        /** OrgAgent */
+        OrgAgent: {
+            /** Code */
+            code: string;
+            /** Distributor Id */
+            distributor_id: number;
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+        };
+        /** OrgDirectory */
+        OrgDirectory: {
+            /** Agents */
+            agents: components["schemas"]["OrgAgent"][];
+            /** Distributors */
+            distributors: components["schemas"]["OrgDistributor"][];
+        };
+        /** OrgDistributor */
+        OrgDistributor: {
+            /** Code */
+            code: string;
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+        };
         /**
          * PeerFeature
          * @description One feature of the flagged window against the same window of its peer group.
@@ -2545,6 +3288,14 @@ export interface components {
          * @enum {string}
          */
         RiskLevelCode: "green" | "amber" | "red";
+        /** RoleCount */
+        RoleCount: {
+            /** Active */
+            active: number;
+            role: components["schemas"]["UserRole"];
+            /** Total */
+            total: number;
+        };
         /** RuleStep */
         RuleStep: {
             /** Detail */
@@ -2888,9 +3639,54 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    list_audit_api_v1_admin_audit_log_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                action?: string | null;
+                entity_type?: string | null;
+                /** @description e-mail contains */
+                user?: string | null;
+                from?: string | null;
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     export_audit_log_api_v1_admin_audit_log_export_csv_get: {
         parameters: {
-            query?: never;
+            query?: {
+                action?: string | null;
+                entity_type?: string | null;
+                /** @description e-mail contains */
+                user?: string | null;
+                from?: string | null;
+                to?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2904,6 +3700,389 @@ export interface operations {
                 };
                 content: {
                     "text/csv": string;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_data_api_v1_admin_data_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataSummary"];
+                };
+            };
+        };
+    };
+    get_assumptions_api_v1_admin_data_assumptions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssumptionsDoc"];
+                };
+            };
+        };
+    };
+    get_drift_api_v1_admin_drift_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DriftReport"];
+                };
+            };
+        };
+    };
+    list_jobs_api_v1_admin_jobs_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobList"];
+                };
+            };
+        };
+    };
+    start_job_api_v1_admin_jobs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JobIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_job_api_v1_admin_jobs__job_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    llm_logs_api_v1_admin_llm_logs_get: {
+        parameters: {
+            query?: {
+                intent?: components["schemas"]["LlmIntent"] | null;
+                generated_by?: components["schemas"]["GeneratedBy"] | null;
+                guard_result?: components["schemas"]["GuardResult"] | null;
+                cache_hit?: boolean | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LlmLogPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    llm_usage_api_v1_admin_llm_usage_get: {
+        parameters: {
+            query?: {
+                days?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LlmUsage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_models_api_v1_admin_models_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelRegistry"];
+                };
+            };
+        };
+    };
+    get_org_api_v1_admin_org_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrgDirectory"];
+                };
+            };
+        };
+    };
+    get_overview_api_v1_admin_overview_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminOverview"];
+                };
+            };
+        };
+    };
+    list_users_api_v1_admin_users_get: {
+        parameters: {
+            query?: {
+                role?: components["schemas"]["UserRole"] | null;
+                status?: ("active" | "disabled") | null;
+                q?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUserPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_user_api_v1_admin_users_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminUserCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUser"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_user_api_v1_admin_users__user_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminUserUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUser"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -52,3 +52,14 @@ export function useLoopActive(ref: RefObject<Element | null>): boolean {
   const onScreen = useOnScreen(ref);
   return !reduced && visible && onScreen;
 }
+
+/** Mirrors the low-end flag and tab visibility onto <html> so CSS (blur, loops) and portals follow them. */
+export function useDocumentFlags(): void {
+  const visible = usePageVisible();
+  useEffect(() => {
+    document.documentElement.dataset.lowEnd = IS_LOW_END ? "true" : "false";
+  }, []);
+  useEffect(() => {
+    document.documentElement.dataset.pageHidden = visible ? "false" : "true";
+  }, [visible]);
+}

@@ -1,10 +1,12 @@
 import type { Theme } from "../features/auth/types";
+import { EASE, MS } from "../styles/motion";
 import { usePrefsStore } from "./prefs";
 
 export type ResolvedTheme = "light" | "dark";
 
 const THEME_COLOR: Record<ResolvedTheme, string> = { light: "#F7F3EA", dark: "#0A0F1F" };
-const REVEAL_MS = 600;
+const REVEAL_MS = MS.reveal;
+const REVEAL_EASING = `cubic-bezier(${EASE.join(",")})`;
 
 function systemDark(): boolean {
   return typeof window.matchMedia === "function" && window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -60,7 +62,7 @@ export function switchTheme(next: Theme, origin: { x: number; y: number } | null
           `circle(${radius}px at ${origin.x}px ${origin.y}px)`,
         ],
       },
-      { duration: REVEAL_MS, easing: "cubic-bezier(.2,.8,.2,1)", pseudoElement: "::view-transition-new(root)" },
+      { duration: REVEAL_MS, easing: REVEAL_EASING, pseudoElement: "::view-transition-new(root)" },
     );
   });
 }

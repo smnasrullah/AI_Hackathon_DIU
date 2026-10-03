@@ -1,10 +1,12 @@
+import { motion } from "motion/react";
 import type { ReactNode } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 
 import { PulseLine } from "../../components/signature/PulseLine";
 import { ThemeToggle } from "../../components/ui/ThemeToggle";
 import { Notices } from "../../features/shared/Notices";
 import { cn } from "../../lib/cn";
+import { pageVariants } from "../../styles/motion";
 import { LanguageSwitch } from "../shell/LanguageSwitch";
 import { RouteProgress } from "../shell/RouteProgress";
 
@@ -24,6 +26,8 @@ interface PublicLayoutProps {
 }
 
 export function PublicLayout({ width = "narrow", children }: PublicLayoutProps) {
+  const { pathname } = useLocation();
+  const content = children ?? <Outlet />;
   return (
     <div className="flex min-h-screen flex-col bg-bg text-fg">
       <header className="relative flex items-center justify-between gap-3 px-4 py-4 md:px-6">
@@ -39,7 +43,15 @@ export function PublicLayout({ width = "narrow", children }: PublicLayoutProps) 
         </div>
         <RouteProgress />
       </header>
-      <main className={cn("flex-1", MAIN[width])}>{children ?? <Outlet />}</main>
+      <main className={cn("flex-1", MAIN[width])}>
+        {width === "full" ? (
+          content
+        ) : (
+          <motion.div key={pathname} variants={pageVariants} initial="initial" animate="enter">
+            {content}
+          </motion.div>
+        )}
+      </main>
       <Notices />
     </div>
   );

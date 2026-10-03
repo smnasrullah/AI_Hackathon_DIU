@@ -4,7 +4,7 @@ from fastapi import APIRouter, Cookie, HTTPException, Request, Response, status
 
 from app.core.config import Settings, get_settings
 from app.core.deps import CurrentUser, SessionDep
-from app.core.rate_limit import RateLimiter
+from app.core.rate_limit import RateLimiter, client_ip
 from app.schemas.auth import (
     ChangePasswordRequest,
     ChangePasswordResponse,
@@ -25,15 +25,7 @@ REFRESH_COOKIE = "ap_refresh"
 # Scoped so the browser only sends the refresh token to the auth endpoints.
 REFRESH_COOKIE_PATH = "/api/v1/auth"
 
-RefreshCookie = Annotated[str | None, Cookie(alias=REFRESH_COOKIE)]
-
-
-def client_ip(request: Request) -> str:
-    # nginx overwrites X-Real-IP with the peer address, so a client cannot choose it.
-    forwarded = request.headers.get("x-real-ip", "").strip()
-    if forwarded:
-        return forwarded[:64]
-    return request.client.host if request.client else "unknown"
+RefreshCookie = Annotated[str | None, Cookie(alias=REFRESH_COOKIE, max_length=512)]
 
 
 def _set_refresh_cookie(response: Response, tokens: IssuedTokens, settings: Settings) -> None:

@@ -62,7 +62,7 @@ export function OfflineBanner() {
               <button
                 type="button"
                 onClick={() => void client.refetchQueries({ type: "active" })}
-                className="ml-2 inline-flex min-h-8 items-center gap-1 rounded-full border border-ink-950/30 px-3 text-xs"
+                className="ap-press ml-2 inline-flex min-h-8 items-center gap-1 rounded-full border border-ink-950/30 px-3 text-xs"
               >
                 <RotateCw aria-hidden className="size-3.5" />
                 {t("common.retry")}

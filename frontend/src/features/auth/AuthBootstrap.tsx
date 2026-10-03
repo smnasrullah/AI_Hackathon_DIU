@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from "react";
 
+import { Skeleton } from "../../components/ui/Skeleton";
 import { refreshAccessToken } from "../../lib/api";
 import { useAuthStore } from "./authStore";
 
@@ -15,8 +16,8 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
     return (
       <div role="status" className="grid min-h-screen place-items-center bg-bg text-fg">
         <div className="w-64 space-y-3" aria-hidden>
-          <div className="h-3 w-24 animate-pulse rounded-full bg-surface-2 motion-reduce:animate-none" />
-          <div className="h-8 animate-pulse rounded-xl bg-surface-2 motion-reduce:animate-none" />
+          <Skeleton className="h-3 w-24 rounded-full" />
+          <Skeleton className="h-8" />
         </div>
         <span className="sr-only">Checking your session</span>
       </div>

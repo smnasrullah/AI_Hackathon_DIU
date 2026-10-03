@@ -153,7 +153,7 @@ export function FanChart({ floatType, series, capacity, asOf, stockout, events, 
             className={cn("pointer-events-none absolute -top-1 flex", stockout.hour / hours > 0.7 ? "-translate-x-full" : "")}
             style={{ left: pct(stockout.hour) }}
           >
-            <span data-testid="stockout-flag" className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-act px-2 py-0.5 text-[11px] font-semibold text-white shadow-soft">
+            <span data-testid="stockout-flag" className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-act-solid px-2 py-0.5 text-[11px] font-semibold text-white shadow-soft">
               <Flag className="size-3" />
               <span className="num">
                 {formatClock(new Date(stockout.at), lang, digits)} · {formatPercent(stockout.confidence, digits)}

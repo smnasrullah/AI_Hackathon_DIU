@@ -11,7 +11,7 @@ import "@fontsource/hind-siliguri/latin-600.css";
 import "@fontsource/jetbrains-mono/latin-400.css";
 import "@fontsource/jetbrains-mono/latin-500.css";
 import "./index.css";
-import "./i18n";
+import { initI18n } from "./i18n";
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
@@ -26,8 +26,11 @@ installPrefsSync();
 const root = document.getElementById("root");
 if (!root) throw new Error("#root element missing");
 
-createRoot(root).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
+// The active language's dictionary is its own chunk; render once it is in.
+void initI18n().finally(() =>
+  createRoot(root).render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  ),
 );

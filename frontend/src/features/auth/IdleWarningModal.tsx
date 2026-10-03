@@ -45,14 +45,14 @@ export function IdleWarningModal({ secondsLeft, onStay, onLogout }: Props) {
             ref={stayRef}
             type="button"
             onClick={onStay}
-            className="min-h-11 flex-1 rounded-full bg-brand px-4 font-semibold text-[var(--ink-950)]"
+            className="ap-press min-h-11 flex-1 rounded-full bg-brand px-4 font-semibold text-[var(--ink-950)]"
           >
             Stay signed in
           </button>
           <button
             type="button"
             onClick={onLogout}
-            className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-line px-4 font-semibold"
+            className="ap-press flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-line px-4 font-semibold"
           >
             <LogOut className="size-4" aria-hidden />
             Log out

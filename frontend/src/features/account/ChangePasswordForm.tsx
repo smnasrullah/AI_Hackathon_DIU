@@ -110,7 +110,7 @@ export function ChangePasswordForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="min-h-11 rounded-full bg-brand px-5 font-semibold text-[var(--ink-950)] disabled:opacity-60"
+        className="ap-press min-h-11 rounded-full bg-brand px-5 font-semibold text-[var(--ink-950)] disabled:opacity-60"
       >
         {isSubmitting ? "Saving…" : "Change password"}
       </button>

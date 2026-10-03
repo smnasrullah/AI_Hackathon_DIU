@@ -42,8 +42,11 @@ class _Ctx:
     question: str | None = None
 
     def verify(self, out: LlmOutput) -> None:
-        guard.check_numbers(out.text, self.allowed)
+        # Leaks and injected behaviour first: they are reported as injection, not numbers_fail.
         guard.check_agents(out.text, self.codes)
+        guard.check_actions(out.text)
+        guard.check_echo(out.text, prompts.system(self.lang))
+        guard.check_numbers(out.text, self.allowed)
 
     def record(self, provider: str, model: str | None, generated_by: GeneratedBy,
                guard_result: GuardResult = GuardResult.passed, error: str | None = None

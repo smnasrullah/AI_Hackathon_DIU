@@ -6,7 +6,7 @@ import { RiskPill } from "../../../components/ui/RiskPill";
 import { formatNumber, formatPercent } from "../../../lib/format";
 import { useReducedMotionPref } from "../../../lib/motionPrefs";
 import { useLocale } from "../../../lib/prefs";
-import { DUR, tween } from "../../../styles/motion";
+import { DUR, STAGGER, tween } from "../../../styles/motion";
 import { cn } from "../../../lib/cn";
 
 const BAR: Record<RiskLevel, string> = { green: "bg-safe", amber: "bg-watch", red: "bg-act" };
@@ -37,7 +37,7 @@ export function HorizonLadder({ horizons }: { horizons: HorizonRisk[] }) {
                     className={cn("absolute inset-y-0 left-0 w-full origin-left rounded-full", BAR[h.level])}
                     initial={{ scaleX: reduced ? Math.max(0.02, h.probability) : 0 }}
                     animate={{ scaleX: Math.max(0.02, h.probability) }}
-                    transition={reduced ? { duration: 0 } : tween(DUR.reveal, i * 0.08)}
+                    transition={reduced ? { duration: 0 } : tween(DUR.reveal, i * STAGGER)}
                   />
                 </span>
                 <span className="num w-auto shrink-0 text-xs text-muted">{t("stockout.probability", { value: chance })}</span>

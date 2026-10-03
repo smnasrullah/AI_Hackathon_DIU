@@ -1,10 +1,15 @@
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
-import { Fragment, useMemo, useState, type KeyboardEvent, type ReactNode } from "react";
+import { motion } from "motion/react";
+import { Fragment, useId, useMemo, useState, type KeyboardEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "../../lib/cn";
+import { fadeOnly, listStagger } from "../../styles/motion";
 import { SkeletonRows } from "./Skeleton";
 import { EmptyState, ErrorState } from "./StatePanel";
+
+/** Only the first rows stagger in; a long page would otherwise take seconds to appear. */
+const STAGGER_ROWS = 12;
 
 export interface Column<T> {
   key: string;
@@ -72,6 +77,7 @@ export function DataTable<T>({
   maxHeight = 480,
 }: DataTableProps<T>) {
   const { t } = useTranslation();
+  const detailId = useId();
   const [localSort, setLocalSort] = useState<SortState | null>(null);
   const sort = sortProp === undefined ? localSort : sortProp;
 
@@ -135,7 +141,7 @@ export function DataTable<T>({
             })}
           </tr>
         </thead>
-        <tbody>
+        <motion.tbody key={loading || !sorted ? "loading" : "rows"} variants={listStagger} initial="hidden" animate="show">
           {loading || !sorted ? (
             <tr>
               <td colSpan={columns.length} className="px-4">
@@ -143,15 +149,18 @@ export function DataTable<T>({
               </td>
             </tr>
           ) : (
-            sorted.map((row) => {
+            sorted.map((row, index) => {
               const id = getRowId(row);
               const open = renderExpanded !== undefined && expandedId === id;
               return (
                 <Fragment key={id}>
-                  <tr
+                  <motion.tr
                     data-row
+                    variants={index < STAGGER_ROWS ? fadeOnly : undefined}
                     tabIndex={onRowClick ? 0 : undefined}
-                    aria-expanded={renderExpanded ? open : undefined}
+                    // aria-expanded is not allowed on a plain table row; the open detail row is linked instead.
+                    data-expanded={renderExpanded ? open : undefined}
+                    aria-controls={open ? `${detailId}-${id}` : undefined}
                     onClick={onRowClick ? () => onRowClick(row) : undefined}
                     onKeyDown={onRowClick ? (e) => onRowKey(e, () => onRowClick(row)) : undefined}
                     className={cn(
@@ -168,9 +177,9 @@ export function DataTable<T>({
                         {col.cell(row)}
                       </td>
                     ))}
-                  </tr>
+                  </motion.tr>
                   {open ? (
-                    <tr>
+                    <tr id={`${detailId}-${id}`}>
                       <td colSpan={columns.length} className="border-b border-line bg-surface-2/60 px-4 py-4">
                         {renderExpanded(row)}
                       </td>
@@ -180,7 +189,7 @@ export function DataTable<T>({
               );
             })
           )}
-        </tbody>
+        </motion.tbody>
       </table>
     </div>
   );

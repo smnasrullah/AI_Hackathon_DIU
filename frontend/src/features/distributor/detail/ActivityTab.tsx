@@ -6,6 +6,7 @@ import { useAnomalies } from "../../../api/hooks/anomalies";
 import { useRequests } from "../../../api/hooks/requests";
 import { useSwaps } from "../../../api/hooks/swaps";
 import { SkeletonRows } from "../../../components/ui/Skeleton";
+import { StaggerItem, StaggerList } from "../../../components/ui/Stagger";
 import { EmptyState, ErrorState } from "../../../components/ui/StatePanel";
 import { TimeText } from "../../../components/ui/TimeText";
 import { formatMoney } from "../../../lib/format";
@@ -24,7 +25,7 @@ function Entry({ entry }: { entry: ActivityEntry }) {
     partner: entry.partner ?? "",
   });
   return (
-    <li className="relative flex gap-3 pb-4 pl-1" data-testid="activity-entry" data-kind={entry.kind} data-event={entry.event}>
+    <StaggerItem className="relative flex gap-3 pb-4 pl-1" data-testid="activity-entry" data-kind={entry.kind} data-event={entry.event}>
       <span className="relative z-10 grid size-9 shrink-0 place-items-center rounded-full border border-line bg-surface">
         <Icon aria-hidden className="size-4 text-muted" />
       </span>
@@ -38,7 +39,7 @@ function Entry({ entry }: { entry: ActivityEntry }) {
         </p>
         {entry.note ? <p className="mt-1 border-l-2 border-line-strong pl-2 text-small text-muted">{entry.note}</p> : null}
       </div>
-    </li>
+    </StaggerItem>
   );
 }
 
@@ -67,10 +68,10 @@ export function ActivityTab({ agentId }: { agentId: number }) {
     );
   }
   return (
-    <ol className="relative before:absolute before:bottom-4 before:left-[1.35rem] before:top-2 before:w-px before:bg-line" aria-label={t("detail.tabs.activity")}>
+    <StaggerList className="relative before:absolute before:bottom-4 before:left-[1.35rem] before:top-2 before:w-px before:bg-line" aria-label={t("detail.tabs.activity")}>
       {entries.map((e) => (
         <Entry key={e.id} entry={e} />
       ))}
-    </ol>
+    </StaggerList>
   );
 }

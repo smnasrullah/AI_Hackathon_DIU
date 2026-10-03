@@ -19,9 +19,12 @@ export function MoneyText({ value, digits, animate = false, className, ...opts }
   const shown = useCountUp(value, animate);
   const text = formatMoney(animate ? Math.round(shown) : value, d, { ...opts, lang: locale.lang });
   const full = formatMoney(value, d, { ...opts, lang: locale.lang });
+  if (!animate) return <span className={cn("num whitespace-nowrap", className)}>{text}</span>;
+  // Screen readers get the final amount once; the ticking digits are visual only.
   return (
-    <span className={cn("num whitespace-nowrap", className)} aria-label={animate ? full : undefined}>
-      {text}
+    <span className={cn("num whitespace-nowrap", className)}>
+      <span className="sr-only">{full}</span>
+      <span aria-hidden>{text}</span>
     </span>
   );
 }

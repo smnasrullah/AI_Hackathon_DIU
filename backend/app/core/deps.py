@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.db import get_session
+from app.core.params import IdPath
 from app.core.security import TokenError, decode_access_token
 from app.models import Agent, User
 from app.models.enums import UserRole
@@ -79,7 +80,7 @@ def scoped_agents_query(user: User) -> Select[tuple[Agent]]:
     return query
 
 
-def get_scoped_agent(agent_id: int, user: CurrentUser, session: SessionDep) -> Agent:
+def get_scoped_agent(agent_id: IdPath, user: CurrentUser, session: SessionDep) -> Agent:
     """Path `{agent_id}` resolved within the caller's scope.
 
     Out-of-scope and unknown ids both give 403 for non-admins, so ids cannot be probed.

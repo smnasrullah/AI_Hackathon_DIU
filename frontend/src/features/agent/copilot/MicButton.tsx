@@ -29,7 +29,7 @@ export function MicButton({ listening, problem, disabled = false, onStart, onSto
         listening && "border-act bg-act/12 text-act-fg",
       )}
     >
-      {listening ? <span aria-hidden className="ap-loop absolute inset-0 animate-ping rounded-full border border-act opacity-40" /> : null}
+      {listening ? <span aria-hidden className="ap-loop ap-ping absolute inset-0 rounded-full border border-act opacity-40" /> : null}
       <Icon aria-hidden className="size-5" />
     </button>
   );

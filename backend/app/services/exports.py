@@ -1,15 +1,14 @@
 """Row builders for the role-scoped CSV exports (risk list, swap queue, audit log)."""
 
-import json
 from collections.abc import Sequence
 
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.csv_export import Cell
-from app.models import AuditLog, User
 from app.schemas.risk import AgentRiskPage
 from app.schemas.swap import SwapItem
+from app.services import admin_audit
+from app.services.admin_audit import AuditFilter
 from app.services.forecast import _utc
 
 Rows = list[Sequence[Cell]]
@@ -39,11 +38,8 @@ def swap_rows(items: list[SwapItem]) -> Rows:
              s.generated_at) for s in items]
 
 
-def audit_rows(session: Session) -> Rows:
-    found = session.execute(select(AuditLog, User.email, User.role)
-                            .outerjoin(User, User.id == AuditLog.user_id)
-                            .order_by(AuditLog.created_at.desc(), AuditLog.id.desc())).tuples()
+def audit_rows(session: Session, f: AuditFilter | None = None) -> Rows:
+    found = session.execute(admin_audit.query(f or AuditFilter())).tuples()
     return [(a.id, _utc(a.created_at), email, role.value if role else None, a.action,
-             a.entity_type, a.entity_id, a.note,
-             json.dumps(a.payload, sort_keys=True, ensure_ascii=False))
+             a.entity_type, a.entity_id, a.note, admin_audit.payload_text(a.payload))
             for a, email, role in found]

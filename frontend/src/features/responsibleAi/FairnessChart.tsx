@@ -23,7 +23,7 @@ function BarRow({ label, sub, share, value, overall, index, seen }: BarRowProps)
   return (
     <li className="grid grid-cols-[7rem_minmax(0,1fr)_3.5rem] items-center gap-2 text-xs">
       <span className="min-w-0">
-        <span className="block truncate font-semibold">{label}</span>
+        <span className="line-clamp-2 break-words font-semibold" title={label}>{label}</span>
         <span className="num block text-muted">{sub}</span>
       </span>
       <span className="relative h-3 rounded-full bg-surface-2">

@@ -58,7 +58,7 @@ export function TimeScrubber({ hour, onChange, playing, onPlayingChange, asOf, m
         onClick={togglePlay}
         aria-pressed={playing}
         aria-label={t(playing ? "scrubber.pause" : "scrubber.play")}
-        className="grid size-11 shrink-0 place-items-center rounded-full bg-pulse text-on-pulse transition-transform active:scale-[.97]"
+        className="grid size-11 shrink-0 place-items-center rounded-full bg-pulse text-on-pulse ap-press"
       >
         <PlayIcon aria-hidden className="size-5" />
       </button>

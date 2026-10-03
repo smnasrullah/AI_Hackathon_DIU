@@ -74,4 +74,9 @@ export const ROUTES: E2ERoute[] = [
   { path: "/distributor/agents", as: "distributor" },
   { path: "/responsible-ai", as: "admin" },
   { path: "/responsible-ai", as: "agent" },
+
+  // Admin console (/admin, /admin/users, /admin/models, /admin/llm, /admin/audit are listed above)
+  { path: "/admin/events", as: "admin" },
+  { path: "/admin/data", as: "admin" },
+  { path: "/admin/audit-log", as: "admin" },
 ];

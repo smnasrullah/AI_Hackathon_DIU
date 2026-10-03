@@ -4,6 +4,7 @@ from typing import Literal
 from pydantic import BaseModel
 
 from app.core.config import LlmProvider
+from app.core.params import DbId
 from app.models.enums import FloatType, GeneratedBy, GuardResult, Lang, LlmIntent
 from app.schemas.system import LlmMode
 
@@ -34,7 +35,7 @@ class LlmText(BaseModel):
 
 
 class NarrateIn(BaseModel):
-    agent_id: int
+    agent_id: DbId
     target: FloatType = FloatType.cash
     lang: Lang | None = None  # default: user's language
 

@@ -81,7 +81,7 @@ export function LandingHero() {
       <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[1.05fr_1fr] lg:gap-14">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">{t("landing.eyebrow")}</p>
-          <div className="mt-3 min-h-[7.5rem] md:min-h-[10.5rem] lg:min-h-[14rem]">
+          <div className="mt-3 min-h-[7.5rem] md:min-h-[10.5rem] lg:min-h-[14rem] [:lang(bn)_&]:min-h-[10rem] lg:[:lang(bn)_&]:min-h-[18rem]">
             <AnimatePresence mode="wait" initial={false}>
               <motion.h1
                 key={dry ? "dry" : "ahead"}

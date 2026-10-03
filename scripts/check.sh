@@ -123,7 +123,39 @@ images() {
   [ "$failed" -eq 0 ] && printf '%s' "$sig" >"$stamp"
 }
 
+# No secret in git: no tracked .env, no known key shapes, and none of this machine's .env secret
+# values in any tracked file. Prints file names only, never a value.
+SECRET_SHAPES='sk-ant-[A-Za-z0-9_-]{20,}|sk-(proj-)?[A-Za-z0-9]{32,}|AKIA[0-9A-Z]{16}|'
+SECRET_SHAPES="$SECRET_SHAPES"'gh[pousr]_[A-Za-z0-9]{36}|xox[abprs]-[A-Za-z0-9-]{10,}|'
+SECRET_SHAPES="$SECRET_SHAPES"'-----BEGIN [A-Z ]*PRIVATE KEY-----'
+SECRET_KEYS='^[[:space:]]*(JWT_SECRET|LLM_API_KEY|POSTGRES_PASSWORD|DEMO_[A-Z_]+_PASSWORD)='
+secrets() {
+  start=$(date +%s)
+  if ! command -v git >/dev/null 2>&1; then echo "SKIP  secrets      git not found"; return; fi
+  bad=$(
+    git ls-files | grep -E '(^|/)\.env(\.|$)' | grep -v '\.example$' | sed 's/^/tracked env file: /'
+    git grep -I -l -E -e "$SECRET_SHAPES" 2>/dev/null | sed 's/^/key-shaped string: /'
+    if [ -f .env ]; then
+      grep -E "$SECRET_KEYS" .env | while IFS= read -r line; do
+        key=${line%%=*}; key=$(echo "$key" | tr -d '[:space:]')
+        value=$(printf '%s' "${line#*=}" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')
+        published=$(grep -E "^[[:space:]]*$key=" .env.example 2>/dev/null | head -n 1 | cut -d= -f2-)
+        # Short values and the published .env.example defaults (demo passwords) are not secrets.
+        [ "${#value}" -lt 16 ] && continue
+        [ "$value" = "$published" ] && continue
+        git grep -I -l -F -e "$value" 2>/dev/null | sed "s/^/value of $key: /"
+      done
+    fi
+  )
+  t=$(( $(date +%s) - start ))
+  if [ -z "$bad" ]; then printf 'PASS  %-12s %5ss\n' secrets "$t"; return; fi
+  printf 'FAIL  %-12s %5ss  (exit 1)\n' secrets "$t"
+  printf '%s\n' "$bad" | head -n 30 | sed 's/^/      /'
+  failed=$((failed + 1))
+}
+
 remove_stale
+{ [ "$BE" -eq 1 ] || [ "$E2E" -eq 1 ]; } && secrets
 if [ "$BE" -eq 1 ] || [ "$SLOW" -eq 1 ]; then
   images tools backend-tools backend/Dockerfile backend/requirements*.txt
 fi

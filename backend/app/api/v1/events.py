@@ -4,6 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 
 from app.core.deps import CurrentUser, SessionDep, require_roles
+from app.core.params import IdPath, PageQuery
 from app.models import User
 from app.models.enums import EventType, UserRole
 from app.schemas.event import EventIn, EventItem, EventPage
@@ -29,7 +30,7 @@ def list_events(
     end: Annotated[datetime | None, Query(alias="to")] = None,
     kind: Annotated[EventType | None, Query(alias="type")] = None,
     district: Annotated[str | None, Query(max_length=80)] = None,
-    page: Annotated[int, Query(ge=1)] = 1,
+    page: PageQuery = 1,
     page_size: Annotated[int, Query(ge=1, le=200)] = 50,
 ) -> EventPage:
     """Events overlapping [from, to), by start time; `district` keeps nationwide events too."""
@@ -48,7 +49,7 @@ def create_event(body: EventIn, user: Admin, session: SessionDep) -> EventItem:
 
 
 @router.put("/{event_id}", response_model=EventItem)
-def update_event(event_id: int, body: EventIn, user: Admin, session: SessionDep) -> EventItem:
+def update_event(event_id: IdPath, body: EventIn, user: Admin, session: SessionDep) -> EventItem:
     """Replace an event (audit_log keeps before/after)."""
     try:
         item = events.update(session, user, event_id, body)
@@ -59,7 +60,7 @@ def update_event(event_id: int, body: EventIn, user: Admin, session: SessionDep)
 
 
 @router.delete("/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_event(event_id: int, user: Admin, session: SessionDep) -> Response:
+def delete_event(event_id: IdPath, user: Admin, session: SessionDep) -> Response:
     """Delete an event (audit_log keeps the deleted row)."""
     try:
         events.delete(session, user, event_id)

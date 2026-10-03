@@ -120,10 +120,10 @@
     "investigation": "Investigation",
     "impact": "Impact",
     "briefing": "Daily briefing",
-    "systemStatus": "System status",
+    "systemStatus": "System overview",
     "users": "Users",
     "models": "Models",
-    "llmLog": "LLM log",
+    "llmLog": "LLM layer",
     "auditLog": "Audit log",
     "settings": "Settings",
     "profile": "Profile",
@@ -139,7 +139,9 @@
     "agentRebalance": "Rebalance",
     "agentWhatIf": "What if",
     "agentExplain": "Why?",
-    "agents": "Agents"
+    "agents": "Agents",
+    "adminEvents": "Events",
+    "syntheticData": "Synthetic data"
   },
   "nav": {
     "home": "Home",
@@ -1129,6 +1131,411 @@
       "size": "Size",
       "sizeValue": "{{agents}} agents, {{distributors}} distributors",
       "oversight": "Human oversight"
+    }
+  },
+  "admin": {
+    "common": {
+      "all": "All",
+      "refresh": "Refresh",
+      "clearFilters": "Clear filters",
+      "exportCsv": "Export CSV",
+      "exported": "CSV downloaded",
+      "exportFailed": "Could not export the CSV. Try again.",
+      "required": "Required",
+      "save": "Save",
+      "saving": "Saving",
+      "edit": "Edit",
+      "delete": "Delete",
+      "actions": "Actions",
+      "never": "Never",
+      "none": "None",
+      "details": "Details",
+      "hideDetails": "Hide details"
+    },
+    "overview": {
+      "title": "System overview",
+      "lead": "Health of the stack, the synthetic data, the models and the LLM layer at a glance.",
+      "health": "Health",
+      "ready": "Ready",
+      "notReady": "Not ready",
+      "db": "Database",
+      "migrations": "Migrations",
+      "migrationsValue": "{{current}} of {{head}}",
+      "artifacts": "Model artifacts",
+      "bootstrap": "Bootstrap",
+      "llmMode": "LLM mode",
+      "demoMode": "Demo sign-in",
+      "dataVersion": "Data version {{version}} · seed {{seed}}",
+      "ok": "OK",
+      "problem": "Problem",
+      "on": "On",
+      "off": "Off",
+      "tile": {
+        "users": "Active users",
+        "agents": "Agents",
+        "anomalies": "Open anomaly flags",
+        "swaps": "Pending swaps",
+        "requests": "Open cash requests",
+        "llm": "Live LLM calls today"
+      },
+      "llmCap": "of {{cap}} daily cap",
+      "roleCount": "{{active}} active of {{total}}",
+      "models": "Active models",
+      "trainedAt": "Trained",
+      "noModels": "No model is registered yet.",
+      "latestJob": "Latest job",
+      "noJob": "No admin job has run yet.",
+      "openData": "Open synthetic data",
+      "recent": "Recent audit entries",
+      "openAudit": "Open the audit log",
+      "openModels": "Open models",
+      "noAudit": "No decisions logged yet."
+    },
+    "events": {
+      "title": "Events",
+      "lead": "Salary days, Eid, hat-bazar, weather and holidays the forecast knows about. Changes are audited and reach forecasts at the next precompute.",
+      "add": "Add event",
+      "filterType": "Event type",
+      "nationwide": "Nationwide",
+      "type": {
+        "salary": "Salary",
+        "eid": "Eid",
+        "hat_bazar": "Hat-bazar",
+        "weather": "Weather",
+        "holiday": "Holiday"
+      },
+      "col": {
+        "type": "Type",
+        "name": "Name",
+        "window": "When (Dhaka)",
+        "district": "District",
+        "intensity": "Intensity"
+      },
+      "intensityValue": "×{{value}}",
+      "form": {
+        "titleNew": "New event",
+        "titleEdit": "Edit event",
+        "type": "Type",
+        "nameEn": "Name (English)",
+        "nameBn": "Name (Bangla)",
+        "startsAt": "Starts (Dhaka time)",
+        "endsAt": "Ends (Dhaka time)",
+        "district": "District",
+        "districtHint": "Leave empty for a nationwide event.",
+        "intensity": "Intensity",
+        "intensityHint": "Peak demand multiplier: 1.8 means ×1.8, 0.7 means 30% less.",
+        "create": "Add event",
+        "save": "Save changes"
+      },
+      "error": {
+        "endAfterStart": "The end must be after the start.",
+        "maxSpan": "An event may span at most 60 days.",
+        "intensity": "Use a value above 0 and at most 10.",
+        "unknownDistrict": "No agent works in that district.",
+        "save": "Could not save the event. Try again."
+      },
+      "created": "Event added",
+      "saved": "Event saved",
+      "deleted": "Event deleted",
+      "deleteFailed": "Could not delete the event. Try again.",
+      "deleteTitle": "Delete this event?",
+      "deleteBody": "“{{name}}” leaves the calendar. The audit log keeps a copy.",
+      "empty": {
+        "title": "No events in this view",
+        "body": "Add an event or show every type."
+      }
+    },
+    "data": {
+      "title": "Synthetic data",
+      "lead": "Every number in this app comes from generated data. Regenerate it from the fixed seed and read the assumptions behind it.",
+      "seed": "Seed",
+      "seedMismatch": "Configured seed is {{seed}}",
+      "version": "Data version",
+      "history": "History",
+      "holdout": "Held out from",
+      "simNow": "Simulated now",
+      "rows": "Rows per table",
+      "labelled": "Agents with labelled anomalies",
+      "table": {
+        "distributors": "Distributors",
+        "agents": "Agents",
+        "users": "Users",
+        "float_snapshots": "Float snapshots",
+        "transactions": "Transactions",
+        "events": "Events",
+        "weather_daily": "Daily weather",
+        "transactions_holdout": "Held-out transactions"
+      },
+      "generate": {
+        "title": "Regenerate data",
+        "body": "Rebuilds the dataset from seed {{seed}} and refreshes every cache. The same seed gives the same rows, so this also checks reproducibility.",
+        "warn": "Event edits made here are replaced by the generated calendar.",
+        "button": "Regenerate data",
+        "confirmTitle": "Regenerate the synthetic dataset?",
+        "confirmBody": "This runs in the background and can take a few minutes. Event edits are replaced by the generated calendar.",
+        "confirm": "Regenerate"
+      },
+      "assumptions": {
+        "title": "Assumptions",
+        "source": "docs/SYNTHETIC_ASSUMPTIONS.md",
+        "missing": "The assumptions document is not in this build."
+      }
+    },
+    "jobs": {
+      "kind": {
+        "generate_data": "Data generation",
+        "retrain_forecast": "Forecast retrain",
+        "retrain_anomaly": "Anomaly retrain"
+      },
+      "status": {
+        "queued": "Queued",
+        "running": "Running",
+        "succeeded": "Done",
+        "failed": "Failed"
+      },
+      "step": {
+        "queued": "Waiting to start",
+        "start": "Starting",
+        "generate": "Generating data",
+        "precompute": "Refreshing caches",
+        "load": "Loading data",
+        "fit": "Training",
+        "evaluate": "Scoring the holdout",
+        "register": "Recording the version",
+        "done": "Finished"
+      },
+      "progress": "Progress",
+      "startedBy": "Started by {{email}}",
+      "busy": "Another job is running. Wait for it to finish.",
+      "started": "Job started",
+      "succeeded": "{{kind}} finished",
+      "failed": "{{kind}} failed",
+      "recent": "Recent jobs",
+      "none": "No jobs yet.",
+      "interrupted": "Interrupted by a restart",
+      "startFailed": "Could not start the job. Try again."
+    },
+    "models": {
+      "title": "Models",
+      "lead": "Every registered version with the metrics stored at training. The active version serves predictions; retrains are recorded as candidates for review.",
+      "active": "Active",
+      "candidate": "Candidate",
+      "trained": "Trained",
+      "sha": "Artifact sha256",
+      "metrics": "All stored metrics",
+      "name": {
+        "demand_forecast": "Demand forecast · LightGBM quantile",
+        "agent_anomaly": "Agent risk · Isolation Forest"
+      },
+      "metric": {
+        "skillCashOut": "Skill vs last week · cash-out",
+        "skillCashIn": "Skill vs last week · cash-in",
+        "coverageCashOut": "q10–q90 coverage · cash-out",
+        "maeCashOut": "MAE · cash-out (BDT)",
+        "precision": "Holdout precision",
+        "recall": "Holdout recall"
+      },
+      "retrain": {
+        "title": "Retrain",
+        "body": "Trains from the fixed seed into a candidate folder and records an inactive version with its holdout metrics. Serving keeps the active model; the same seed and data reproduce the same version.",
+        "forecast": "Retrain forecast",
+        "anomaly": "Retrain anomaly model",
+        "confirmTitle": "Start retraining?",
+        "forecastBody": "The forecast retrain reads the full history and can take several minutes.",
+        "anomalyBody": "The anomaly retrain takes under a minute.",
+        "confirm": "Start"
+      },
+      "empty": {
+        "title": "No model registered yet",
+        "body": "Models register when the stack boots."
+      }
+    },
+    "drift": {
+      "title": "Forecast-error drift",
+      "lead": "The cached forecast against the demand logged for the same hours, compared with the holdout error measured at training.",
+      "status": {
+        "stable": "Stable",
+        "watch": "Watch",
+        "drift": "Drift",
+        "no_data": "No data"
+      },
+      "horizon": "{{range}} h ahead",
+      "live": "Live MAE",
+      "reference": "Holdout MAE",
+      "ratio": "Ratio",
+      "thresholds": "Watch from ×{{watch}}, drift from ×{{drift}}",
+      "origin": "Forecast made at",
+      "hours": "{{n}} agent-hours compared",
+      "chart": "Error by hours ahead, {{float}}",
+      "noData": "No cached forecast with logged demand to compare yet.",
+      "horizonCol": "Hours ahead"
+    },
+    "users": {
+      "title": "Users",
+      "lead": "Create accounts, set roles, link them to an agent or distributor and disable access. Every change is audited.",
+      "add": "New user",
+      "search": "Search e-mail or name",
+      "filterRole": "Role",
+      "filterStatus": "Status",
+      "status": {
+        "active": "Active",
+        "disabled": "Disabled"
+      },
+      "col": {
+        "user": "User",
+        "role": "Role",
+        "link": "Linked to",
+        "status": "Status",
+        "lastLogin": "Last sign-in"
+      },
+      "demo": "Demo",
+      "you": "You",
+      "disable": "Disable",
+      "enable": "Enable",
+      "form": {
+        "titleNew": "New user",
+        "titleEdit": "Edit user",
+        "email": "E-mail",
+        "fullName": "Full name",
+        "role": "Role",
+        "agent": "Agent",
+        "distributor": "Distributor",
+        "pick": "Choose one",
+        "password": "Initial password",
+        "passwordHint": "At least 8 characters. Share it privately; the user can change it in Settings.",
+        "create": "Create user",
+        "save": "Save changes"
+      },
+      "error": {
+        "email": "Enter a valid e-mail address.",
+        "password": "Use at least 8 characters.",
+        "agent_required": "Choose the agent this user works for.",
+        "distributor_required": "Choose the distributor this user works for.",
+        "unknown_agent": "That agent no longer exists.",
+        "unknown_distributor": "That distributor no longer exists.",
+        "email_taken": "That e-mail is already in use.",
+        "cannot_change_self": "You cannot change your own role or disable yourself.",
+        "generic": "Could not save the user. Try again."
+      },
+      "created": "User created",
+      "saved": "User saved",
+      "disabled": "User disabled",
+      "enabled": "User enabled",
+      "disableTitle": "Disable {{email}}?",
+      "disableBody": "They are signed out everywhere and cannot sign in until enabled again.",
+      "enableTitle": "Enable {{email}}?",
+      "enableBody": "They can sign in again with their current password.",
+      "empty": {
+        "title": "No users match",
+        "body": "Clear the filters to see everyone."
+      }
+    },
+    "audit": {
+      "title": "Audit log",
+      "lead": "Every human decision and admin change, with who made it and the note they left.",
+      "filterAction": "Action",
+      "filterEntity": "Entity",
+      "filterUser": "User e-mail",
+      "from": "From",
+      "to": "To",
+      "col": {
+        "when": "When",
+        "user": "User",
+        "action": "Action",
+        "entity": "Entity",
+        "note": "Note"
+      },
+      "system": "System",
+      "payload": "Recorded details",
+      "empty": {
+        "title": "No entries match",
+        "body": "Widen the dates or clear the filters."
+      }
+    },
+    "llm": {
+      "title": "LLM layer",
+      "lead": "Provider status, every call with tokens, latency and guard result, today's cap and forecast drift. The LLM writes wording only; numbers come from the backend.",
+      "status": {
+        "title": "Provider",
+        "configured": "Configured",
+        "mode": "Serving now",
+        "model": "Model",
+        "key": "API key",
+        "keySet": "Set",
+        "keyMissing": "Not set",
+        "replay": "Replay answers",
+        "perUser": "Per-user limit",
+        "perUserValue": "{{count}} per minute",
+        "lastError": "Last error"
+      },
+      "cap": {
+        "title": "Daily cap",
+        "body": "{{used}} of {{cap}} live calls since 00:00 UTC",
+        "hint": "At the cap every request is answered by templates until midnight UTC."
+      },
+      "usage": {
+        "title": "Last 7 days",
+        "calls": "Calls",
+        "cacheHit": "Cache hit rate",
+        "latency": "Average latency",
+        "p95": "p95 latency",
+        "guardFails": "Guard failures",
+        "chart": "Calls per day by outcome",
+        "ms": "{{value}} ms"
+      },
+      "series": {
+        "live": "Live provider",
+        "cache": "Cache",
+        "replay": "Replay",
+        "template": "Template"
+      },
+      "log": {
+        "title": "Call log",
+        "col": {
+          "when": "When",
+          "intent": "Intent",
+          "provider": "Provider",
+          "generatedBy": "Wording by",
+          "guard": "Guard",
+          "tokens": "Tokens in / out",
+          "latency": "Latency",
+          "cache": "Cache",
+          "user": "User"
+        },
+        "hit": "Hit"
+      },
+      "filter": {
+        "intent": "Intent",
+        "generatedBy": "Wording by",
+        "guard": "Guard result",
+        "cache": "Cache",
+        "hit": "Hits",
+        "miss": "Misses"
+      },
+      "intent": {
+        "copilot": "Copilot",
+        "narrate": "Why? wording",
+        "agent_briefing": "Agent briefing",
+        "distributor_briefing": "Distributor briefing",
+        "anomaly_narrative": "Anomaly note"
+      },
+      "guard": {
+        "pass": "Passed",
+        "numbers_fail": "Numbers mismatch",
+        "injection": "Injection blocked",
+        "schema_fail": "Bad format",
+        "timeout": "Timed out",
+        "error": "Provider error"
+      },
+      "generatedBy": {
+        "llm": "LLM",
+        "template": "Template",
+        "replay": "Replay"
+      },
+      "empty": {
+        "title": "No calls logged",
+        "body": "Calls appear when someone opens an explanation, a briefing or the copilot."
+      }
     }
   }
 }

@@ -8,7 +8,7 @@ import { formatDuration, formatMoney, formatNumber, formatPercent } from "../../
 import { useOnScreen, useReducedMotionPref } from "../../lib/motionPrefs";
 import { useLocale } from "../../lib/prefs";
 import { useCountUp } from "../../lib/useCountUp";
-import { DUR, SPRING, TILT_MAX_DEG, tween } from "../../styles/motion";
+import { DUR, REDUCED, revealVariants, SPRING, TILT_MAX_DEG, tween } from "../../styles/motion";
 import { RISK_STYLE } from "../ui/risk";
 
 type ValueFormat = "number" | "money" | "percent" | "hours";
@@ -37,7 +37,7 @@ function finePointer(): boolean {
   return typeof window.matchMedia === "function" && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 }
 
-/** KPI tile: count-up value, sparkline drawing in, 3D tilt on hover (max 6deg, desktop). */
+/** KPI tile: count-up value, sparkline drawing in, 3D tilt on hover (max 6deg, desktop). Inside a StaggerGroup it staggers in. */
 export function BentoTile({ title, value, format = "number", icon: Icon, sparkline, tone, footer, className }: BentoTileProps) {
   const { lang, digits } = useLocale();
   const reduced = useReducedMotionPref();
@@ -81,6 +81,7 @@ export function BentoTile({ title, value, format = "number", icon: Icon, sparkli
   return (
     <motion.div
       ref={ref}
+      variants={revealVariants(reduced)}
       onPointerMove={onMove}
       onPointerLeave={onLeave}
       style={{ rotateX: rx, rotateY: ry, transformPerspective: 800 }}
@@ -94,7 +95,8 @@ export function BentoTile({ title, value, format = "number", icon: Icon, sparkli
           </span>
         ) : null}
       </div>
-      <p className="num mt-2 font-display text-h1 font-bold" aria-label={finalText}>
+      <p className="num mt-2 font-display text-h1 font-bold">
+        <span className="sr-only">{finalText}</span>
         <span aria-hidden>{text}</span>
       </p>
       {sparkline && sparkline.length > 1 ? (
@@ -110,7 +112,7 @@ export function BentoTile({ title, value, format = "number", icon: Icon, sparkli
             fill={`url(#${gid}-fill)`}
             initial={{ opacity: 0 }}
             animate={{ opacity: seen ? 1 : 0 }}
-            transition={tween(DUR.reveal, DUR.slow)}
+            transition={reduced ? REDUCED : tween(DUR.reveal, DUR.slow)}
           />
           <motion.path
             d={sparkPath(sparkline)}

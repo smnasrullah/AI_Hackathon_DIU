@@ -18,7 +18,7 @@ function Bar({ share, value, label, tone, delay, seen }: { share: number; value:
   const reduced = useReducedMotionPref();
   return (
     <div className="grid grid-cols-[5.5rem_minmax(0,1fr)_auto] items-center gap-2 text-xs">
-      <span className="text-muted">{label}</span>
+      <span className="min-w-0 break-words text-muted">{label}</span>
       <span className="h-3 overflow-hidden rounded-full bg-surface-2">
         <motion.span
           className={cn("block h-full origin-left rounded-full", tone)}

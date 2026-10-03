@@ -9,7 +9,7 @@ import { cn } from "../../../lib/cn";
 import { formatClock, formatDateTime, formatMoney } from "../../../lib/format";
 import { useReducedMotionPref } from "../../../lib/motionPrefs";
 import { useLocale } from "../../../lib/prefs";
-import { DUR, tween } from "../../../styles/motion";
+import { DUR, STAGGER, tween } from "../../../styles/motion";
 import type { HourRow } from "./hourlyModel";
 
 const FIRST = 24;
@@ -36,7 +36,7 @@ export function HourlyList({ rows, floatType }: HourlyListProps) {
       <h2 id="hourly-heading" className="font-display text-h2 font-bold">
         {t("forecast.hourly")}
       </h2>
-      <div className="mt-3 grid grid-cols-[4.5rem_1fr_4.5rem] gap-x-3 text-xs font-semibold text-muted" aria-hidden>
+      <div className="mt-3 grid grid-cols-[5.5rem_1fr_5rem] gap-x-3 text-xs font-semibold text-muted" aria-hidden>
         <span>{t("forecast.hour")}</span>
         <span>{t(`forecast.demand.${floatType}`)}</span>
         <span className="text-right">{t("forecast.balanceAfter")}</span>
@@ -52,7 +52,7 @@ export function HourlyList({ rows, floatType }: HourlyListProps) {
             <li
               data-stockout={r.stockout || undefined}
               className={cn(
-                "grid min-h-11 grid-cols-[4.5rem_1fr_4.5rem] items-center gap-x-3 border-t border-line text-small",
+                "grid min-h-11 grid-cols-[5.5rem_1fr_5rem] items-center gap-x-3 border-t border-line text-small",
                 r.stockout && "rounded-xl border-transparent bg-act/10",
               )}
             >
@@ -67,7 +67,7 @@ export function HourlyList({ rows, floatType }: HourlyListProps) {
                     style={{ left: `${(r.low / peak) * 100}%`, width: `${Math.max(1, ((r.high - r.low) / peak) * 100)}%` }}
                     initial={{ scaleX: reduced ? 1 : 0 }}
                     animate={{ scaleX: 1 }}
-                    transition={tween(DUR.slow, reduced ? 0 : Math.min(i, 12) * 0.02)}
+                    transition={tween(DUR.slow, reduced ? 0 : Math.min(i, 12) * STAGGER)}
                   />
                   <span className="absolute inset-y-[-2px] w-0.5 rounded-full bg-pulse" style={{ left: `${(r.expected / peak) * 100}%` }} />
                 </span>

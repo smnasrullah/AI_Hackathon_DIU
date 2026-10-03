@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { useAnomalies } from "../../../api/hooks/anomalies";
 import { SkeletonRows } from "../../../components/ui/Skeleton";
+import { StaggerItem, StaggerList } from "../../../components/ui/Stagger";
 import { EmptyState, ErrorState } from "../../../components/ui/StatePanel";
 import { TimeText } from "../../../components/ui/TimeText";
 import { AnomalyStatusBadge } from "../anomalies/AnomalyStatusBadge";
@@ -29,9 +30,9 @@ export function AgentAnomaliesTab({ agentId }: { agentId: number }) {
     );
   }
   return (
-    <ul className="space-y-2">
+    <StaggerList className="space-y-2">
       {mine.map((a) => (
-        <li key={a.id}>
+        <StaggerItem key={a.id}>
           <Link
             to={`/distributor/anomalies/${a.id}`}
             className="flex min-h-11 items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3 text-small hover:bg-surface-2"
@@ -43,8 +44,8 @@ export function AgentAnomaliesTab({ agentId }: { agentId: number }) {
             </span>
             <ChevronRight aria-hidden className="size-4 text-muted" />
           </Link>
-        </li>
+        </StaggerItem>
       ))}
-    </ul>
+    </StaggerList>
   );
 }

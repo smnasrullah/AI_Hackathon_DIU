@@ -181,7 +181,7 @@ export function RunwayStrip({ subtitle, series, capacity, ghost, stockout, event
           >
             <span
               data-testid="stockout-flag"
-              className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-act px-2 py-0.5 text-[11px] font-semibold text-white shadow-soft"
+              className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-act-solid px-2 py-0.5 text-[11px] font-semibold text-white shadow-soft"
             >
               <Flag className="size-3" />
               <span className="num">{flagText}</span>

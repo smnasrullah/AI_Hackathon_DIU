@@ -78,7 +78,8 @@ describe("distributor agents table", () => {
     fireEvent.keyDown(row as HTMLElement, { key: "Enter" });
     const trend = await screen.findByTestId("agent-trend");
     expect(await within(trend).findByRole("img", { name: /Expected Cash balance/ })).toBeInTheDocument();
-    expect(row).toHaveAttribute("aria-expanded", "true");
+    expect(row).toHaveAttribute("data-expanded", "true");
+    expect(document.getElementById(row?.getAttribute("aria-controls") ?? "")).toContainElement(trend);
   });
 
   it("offers a way out when nothing matches", async () => {

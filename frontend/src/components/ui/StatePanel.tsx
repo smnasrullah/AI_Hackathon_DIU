@@ -1,9 +1,11 @@
 import { RotateCw, type LucideIcon } from "lucide-react";
+import { motion } from "motion/react";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "../../lib/cn";
-import { useLoopActive } from "../../lib/motionPrefs";
+import { useLoopActive, useReducedMotionPref } from "../../lib/motionPrefs";
+import { revealVariants } from "../../styles/motion";
 import { Aurora } from "../backdrop/Backdrop";
 import { Illustration, type IllustrationKind } from "./Illustrations";
 import { LiquidButton } from "./LiquidButton";
@@ -18,13 +20,18 @@ interface PanelProps {
   className?: string;
 }
 
+/** Aurora is for hero and empty states only; errors stay plain. */
 function Panel({ illustration, title, body, action, role, compact, className }: PanelProps) {
   const ref = useRef<HTMLDivElement>(null);
   const active = useLoopActive(ref);
+  const reduced = useReducedMotionPref();
   return (
-    <div
+    <motion.div
       ref={ref}
       role={role}
+      variants={revealVariants(reduced)}
+      initial="hidden"
+      animate="show"
       data-paused={active ? "false" : "true"}
       className={cn(
         "relative isolate overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface text-center",
@@ -32,7 +39,7 @@ function Panel({ illustration, title, body, action, role, compact, className }: 
         className,
       )}
     >
-      <Aurora className="-z-10" />
+      {role === "alert" ? null : <Aurora className="-z-10" />}
       <div className={cn("mx-auto", compact ? "h-20 w-28" : "h-28 w-36")}>
         <Illustration kind={illustration} />
       </div>
@@ -43,7 +50,7 @@ function Panel({ illustration, title, body, action, role, compact, className }: 
           {action.label}
         </LiquidButton>
       ) : null}
-    </div>
+    </motion.div>
   );
 }
 

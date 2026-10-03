@@ -84,7 +84,7 @@ export function Inspector({ agent, all, swaps, hour, riskiest, onBack, className
       <header className="space-y-2">
         <div className="flex items-start gap-2">
           {onBack ? (
-            <button type="button" onClick={onBack} aria-label={t("controlRoom.inspector.back")} className="grid size-11 shrink-0 place-items-center rounded-full hover:bg-surface-2">
+            <button type="button" onClick={onBack} aria-label={t("controlRoom.inspector.back")} className="ap-press grid size-11 shrink-0 place-items-center rounded-full hover:bg-surface-2">
               <ArrowLeft aria-hidden className="size-5" />
             </button>
           ) : null}
@@ -98,7 +98,7 @@ export function Inspector({ agent, all, swaps, hour, riskiest, onBack, className
             </p>
           </div>
           {onBack ? null : (
-            <button type="button" onClick={() => select(null)} aria-label={t("common.close")} className="grid size-11 shrink-0 place-items-center rounded-full hover:bg-surface-2">
+            <button type="button" onClick={() => select(null)} aria-label={t("common.close")} className="ap-press grid size-11 shrink-0 place-items-center rounded-full hover:bg-surface-2">
               <X aria-hidden className="size-5" />
             </button>
           )}

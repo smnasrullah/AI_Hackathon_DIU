@@ -8,7 +8,7 @@ import { useAuthStore } from "../../features/auth/authStore";
 import { formatNumber } from "../../lib/format";
 import { useReducedMotionPref } from "../../lib/motionPrefs";
 import { useLocale } from "../../lib/prefs";
-import { SPRING } from "../../styles/motion";
+import { REDUCED, SPRING } from "../../styles/motion";
 import { useShellStore } from "./shellStore";
 
 const STEPS = ["brand", "search", "bell", "nav", "account"] as const;
@@ -124,11 +124,11 @@ function Tour() {
       </svg>
       <motion.div
         key={step}
-        initial={reduced ? { opacity: 0 } : { opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0, top: cardTop, left: cardLeft }}
-        transition={reduced ? { duration: 0.12 } : SPRING.soft}
+        initial={reduced ? { opacity: 0, x: cardLeft, y: cardTop } : { opacity: 0, x: cardLeft, y: cardTop + 8 }}
+        animate={{ opacity: 1, x: cardLeft, y: cardTop }}
+        transition={reduced ? REDUCED : SPRING.soft}
         style={{ width: view.w ? Math.min(CARD_W, view.w - 24) : CARD_W }}
-        className="absolute rounded-[var(--radius-card)] border border-line bg-surface p-5 text-fg shadow-lift"
+        className="absolute left-0 top-0 rounded-[var(--radius-card)] border border-line bg-surface p-5 text-fg shadow-lift"
       >
         <p className="font-mono text-xs uppercase tracking-[0.14em] text-muted">
           {t("tour.step", { n: formatNumber(index + 1, digits), total: formatNumber(steps.length, digits) })}
@@ -138,7 +138,7 @@ function Tour() {
         </h2>
         <p className="mt-1 text-small text-muted">{t(`tour.${step}Body`)}</p>
         <div className="mt-4 flex items-center justify-between gap-2">
-          <button type="button" onClick={finish} data-testid="tour-skip" className="min-h-11 rounded-full px-2 text-small text-muted hover:text-fg">
+          <button type="button" onClick={finish} data-testid="tour-skip" className="ap-press min-h-11 rounded-full px-2 text-small text-muted hover:text-fg">
             {t("tour.skip")}
           </button>
           <div className="flex gap-2">

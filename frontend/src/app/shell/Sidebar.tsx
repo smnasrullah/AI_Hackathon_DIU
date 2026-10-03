@@ -56,7 +56,7 @@ export function Sidebar({ items, area }: { items: NavItem[]; area: string }) {
               aria-label={toggleLabel}
               aria-expanded={!collapsed}
               data-testid="sidebar-toggle"
-              className="grid size-10 place-items-center rounded-xl text-muted hover:bg-surface-2 hover:text-fg"
+              className="ap-press grid size-10 place-items-center rounded-xl text-muted hover:bg-surface-2 hover:text-fg"
             >
               <ToggleIcon aria-hidden className="size-5" />
             </button>

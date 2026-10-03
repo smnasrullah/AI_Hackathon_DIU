@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException, Query, Response, status
 
 from app.core.csv_export import CSV_RESPONSES, csv_response
 from app.core.deps import CurrentUser, ScopedAgent, SessionDep
+from app.core.params import PageQuery
 from app.models.enums import RiskLevelCode
 from app.rules.risk_rules import HORIZONS
 from app.schemas.risk import AgentRisk, AgentRiskPage, AgentStockout, AgentSummary, RiskSort
@@ -24,7 +25,7 @@ def list_risk(
     horizon: Annotated[int, Query(description="6, 24 or 72")] = 24,
     level: Annotated[RiskLevelCode | None, Query()] = None,
     sort: Annotated[RiskSort, Query()] = "risk",
-    page: Annotated[int, Query(ge=1)] = 1,
+    page: PageQuery = 1,
     page_size: Annotated[int, Query(ge=1, le=100)] = 20,
     q: Annotated[str | None, Query(max_length=80)] = None,
 ) -> AgentRiskPage:

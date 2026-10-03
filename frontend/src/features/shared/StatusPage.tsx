@@ -9,7 +9,7 @@ import { LiquidButton } from "../../components/ui/LiquidButton";
 import { cn } from "../../lib/cn";
 import { useLoopActive, useReducedMotionPref } from "../../lib/motionPrefs";
 import { usePageTitle } from "../../lib/usePageTitle";
-import { listStagger, revealVariants, SPRING } from "../../styles/motion";
+import { listStagger, REDUCED, revealVariants, SPRING, STAGGER } from "../../styles/motion";
 
 /** A link (`to`) for navigation, or a button (`onClick`) for retry / back. */
 export type StatusAction = {
@@ -72,7 +72,7 @@ export function StatusPage({ code, illustration, title, body, pageTitle, actions
             key={i}
             initial={reduced ? { opacity: 0 } : { opacity: 0, y: -28 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={reduced ? { duration: 0.12 } : { ...SPRING.bounce, delay: i * 0.08 }}
+            transition={reduced ? REDUCED : { ...SPRING.bounce, delay: i * STAGGER }}
           >
             {d}
           </motion.span>

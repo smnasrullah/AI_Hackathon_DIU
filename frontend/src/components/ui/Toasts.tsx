@@ -54,7 +54,7 @@ function ToastCard({ toast }: { toast: Toast }) {
         type="button"
         onClick={() => dismiss(toast.id)}
         aria-label={t("common.dismiss")}
-        className="-m-1 grid size-8 shrink-0 place-items-center rounded-full text-muted hover:bg-surface-2 hover:text-fg"
+        className="ap-press -m-1 grid size-8 shrink-0 place-items-center rounded-full text-muted hover:bg-surface-2 hover:text-fg"
       >
         <X aria-hidden className="size-4" />
       </button>

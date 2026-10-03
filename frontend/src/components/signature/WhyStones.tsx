@@ -8,7 +8,7 @@ import { cn } from "../../lib/cn";
 import { formatPercent } from "../../lib/format";
 import { useOnScreen, useReducedMotionPref } from "../../lib/motionPrefs";
 import { useLocale } from "../../lib/prefs";
-import { DUR, listStagger, revealVariants, tween } from "../../styles/motion";
+import { DUR, listStagger, revealVariants, STAGGER, tween } from "../../styles/motion";
 import { MoneyText } from "../ui/MoneyText";
 
 interface WhyStonesProps {
@@ -37,7 +37,7 @@ export function WhyStones({ reasons, generatedBy, modelVersion, className }: Why
         <span className="inline-flex items-center gap-1.5 rounded-full bg-pulse/12 px-2.5 py-1 text-xs font-semibold text-pulse-fg">
           <Cpu aria-hidden className="size-3.5" />
           {t("why.model")}
-          <span className="num font-normal opacity-80">{modelVersion}</span>
+          <span className="num font-normal">{modelVersion}</span>
         </span>
       </div>
 
@@ -65,7 +65,7 @@ export function WhyStones({ reasons, generatedBy, modelVersion, className }: Why
                     className={cn("absolute inset-y-0 left-0 w-full origin-left rounded-full", up ? "bg-watch" : "bg-safe")}
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: seen ? Math.min(1, Math.max(0.02, r.share)) : 0 }}
-                    transition={reduced ? { duration: 0 } : tween(DUR.reveal, 0.15 + i * 0.08)}
+                    transition={reduced ? { duration: 0 } : tween(DUR.reveal, DUR.base + i * STAGGER)}
                   />
                 </span>
                 <MoneyText value={r.impact} signed compact className="text-xs font-semibold" />

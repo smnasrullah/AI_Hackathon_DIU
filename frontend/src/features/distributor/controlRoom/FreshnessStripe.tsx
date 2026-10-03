@@ -33,7 +33,7 @@ export function FreshnessStripe({ updatedAt, fetching, onRefresh }: FreshnessStr
         type="button"
         onClick={onRefresh}
         disabled={fetching}
-        className="ml-auto inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 font-semibold text-fg hover:bg-surface-2 disabled:opacity-60"
+        className="ap-press ml-auto inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 font-semibold text-fg hover:bg-surface-2 disabled:opacity-60"
       >
         <RefreshCw aria-hidden className={cn("size-3.5", fetching && "animate-spin")} />
         {t("controlRoom.stripe.refresh")}

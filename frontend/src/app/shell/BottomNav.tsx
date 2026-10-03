@@ -24,7 +24,7 @@ export function BottomNav() {
           end={end}
           className={({ isActive }) =>
             cn(
-              "relative isolate flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl text-xs transition-colors",
+              "relative isolate flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-center text-xs leading-tight transition-colors",
               isActive ? "font-semibold text-fg" : "text-muted",
             )
           }

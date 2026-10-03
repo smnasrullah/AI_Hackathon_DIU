@@ -27,6 +27,10 @@ _JSON = re.compile(r"\{.*\}", re.DOTALL)
 AGENT_CODE = re.compile(r"\bAGT[-\s]?(\d{1,6})\b", re.IGNORECASE)
 
 
+def strip_control(text: str) -> str:
+    return _CONTROL.sub("", text)
+
+
 def sanitize(text: str, limit: int = MAX_USER_CHARS) -> str:
     cleaned = _TOKENS.sub(" ", _CONTROL.sub("", text))
     return re.sub(r"[ \t]{2,}", " ", cleaned).strip()[:limit]
@@ -92,3 +96,28 @@ def check_agents(text: str, allowed: frozenset[str]) -> None:
     """Leak guard: the output may name only agents that are in the evidence pack."""
     if bad := sorted(agent_codes(text) - allowed):
         raise GuardFailure(GuardResult.injection, "unknown_agents:" + ",".join(bad[:5]))
+
+
+# The LLM writes language only: it may not claim that it approved, moved or requested anything.
+_ACTION_CLAIM = re.compile(
+    r"\b(i|we)('ve|\s+have)?\s+(just\s+|already\s+)?(approved|rejected|declined|transferred|sent|"
+    r"moved|deposited|withdrew|requested|scheduled|booked|executed|processed|cancell?ed|submitted|"
+    r"placed)\b"
+    r"|(অনুমোদন|ট্রান্সফার|স্থানান্তর|অনুরোধ|বাতিল|জমা)\s*(করেছি|করে দিয়েছি|করলাম|দিয়েছি)"
+    r"|পাঠিয়ে দিয়েছি|পাঠিয়েছি|পাঠালাম",
+    re.IGNORECASE)
+_SENTENCE = re.compile(r"[.!?\n।]+")
+
+
+def check_actions(text: str) -> None:
+    if _ACTION_CLAIM.search(text):
+        raise GuardFailure(GuardResult.injection, "action_claim")
+
+
+def check_echo(text: str, system: str) -> None:
+    """A model talked into printing its instructions repeats one of their sentences verbatim."""
+    flat = " ".join(text.lower().split())
+    for sentence in _SENTENCE.split(system):
+        s = " ".join(sentence.lower().split())
+        if len(s) >= 40 and s in flat:
+            raise GuardFailure(GuardResult.injection, "prompt_echo")

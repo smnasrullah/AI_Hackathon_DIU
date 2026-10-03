@@ -7,6 +7,7 @@ import type { SwapItem, SwapRespondIn } from "../../../api/types";
 import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
 import { LiquidButton } from "../../../components/ui/LiquidButton";
 import { SkeletonCard } from "../../../components/ui/Skeleton";
+import { StaggerItem, StaggerList } from "../../../components/ui/Stagger";
 import { EmptyState, ErrorState } from "../../../components/ui/StatePanel";
 import { toast } from "../../../components/ui/toastStore";
 import { formatMoney, formatNumber } from "../../../lib/format";
@@ -38,13 +39,13 @@ export function SwapOffers({ agentId }: { agentId: number }) {
           action={{ label: t("rebalance.swaps.empty.action"), icon: RotateCw, onClick: () => void q.refetch() }}
         />
       ) : (
-        <ul className="space-y-3">
+        <StaggerList className="space-y-3">
           {items.map((s) => (
-            <li key={s.id}>
+            <StaggerItem key={s.id}>
               <SwapOfferCard swap={s} agentId={agentId} />
-            </li>
+            </StaggerItem>
           ))}
-        </ul>
+        </StaggerList>
       )}
     </section>
   );

@@ -31,11 +31,15 @@ export const distributorPages: PageDef[] = [
 ];
 
 export const adminPages: PageDef[] = [
-  { path: "", title: "System status", summary: "Database, migrations, data version, models and LLM mode.", features: "—" },
-  { path: "users", title: "Users", summary: "Users and roles.", features: "—" },
-  { path: "models", title: "Models", summary: "Model registry, holdout metrics and drift.", features: "—" },
-  { path: "llm", title: "LLM log", summary: "Provider, tokens, latency and guard result per call.", features: "LLM" },
-  { path: "audit", title: "Audit log", summary: "Every human decision with user and note.", features: "—" },
+  { path: "", title: "System overview", summary: "Database, migrations, data version, models, LLM mode and open work.", features: "—" },
+  { path: "events", title: "Events", summary: "Salary, Eid, hat-bazar, weather and holiday calendar (create, edit, delete).", features: "F6" },
+  { path: "data", title: "Synthetic data", summary: "Dataset summary, regeneration from the fixed seed and the assumptions document.", features: "—" },
+  { path: "models", title: "Models", summary: "Model registry, holdout metrics, retraining jobs and drift.", features: "—" },
+  { path: "users", title: "Users", summary: "Create users, set roles, link to an agent or distributor, disable.", features: "—" },
+  { path: "audit-log", title: "Audit log", summary: "Every human decision with user and note; filters and CSV export.", features: "—" },
+  // Older link to the audit log; same page.
+  { path: "audit", title: "Audit log", summary: "Every human decision with user and note; filters and CSV export.", features: "—" },
+  { path: "llm", title: "LLM layer", summary: "Provider status, call log, daily cap usage and forecast-error drift.", features: "LLM" },
 ];
 
 export const responsibleAiPage: PageDef = {

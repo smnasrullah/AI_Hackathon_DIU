@@ -23,4 +23,7 @@ scripts/.check-build-*.stamp
 .DS_Store
 Thumbs.db
 
+# Admin retrain candidates (runtime output; the committed artifacts stay canonical)
+backend/ml/candidates/
+
 # NOTE: backend/ml/artifacts/ is intentionally committed (fresh PC needs no training).
