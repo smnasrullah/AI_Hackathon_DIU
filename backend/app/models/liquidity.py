@@ -8,6 +8,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from sqlalchemy import (
+    Boolean,
     CheckConstraint,
     ForeignKey,
     Index,
@@ -15,6 +16,7 @@ from sqlalchemy import (
     SmallInteger,
     Text,
     UniqueConstraint,
+    false,
     text,
 )
 from sqlalchemy.orm import Mapped, mapped_column
@@ -49,6 +51,9 @@ class LiquidityRequest(Base):
     claim_expires_at: Mapped[datetime | None] = mapped_column(TsTz)
     fulfilled_at: Mapped[datetime | None] = mapped_column(TsTz)
     wave_number: Mapped[int] = mapped_column(SmallInteger, default=1, server_default="1")
+    wave_started_at: Mapped[datetime | None] = mapped_column(TsTz)
+    # True only for demo runs forced by the admin "simulate shortage" helper (DEMO_MODE only).
+    simulated: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     created_by: Mapped[HelpOrigin] = mapped_column(db_enum(HelpOrigin))
     dedupe_key: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = created_at_col()

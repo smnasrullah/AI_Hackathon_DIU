@@ -74,7 +74,9 @@ def swap_amount(donor: Donor, receiver: Receiver) -> float:
     return float(math.floor(give / ROUND_BDT) * ROUND_BDT)
 
 
-def _pair(donor: Donor, receiver: Receiver, cfg: SwapConfig) -> Match | None:
+def pair(donor: Donor, receiver: Receiver, cfg: SwapConfig) -> Match | None:
+    """One feasible donor-receiver pair (same distributor, within radius, big enough) or None.
+    Shared by swap matching and the help-request helper ranking."""
     if donor.agent_id == receiver.agent_id or donor.distributor_id != receiver.distributor_id:
         return None
     distance = haversine_km(donor.lat, donor.lng, receiver.lat, receiver.lng)
@@ -91,7 +93,7 @@ def _assign(donors: Sequence[Donor], receivers: Sequence[Receiver], cfg: SwapCon
             ) -> list[Match]:
     if not donors or not receivers:
         return []
-    pairs = [[_pair(d, r, cfg) for r in receivers] for d in donors]
+    pairs = [[pair(d, r, cfg) for r in receivers] for d in donors]
     cost = np.array([[_INFEASIBLE if p is None else p.distance_km for p in row] for row in pairs])
     rows, cols = linear_sum_assignment(cost)
     found = [pairs[i][j] for i, j in zip(rows.tolist(), cols.tolist(), strict=True)]

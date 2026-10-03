@@ -78,7 +78,8 @@ def get_job(job_id: IdPath, _user: Admin, session: SessionDep) -> JobOut:
 @router.post("/jobs", response_model=JobOut, status_code=status.HTTP_202_ACCEPTED)
 def start_job(body: JobIn, user: Admin, session: SessionDep,
               background: BackgroundTasks) -> JobOut:
-    """Start generate_data, retrain_forecast or retrain_anomaly in the background; poll
+    """Start generate_data, retrain_forecast, retrain_anomaly or help_trigger (one tick of the
+    liquidity help trigger, same as the background loop) in the background; poll
     GET /admin/jobs/{id} for progress. One job at a time (409 job_running). Retrained models are
     recorded inactive; serving keeps the committed model."""
     try:

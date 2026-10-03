@@ -43,7 +43,8 @@ def test_transition_table() -> None:
     H = HelpStatus
     allowed = {(e, s) for e, (frm, _) in rules.TRANSITIONS.items() for s in frm}
     assert allowed == {("claim", H.open), ("withdraw", H.claimed), ("reopen", H.claimed),
-                       ("confirm", H.claimed), ("expire", H.open), ("cancel", H.open),
+                       ("confirm", H.claimed), ("expire", H.open), ("exhaust", H.open),
+                       ("cancel", H.open),
                        ("cancel", H.claimed)}
     for terminal in (H.fulfilled, H.expired, H.cancelled):
         assert not any(rules.can(e, terminal) for e in rules.TRANSITIONS)
@@ -145,9 +146,10 @@ def test_daily_cap(client: TestClient, seeded: Path) -> None:
 
 
 def test_max_recipients_per_wave(client: TestClient, seeded: Path) -> None:
-    set_policy(client, max_recipients_per_wave=2)
+    set_policy(client, max_recipients_per_wave=1)
     req_id, _ = make_request(HELPERS)
-    assert set(responses(req_id)) == {AGENT_PATIYA, AGENT_SUNAMGANJ}  # ranked order kept
+    # The distributor is always in wave 1; agents fill up to the cap in ranked order.
+    assert set(responses(req_id)) == {AGENT_PATIYA, DIST_DHAKA}
 
 
 def test_kill_switch(client: TestClient, seeded: Path) -> None:

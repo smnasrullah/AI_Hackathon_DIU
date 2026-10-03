@@ -97,7 +97,8 @@ def _item(req: LiquidityRequest, agent: Agent, view: HelpView, me: Recipient | N
         fulfilled_at=_utc(req.fulfilled_at) if req.fulfilled_at else None,
         my_response=me.response if me else None,
         claimed_by_me=req.claimed_by_user_id == user.id,
-        my_distance_km=float(me.distance_km) if me and me.distance_km is not None else None)
+        my_distance_km=float(me.distance_km) if me and me.distance_km is not None else None,
+        simulated=req.simulated)
     if view == "owner":
         outs = [_recipient_out(r, displays) for r in recipients]
         item.reason_summary = req.reason_summary

@@ -20,7 +20,7 @@ from app.core.config import Settings, get_settings
 from app.core.db import get_engine
 from app.models import AdminJob, AuditLog, User
 from app.schemas.jobs import JobKind, JobList, JobOut, JobResultItem, JobStatus
-from app.services import model_registry, pipeline
+from app.services import help_trigger_run, model_registry, pipeline
 from ml.data_gen import generate
 from ml.registry import ANOMALY_MODEL, FORECAST_MODEL
 from ml.training import anomaly as anomaly_train
@@ -216,10 +216,18 @@ def _retrain_anomaly(settings: Settings, job_id: int, p: Progress) -> dict[str, 
     return result
 
 
+def _help_trigger(settings: Settings, job_id: int, p: Progress) -> dict[str, Any]:
+    """One help-trigger tick (sweep, wave advance, trigger); the same tick the scheduler runs."""
+    p("trigger", 10)
+    counts: dict[str, Any] = dict(help_trigger_run.tick())
+    return counts
+
+
 RUNNERS: dict[str, Callable[[Settings, int, Progress], dict[str, Any]]] = {
     "generate_data": _generate_data,
     "retrain_forecast": _retrain_forecast,
     "retrain_anomaly": _retrain_anomaly,
+    "help_trigger": _help_trigger,
 }
 
 

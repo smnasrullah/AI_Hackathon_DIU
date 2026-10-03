@@ -2137,6 +2137,75 @@
     "title": "DriftReport",
     "type": "object"
    },
+   "DryRunIn": {
+    "properties": {
+     "agent_ids": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "integer"
+        },
+        "maxItems": 500,
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Agent Ids"
+     }
+    },
+    "title": "DryRunIn",
+    "type": "object"
+   },
+   "DryRunOut": {
+    "properties": {
+     "dry_run": {
+      "title": "Dry Run",
+      "type": "boolean"
+     },
+     "enabled": {
+      "title": "Enabled",
+      "type": "boolean"
+     },
+     "evaluated_at": {
+      "format": "date-time",
+      "title": "Evaluated At",
+      "type": "string"
+     },
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/PlanItemOut"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "sent": {
+      "const": false,
+      "default": false,
+      "title": "Sent",
+      "type": "boolean"
+     },
+     "would_ask": {
+      "title": "Would Ask",
+      "type": "integer"
+     },
+     "would_create": {
+      "title": "Would Create",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "evaluated_at",
+     "enabled",
+     "dry_run",
+     "items",
+     "would_create",
+     "would_ask"
+    ],
+    "title": "DryRunOut",
+    "type": "object"
+   },
    "EqualService": {
     "description": "The threshold rule swept over thresholds, read at the AI's level (linear in between).\n\nNone = the AI's value lies outside what the swept thresholds reach.",
     "properties": {
@@ -3117,6 +3186,11 @@
      "requester": {
       "$ref": "#/components/schemas/HelpRequester"
      },
+     "simulated": {
+      "default": false,
+      "title": "Simulated",
+      "type": "boolean"
+     },
      "status": {
       "$ref": "#/components/schemas/HelpStatus"
      },
@@ -3697,7 +3771,8 @@
       "enum": [
        "generate_data",
        "retrain_forecast",
-       "retrain_anomaly"
+       "retrain_anomaly",
+       "help_trigger"
       ],
       "title": "Kind",
       "type": "string"
@@ -3774,7 +3849,8 @@
       "enum": [
        "generate_data",
        "retrain_forecast",
-       "retrain_anomaly"
+       "retrain_anomaly",
+       "help_trigger"
       ],
       "title": "Kind",
       "type": "string"
@@ -5009,6 +5085,32 @@
     "title": "NotificationType",
     "type": "string"
    },
+   "OptOutIn": {
+    "properties": {
+     "opted_out": {
+      "title": "Opted Out",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "opted_out"
+    ],
+    "title": "OptOutIn",
+    "type": "object"
+   },
+   "OptOutOut": {
+    "properties": {
+     "opted_out": {
+      "title": "Opted Out",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "opted_out"
+    ],
+    "title": "OptOutOut",
+    "type": "object"
+   },
    "OrgAgent": {
     "properties": {
      "code": {
@@ -5165,6 +5267,130 @@
      "max"
     ],
     "title": "PeerScores",
+    "type": "object"
+   },
+   "PlanAskOut": {
+    "properties": {
+     "display": {
+      "title": "Display",
+      "type": "string"
+     },
+     "distance_km": {
+      "title": "Distance Km",
+      "type": "number"
+     },
+     "role": {
+      "$ref": "#/components/schemas/UserRole"
+     },
+     "wave": {
+      "title": "Wave",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "display",
+     "role",
+     "distance_km",
+     "wave"
+    ],
+    "title": "PlanAskOut",
+    "type": "object"
+   },
+   "PlanItemOut": {
+    "properties": {
+     "agent_code": {
+      "title": "Agent Code",
+      "type": "string"
+     },
+     "agent_id": {
+      "title": "Agent Id",
+      "type": "integer"
+     },
+     "amount_bdt": {
+      "title": "Amount Bdt",
+      "type": "number"
+     },
+     "asks": {
+      "items": {
+       "$ref": "#/components/schemas/PlanAskOut"
+      },
+      "title": "Asks",
+      "type": "array"
+     },
+     "buffer_bdt": {
+      "title": "Buffer Bdt",
+      "type": "number"
+     },
+     "fires": {
+      "title": "Fires",
+      "type": "boolean"
+     },
+     "float_type": {
+      "$ref": "#/components/schemas/FloatType"
+     },
+     "needed_by": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Needed By"
+     },
+     "projected_low_bdt": {
+      "title": "Projected Low Bdt",
+      "type": "number"
+     },
+     "reason": {
+      "title": "Reason",
+      "type": "string"
+     },
+     "reason_summary": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reason Summary"
+     },
+     "simulated": {
+      "title": "Simulated",
+      "type": "boolean"
+     },
+     "skipped": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Skipped"
+     }
+    },
+    "required": [
+     "agent_id",
+     "agent_code",
+     "float_type",
+     "fires",
+     "reason",
+     "projected_low_bdt",
+     "buffer_bdt",
+     "amount_bdt",
+     "needed_by",
+     "skipped",
+     "simulated",
+     "reason_summary",
+     "asks"
+    ],
+    "title": "PlanItemOut",
     "type": "object"
    },
    "PreferencesUpdate": {
@@ -6106,6 +6332,71 @@
     "title": "SignupResponse",
     "type": "object"
    },
+   "SimulateIn": {
+    "properties": {
+     "agent_id": {
+      "maximum": 2147483647.0,
+      "minimum": 1.0,
+      "title": "Agent Id",
+      "type": "integer"
+     },
+     "float_type": {
+      "$ref": "#/components/schemas/FloatType"
+     }
+    },
+    "required": [
+     "agent_id",
+     "float_type"
+    ],
+    "title": "SimulateIn",
+    "type": "object"
+   },
+   "SimulateOut": {
+    "properties": {
+     "agent_code": {
+      "title": "Agent Code",
+      "type": "string"
+     },
+     "agent_id": {
+      "title": "Agent Id",
+      "type": "integer"
+     },
+     "created_request_ids": {
+      "items": {
+       "type": "integer"
+      },
+      "title": "Created Request Ids",
+      "type": "array"
+     },
+     "float_type": {
+      "$ref": "#/components/schemas/FloatType"
+     },
+     "plan": {
+      "$ref": "#/components/schemas/PlanItemOut"
+     },
+     "simulated": {
+      "const": true,
+      "default": true,
+      "title": "Simulated",
+      "type": "boolean"
+     },
+     "until": {
+      "format": "date-time",
+      "title": "Until",
+      "type": "string"
+     }
+    },
+    "required": [
+     "agent_id",
+     "agent_code",
+     "float_type",
+     "until",
+     "created_request_ids",
+     "plan"
+    ],
+    "title": "SimulateOut",
+    "type": "object"
+   },
    "StockoutFairness": {
     "properties": {
      "caught": {
@@ -6607,6 +6898,183 @@
      "user"
     ],
     "title": "TokenResponse",
+    "type": "object"
+   },
+   "TriggerSettingsIn": {
+    "description": "Partial update; omitted fields keep their value.",
+    "properties": {
+     "buffer_pct": {
+      "anyOf": [
+       {
+        "maximum": 100.0,
+        "minimum": 0.0,
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Buffer Pct"
+     },
+     "horizon_h": {
+      "anyOf": [
+       {
+        "maximum": 72.0,
+        "minimum": 1.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Horizon H"
+     },
+     "lead_margin_h": {
+      "anyOf": [
+       {
+        "maximum": 72.0,
+        "minimum": 0.0,
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Lead Margin H"
+     },
+     "max_request_bdt": {
+      "anyOf": [
+       {
+        "maximum": 10000000.0,
+        "minimum": 500.0,
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Max Request Bdt"
+     },
+     "max_waves": {
+      "anyOf": [
+       {
+        "maximum": 10.0,
+        "minimum": 1.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Max Waves"
+     },
+     "min_shortfall_bdt": {
+      "anyOf": [
+       {
+        "maximum": 1000000.0,
+        "minimum": 0.0,
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Min Shortfall Bdt"
+     },
+     "radius_km": {
+      "anyOf": [
+       {
+        "exclusiveMinimum": 0.0,
+        "maximum": 50.0,
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Radius Km"
+     },
+     "recent_ask_h": {
+      "anyOf": [
+       {
+        "maximum": 168.0,
+        "minimum": 0.0,
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Recent Ask H"
+     },
+     "wave_timeout_min": {
+      "anyOf": [
+       {
+        "maximum": 1440.0,
+        "minimum": 1.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Wave Timeout Min"
+     }
+    },
+    "title": "TriggerSettingsIn",
+    "type": "object"
+   },
+   "TriggerSettingsOut": {
+    "properties": {
+     "buffer_pct": {
+      "title": "Buffer Pct",
+      "type": "number"
+     },
+     "horizon_h": {
+      "title": "Horizon H",
+      "type": "integer"
+     },
+     "lead_margin_h": {
+      "title": "Lead Margin H",
+      "type": "number"
+     },
+     "max_request_bdt": {
+      "title": "Max Request Bdt",
+      "type": "number"
+     },
+     "max_waves": {
+      "title": "Max Waves",
+      "type": "integer"
+     },
+     "min_shortfall_bdt": {
+      "title": "Min Shortfall Bdt",
+      "type": "number"
+     },
+     "radius_km": {
+      "title": "Radius Km",
+      "type": "number"
+     },
+     "recent_ask_h": {
+      "title": "Recent Ask H",
+      "type": "number"
+     },
+     "wave_timeout_min": {
+      "title": "Wave Timeout Min",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "horizon_h",
+     "buffer_pct",
+     "min_shortfall_bdt",
+     "max_request_bdt",
+     "lead_margin_h",
+     "radius_km",
+     "wave_timeout_min",
+     "max_waves",
+     "recent_ask_h"
+    ],
+    "title": "TriggerSettingsOut",
     "type": "object"
    },
    "TxnType": {
@@ -7323,7 +7791,7 @@
     ]
    },
    "post": {
-    "description": "Start generate_data, retrain_forecast or retrain_anomaly in the background; poll\nGET /admin/jobs/{id} for progress. One job at a time (409 job_running). Retrained models are\nrecorded inactive; serving keeps the committed model.",
+    "description": "Start generate_data, retrain_forecast, retrain_anomaly or help_trigger (one tick of the\nliquidity help trigger, same as the background loop) in the background; poll\nGET /admin/jobs/{id} for progress. One job at a time (409 job_running). Retrained models are\nrecorded inactive; serving keeps the committed model.",
     "operationId": "start_job_api_v1_admin_jobs_post",
     "requestBody": {
      "content": {
@@ -7496,6 +7964,53 @@
     ]
    }
   },
+  "/api/v1/admin/liquidity-requests/dry-run": {
+   "post": {
+    "description": "Shows which agents WOULD get a request and who WOULD be asked. Writes nothing, sends\nnothing, whatever the kill switch and dry-run settings say.",
+    "operationId": "dry_run_api_v1_admin_liquidity_requests_dry_run_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DryRunIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DryRunOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Dry Run",
+    "tags": [
+     "liquidity-requests"
+    ]
+   }
+  },
   "/api/v1/admin/liquidity-requests/settings": {
    "get": {
     "description": "Kill switch, dry run, claim timeout, cooldown, daily cap, recipients per wave.",
@@ -7568,6 +8083,53 @@
     ]
    }
   },
+  "/api/v1/admin/liquidity-requests/simulate-shortage": {
+   "post": {
+    "description": "DEMO_MODE only. Forces one agent into a shortage for 30 minutes and runs the trigger\nfor that agent now. Audit logged; every request it makes is marked simulated.",
+    "operationId": "simulate_shortage_api_v1_admin_liquidity_requests_simulate_shortage_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SimulateIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SimulateOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Simulate Shortage",
+    "tags": [
+     "liquidity-requests"
+    ]
+   }
+  },
   "/api/v1/admin/liquidity-requests/sweep": {
    "post": {
     "description": "Reopen timed-out claims and expire overdue requests now. Safe to repeat.",
@@ -7590,6 +8152,78 @@
      }
     ],
     "summary": "Sweep",
+    "tags": [
+     "liquidity-requests"
+    ]
+   }
+  },
+  "/api/v1/admin/liquidity-requests/trigger-settings": {
+   "get": {
+    "description": "Horizon, buffer percentage, minimum shortfall, cap, lead margin, radius, waves, timeout.",
+    "operationId": "read_trigger_settings_api_v1_admin_liquidity_requests_trigger_settings_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TriggerSettingsOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Read Trigger Settings",
+    "tags": [
+     "liquidity-requests"
+    ]
+   },
+   "put": {
+    "description": "Change any subset (audit_log keeps old and new values). Bounds checked by the schema.",
+    "operationId": "write_trigger_settings_api_v1_admin_liquidity_requests_trigger_settings_put",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TriggerSettingsIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TriggerSettingsOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Write Trigger Settings",
     "tags": [
      "liquidity-requests"
     ]
@@ -10307,6 +10941,53 @@
      }
     ],
     "summary": "List Mine",
+    "tags": [
+     "liquidity-requests"
+    ]
+   }
+  },
+  "/api/v1/liquidity-requests/opt-out": {
+   "post": {
+    "description": "An agent chooses whether they can be asked for help. Opted-out agents are never ranked.",
+    "operationId": "opt_out_api_v1_liquidity_requests_opt_out_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/OptOutIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/OptOutOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Opt Out",
     "tags": [
      "liquidity-requests"
     ]

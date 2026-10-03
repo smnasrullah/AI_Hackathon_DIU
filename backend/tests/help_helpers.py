@@ -90,3 +90,13 @@ def request_row(req_id: int) -> LiquidityRequest:
         assert row is not None
         session.expunge(row)
         return row
+
+
+TRIGGER_API = "/api/v1/admin/liquidity-requests/trigger-settings"
+
+
+def set_trigger(client: TestClient, **changes: object) -> dict[str, Any]:
+    res = client.put(TRIGGER_API, json=changes, headers=bearer(client, ADMIN))
+    assert res.status_code == 200, res.text
+    body: dict[str, Any] = res.json()
+    return body

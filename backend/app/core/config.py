@@ -100,6 +100,18 @@ class Settings(BaseSettings):
     help_cooldown_min: int = 30
     help_daily_cap_per_agent: int = 3
     help_max_recipients_per_wave: int = 5
+    # Automatic trigger (app/services/help_trigger.py): defaults only, admins override at runtime
+    # (app/services/help_settings.py trigger_*). Interval 0 turns the background loop off.
+    help_trigger_interval_s: int = 60
+    help_trigger_horizon_h: int = 6
+    help_trigger_buffer_pct: float = 25.0  # of the agent's own average daily demand
+    help_trigger_min_shortfall_bdt: float = 5_000.0
+    help_trigger_max_request_bdt: float = 200_000.0
+    help_trigger_lead_margin_h: float = 1.0
+    help_trigger_radius_km: float = 5.0
+    help_trigger_wave_timeout_min: int = 15
+    help_trigger_max_waves: int = 3
+    help_trigger_recent_ask_h: float = 2.0
 
     llm_provider: LlmProvider = "auto"
     llm_model: str = "claude-haiku-4-5-20251001"

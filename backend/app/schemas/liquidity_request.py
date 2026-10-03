@@ -52,6 +52,7 @@ class HelpRequestItem(BaseModel):
     my_response: HelpResponse | None = None
     claimed_by_me: bool = False
     my_distance_km: float | None = None
+    simulated: bool = False  # true only for demo runs of the admin "simulate shortage" helper
     # Owner view only.
     reason_summary: str | None = None
     claimed_by: HelpRecipientOut | None = None

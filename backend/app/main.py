@@ -1,4 +1,6 @@
 import logging
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,13 +10,23 @@ from app.api.v1.auth import demo_router
 from app.core.config import get_settings
 from app.core.errors import install_error_handlers
 from app.core.middleware import RequestGuard
+from app.services import help_scheduler
 
 log = logging.getLogger("app")
 
 
+@asynccontextmanager
+async def _lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    settings = get_settings()
+    if settings.app_env != "test":  # tests drive the trigger explicitly
+        help_scheduler.start(settings.help_trigger_interval_s)
+    yield
+    help_scheduler.stop()
+
+
 def create_app() -> FastAPI:
     settings = get_settings()
-    app = FastAPI(title=settings.app_name, version="0.1.0")
+    app = FastAPI(title=settings.app_name, version="0.1.0", lifespan=_lifespan)
     app.include_router(api_router)
     if settings.demo_mode:  # POST /api/v1/auth/demo-login exists only in demo mode
         app.include_router(demo_router, prefix="/api/v1")

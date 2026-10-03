@@ -289,7 +289,9 @@
       "claim_expired": "{{agent_code}}-এর অনুরোধে আপনার নেওয়া সময় শেষ, অনুরোধটি ছেড়ে দেওয়া হয়েছে",
       "fulfilled": "{{agent_code}}-এর {{amount_bdt}} {{float_type}} অনুরোধ পাওয়া গেছে বলে নিশ্চিত হয়েছে",
       "cancelled": "{{agent_code}}-এর {{amount_bdt}} {{float_type}} অনুরোধ বাতিল হয়েছে",
-      "expired": "{{agent_code}}-এর {{amount_bdt}} {{float_type}} অনুরোধের সময় শেষ, কেউ সাহায্য করেননি"
+      "expired": "{{agent_code}}-এর {{amount_bdt}} {{float_type}} অনুরোধের সময় শেষ, কেউ সাহায্য করেননি",
+      "escalated": "{{agent_code}}-এর {{amount_bdt}} {{float_type}} অনুরোধে কেউ সাড়া দেননি, অনুগ্রহ করে নিজে এগিয়ে আসুন",
+      "still_open": "{{agent_code}}-এর {{amount_bdt}} {{float_type}} অনুরোধ এখনও খোলা আছে এবং আরও সহায়কদের জানানো হয়েছে"
     },
     "fallback": "নতুন খবর"
   },
@@ -1386,7 +1388,8 @@
       "kind": {
         "generate_data": "ডেটা তৈরি",
         "retrain_forecast": "পূর্বাভাস পুনঃপ্রশিক্ষণ",
-        "retrain_anomaly": "অস্বাভাবিকতা পুনঃপ্রশিক্ষণ"
+        "retrain_anomaly": "অস্বাভাবিকতা পুনঃপ্রশিক্ষণ",
+        "help_trigger": "সহায়তা অনুরোধ যাচাই"
       },
       "status": {
         "queued": "সারিতে",

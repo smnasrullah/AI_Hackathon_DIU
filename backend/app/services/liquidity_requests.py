@@ -145,8 +145,8 @@ def _is_owner_side(session: Session, user: User, req: LiquidityRequest,
 def create(session: Session, *, requester_agent_id: int, float_type: FloatType,
            amount_needed: Decimal, needed_by: datetime, reason_summary: str | None,
            candidates: Sequence[Candidate], created_by: HelpOrigin,
-           actor: uuid.UUID | None = None,
-           now: datetime | None = None) -> tuple[LiquidityRequest, bool]:
+           actor: uuid.UUID | None = None, now: datetime | None = None,
+           simulated: bool = False) -> tuple[LiquidityRequest, bool]:
     """(request, created). An active request for the same agent and float is returned as is.
 
     Must be the first write of the unit of work: a lost dedupe race rolls the session back.
@@ -156,7 +156,7 @@ def create(session: Session, *, requester_agent_id: int, float_type: FloatType,
     if not policy.enabled:
         raise HelpError("feature_disabled")
     key = dedupe_key(requester_agent_id, float_type)
-    existing = _active(session, key)
+    existing = active_for(session, key)
     if existing is not None:
         return existing, False
     if _utc(needed_by) <= now:
@@ -167,20 +167,21 @@ def create(session: Session, *, requester_agent_id: int, float_type: FloatType,
     block = rules.abuse_block((_utc(t) for t in earlier), now, policy)
     if block:
         raise HelpError(block)
-    helpers = _eligible(session, requester_agent_id, candidates)[:policy.max_recipients_per_wave]
+    helpers = _wave_members(_eligible(session, requester_agent_id, candidates),
+                            policy.max_recipients_per_wave)
     if not helpers:
         raise HelpError("no_recipients")
     req = LiquidityRequest(requester_agent_id=requester_agent_id, float_type=float_type,
                            amount_needed=amount_needed, needed_by=needed_by,
                            reason_summary=reason_summary, status=HelpStatus.open,
-                           wave_number=1, created_by=created_by, dedupe_key=key,
-                           created_at=now, updated_at=now)
+                           wave_number=1, wave_started_at=now, simulated=simulated,
+                           created_by=created_by, dedupe_key=key, created_at=now, updated_at=now)
     session.add(req)
     try:
         session.flush()
     except IntegrityError:
         session.rollback()  # another writer created the active request first
-        existing = _active(session, key)
+        existing = active_for(session, key)
         if existing is None:
             raise
         return existing, False
@@ -201,7 +202,15 @@ def create(session: Session, *, requester_agent_id: int, float_type: FloatType,
     return req, True
 
 
-def _active(session: Session, key: str) -> LiquidityRequest | None:
+def _wave_members(helpers: list[tuple[User, Candidate]], agent_cap: int
+                  ) -> list[tuple[User, Candidate]]:
+    """Every distributor user is always asked; agents fill up to `agent_cap` in ranked order."""
+    distributors = [h for h in helpers if h[0].role == UserRole.distributor]
+    agents = [h for h in helpers if h[0].role != UserRole.distributor]
+    return distributors + agents[:agent_cap]
+
+
+def active_for(session: Session, key: str) -> LiquidityRequest | None:
     return session.scalar(select(LiquidityRequest).where(
         LiquidityRequest.dedupe_key == key, LiquidityRequest.status.in_(rules.ACTIVE)))
 
@@ -341,7 +350,26 @@ def cancel(session: Session, user: User, request_id: int, note: str | None = Non
     return _item(session, user, req)
 
 
-# --- timeouts (sweep; safe to run any number of times) ----------------------------------------
+# --- timeouts and escalation (safe to run any number of times) ----------------------------------
+
+def exhaust(session: Session, request_id: int, now: datetime | None = None) -> bool:
+    """Every wave failed: open -> expired (unfilled). The distributor and admins are told.
+    False when the request was no longer open (someone claimed it or it already ended)."""
+    now = now or now_utc()
+    req = _load(session, request_id)
+    policy = help_settings.current(session)
+    old = _move(session, req, "exhaust", now)
+    if old is None:
+        return False
+    waiting = _set_responses(session, req, [HelpResponse.none], HelpResponse.expired, now)
+    _audit(session, None, "exhaust", req, old, now, policy, "waves_exhausted",
+           waves=req.wave_number)
+    help_notify.send(session, policy, req, waiting | help_notify.requester_users(session, req),
+                     "expired")
+    help_notify.send(session, policy, req, help_notify.escalation_users(session, req),
+                     "escalated", None, NotificationSeverity.critical)
+    return True
+
 
 def _after_reopen(session: Session, req: LiquidityRequest, now: datetime, policy: HelpPolicy,
                   helper: uuid.UUID | None, actor: uuid.UUID | None, action: str,

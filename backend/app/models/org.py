@@ -60,6 +60,8 @@ class Agent(Base):
     emoney_capacity: Mapped[Decimal] = mapped_column(Money)
     opened_on: Mapped[date | None] = mapped_column(Date)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
+    # Agent opted out of being asked for liquidity help (never ranked as a helper).
+    help_opt_out: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     created_at: Mapped[datetime] = created_at_col()
 
 

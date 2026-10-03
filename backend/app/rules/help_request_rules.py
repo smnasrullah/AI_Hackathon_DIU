@@ -12,7 +12,7 @@ from typing import Literal
 
 from app.models.enums import HelpStatus
 
-Event = Literal["claim", "withdraw", "reopen", "confirm", "expire", "cancel"]
+Event = Literal["claim", "withdraw", "reopen", "confirm", "expire", "exhaust", "cancel"]
 
 # event -> (allowed from, new status). The one place the allowed transitions are written.
 TRANSITIONS: dict[Event, tuple[frozenset[HelpStatus], HelpStatus]] = {
@@ -21,6 +21,7 @@ TRANSITIONS: dict[Event, tuple[frozenset[HelpStatus], HelpStatus]] = {
     "reopen": (frozenset({HelpStatus.claimed}), HelpStatus.open),  # claim timed out
     "confirm": (frozenset({HelpStatus.claimed}), HelpStatus.fulfilled),
     "expire": (frozenset({HelpStatus.open}), HelpStatus.expired),
+    "exhaust": (frozenset({HelpStatus.open}), HelpStatus.expired),  # every wave failed
     "cancel": (frozenset({HelpStatus.open, HelpStatus.claimed}), HelpStatus.cancelled),
 }
 ACTIVE: frozenset[HelpStatus] = frozenset({HelpStatus.open, HelpStatus.claimed})

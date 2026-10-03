@@ -3,7 +3,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
-JobKind = Literal["generate_data", "retrain_forecast", "retrain_anomaly"]
+JobKind = Literal["generate_data", "retrain_forecast", "retrain_anomaly", "help_trigger"]
 JobStatus = Literal["queued", "running", "succeeded", "failed"]
 
 

@@ -25,6 +25,16 @@ def requester_users(session: Session, req: LiquidityRequest) -> set[uuid.UUID]:
         User.role == UserRole.agent, User.agent_id == req.requester_agent_id)))
 
 
+def escalation_users(session: Session, req: LiquidityRequest) -> set[uuid.UUID]:
+    """The requester's distributor users and every admin: told when a request goes unfilled."""
+    agent = session.get(Agent, req.requester_agent_id)
+    dist = agent.distributor_id if agent else None
+    return set(session.scalars(select(User.id).where(
+        User.is_active.is_(True),
+        (User.role == UserRole.admin) | ((User.role == UserRole.distributor)
+                                         & (User.distributor_id == dist)))))
+
+
 def recipients_with(session: Session, req: LiquidityRequest,
                     responses: Iterable[HelpResponse]) -> set[uuid.UUID]:
     return set(session.scalars(select(LiquidityRequestRecipient.recipient_user_id).where(

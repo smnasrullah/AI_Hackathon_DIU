@@ -12,6 +12,7 @@ from app.api.v1 import (
     forecast,
     impact,
     liquidity_requests,
+    liquidity_trigger,
     llm,
     notifications,
     recommendation_requests,
@@ -46,6 +47,8 @@ api_router.include_router(recommendation_requests.router)
 api_router.include_router(swaps.router)
 api_router.include_router(liquidity_requests.router)
 api_router.include_router(liquidity_requests.admin_router)
+api_router.include_router(liquidity_trigger.router)
+api_router.include_router(liquidity_trigger.admin_router)
 api_router.include_router(risk_map.router)
 api_router.include_router(anomalies.router)
 api_router.include_router(impact.router)
