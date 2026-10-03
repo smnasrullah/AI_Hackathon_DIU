@@ -4,11 +4,6 @@ import type { Feature, FeatureCollection, LineString, Point } from "geojson";
 import type { MapAgent, MapSwap, RiskLevel } from "../../../api/types";
 import { SEVERITY } from "./controlRoomModel";
 
-/** DESIGN.md §1 risk hues; the map is always the dark Control Room style. */
-export const RISK_HEX: Record<RiskLevel, string> = { green: "#1FA971", amber: "#F2A900", red: "#E5484D" };
-export const DROPLET_HEX = "#00B8D9";
-export const FLOW_HEX = "#2F5BFF";
-
 /** Bangladesh, with a little sea margin (lng/lat). */
 export const BD_BOUNDS: [[number, number], [number, number]] = [
   [87.6, 20.4],
@@ -19,7 +14,6 @@ export interface AgentProps {
   id: number;
   level: RiskLevel;
   sev: number;
-  color: string;
   selected: boolean;
 }
 
@@ -35,7 +29,7 @@ export function agentFeatures(agents: readonly MapAgent[], selectedId: number | 
       type: "Feature",
       id: a.agent_id,
       geometry: { type: "Point", coordinates: [a.lng, a.lat] },
-      properties: { id: a.agent_id, level: a.level, sev: SEVERITY[a.level], color: RISK_HEX[a.level], selected: a.agent_id === selectedId },
+      properties: { id: a.agent_id, level: a.level, sev: SEVERITY[a.level], selected: a.agent_id === selectedId },
     })),
   };
 }

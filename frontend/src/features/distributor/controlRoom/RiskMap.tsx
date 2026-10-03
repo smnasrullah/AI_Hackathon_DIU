@@ -17,7 +17,8 @@ import { useLocale } from "../../../lib/prefs";
 import { MS } from "../../../styles/motion";
 import { clearMarkers, syncClusterLabels, syncSwapChips } from "./mapMarkers";
 import { agentFeatures, BD_BOUNDS, swapLines } from "./mapModel";
-import { BOUNDARY_URL, LAND_OPACITY, LAYER, mapStyle, SRC } from "./mapStyle";
+import { readMapPalette } from "./mapPalette";
+import { applyMapPalette, BOUNDARY_URL, LAND_OPACITY, LAYER, mapStyle, SRC } from "./mapStyle";
 import { useMapMotion } from "./useMapMotion";
 
 export interface RiskMapProps {
@@ -34,7 +35,9 @@ export interface RiskMapProps {
 
 const CLICKABLE = [LAYER.dot, LAYER.glow, LAYER.cluster] as const;
 
-/** MapLibre risk map: clustered glowing dots, selected ripple, SwapFlow droplets. Loaded lazily. */
+const boundaryHref = () => new URL(BOUNDARY_URL, window.location.origin).href;
+
+/** MapLibre risk map: clustered risk dots, selected ring, SwapFlow droplets. Colours follow the theme tokens. Loaded lazily. */
 export default function RiskMap({ agents, swaps, selectedId, onSelect, onlineTiles, onFail, label }: RiskMapProps) {
   const { lang, digits } = useLocale();
   const reduced = useReducedMotionPref();
@@ -44,6 +47,7 @@ export default function RiskMap({ agents, swaps, selectedId, onSelect, onlineTil
   const chips = useRef(new Map<number, Marker>());
   const active = useLoopActive(ref);
   const start = useRef({ online: onlineTiles, onSelect, onFail });
+  const online = useRef(onlineTiles);
 
   useEffect(() => {
     start.current.onSelect = onSelect;
@@ -58,7 +62,7 @@ export default function RiskMap({ agents, swaps, selectedId, onSelect, onlineTil
     try {
       m = new MlMap({
         container: el,
-        style: mapStyle(new URL(BOUNDARY_URL, window.location.origin).href, handlers.online),
+        style: mapStyle(boundaryHref(), handlers.online, readMapPalette()),
         bounds: BD_BOUNDS,
         fitBoundsOptions: { padding: 16 },
         maxBounds: [
@@ -101,12 +105,31 @@ export default function RiskMap({ agents, swaps, selectedId, onSelect, onlineTil
       m.on("mouseenter", layer, () => (m.getCanvas().style.cursor = "pointer"));
       m.on("mouseleave", layer, () => (m.getCanvas().style.cursor = ""));
     }
+    // Hovered dot grows and gets a heavier outline (feature-state "hover" in mapStyle).
+    let hovered: string | number | undefined;
+    const setHover = (id: string | number | undefined) => {
+      if (hovered !== undefined) m.setFeatureState({ source: SRC.agents, id: hovered }, { hover: false });
+      hovered = id;
+      if (id !== undefined) m.setFeatureState({ source: SRC.agents, id }, { hover: true });
+    };
+    m.on("mousemove", LAYER.dot, (e) => {
+      const id = e.features?.[0]?.id;
+      if (id !== hovered) setHover(id);
+    });
+    m.on("mouseleave", LAYER.dot, () => setHover(undefined));
+
+    // Theme switch: re-read the tokens and re-colour the live map.
+    const themeWatch = new MutationObserver(() => {
+      if (m.isStyleLoaded()) applyMapPalette(m, boundaryHref(), online.current, readMapPalette());
+    });
+    themeWatch.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
     const resize = new ResizeObserver(() => m.resize());
     resize.observe(el);
     const labels = clusters.current;
     const chipMap = chips.current;
     return () => {
+      themeWatch.disconnect();
       resize.disconnect();
       clearMarkers(labels);
       clearMarkers(chipMap);
@@ -143,6 +166,7 @@ export default function RiskMap({ agents, swaps, selectedId, onSelect, onlineTil
   useMapMotion(map, swaps, chips, active);
 
   useEffect(() => {
+    online.current = onlineTiles;
     if (!map) return;
     map.setLayoutProperty(LAYER.tiles, "visibility", onlineTiles ? "visible" : "none");
     map.setPaintProperty(LAYER.land, "fill-opacity", onlineTiles ? LAND_OPACITY.online : LAND_OPACITY.offline);
@@ -164,7 +188,7 @@ export default function RiskMap({ agents, swaps, selectedId, onSelect, onlineTil
       aria-label={label}
       data-testid="risk-map"
       data-ready={map ? "true" : "false"}
-      className="absolute inset-0 overflow-hidden rounded-[var(--radius-card)] bg-[#0A0F1F]"
+      className="absolute inset-0 overflow-hidden rounded-[var(--radius-card)] bg-(--map-water)"
     />
   );
 }

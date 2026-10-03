@@ -59,6 +59,39 @@
   }
 }
 
+/* Map cluster count label (DOM marker). "!" badge = the cluster includes an Act-now agent. */
+.ap-map-cluster {
+  position: relative;
+}
+.ap-map-cluster[data-sev="2"]::after {
+  content: "!";
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  display: grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 999px;
+  border: 1.5px solid var(--map-halo);
+  background: var(--act-solid);
+  color: var(--on-primary);
+  font-size: 10px;
+  line-height: 1;
+}
+/* Legend sample of a cluster: risk ring around a calm centre. */
+.ap-map-cluster-key {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 3px solid var(--risk-watch);
+  outline: 1px solid var(--map-outline);
+  background: var(--map-halo);
+  color: var(--fg);
+}
+
 /* Three thin sine lines, one 1200px period wide so the tile repeats seamlessly. */
 :root {
   --ap-wave-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 240' preserveAspectRatio='none'%3E%3Cg fill='none' stroke='%23000' stroke-width='1.5'%3E%3Cpath d='M0 150 C 200 110 400 110 600 150 S 1000 190 1200 150'/%3E%3Cpath d='M0 180 C 200 145 400 145 600 180 S 1000 215 1200 180' stroke-opacity='.7'/%3E%3Cpath d='M0 120 C 200 90 400 90 600 120 S 1000 150 1200 120' stroke-opacity='.45'/%3E%3C/g%3E%3Cpath d='M0 200 C 200 170 400 170 600 200 S 1000 230 1200 200 V240 H0Z' fill='%23000' fill-opacity='.35'/%3E%3C/svg%3E");

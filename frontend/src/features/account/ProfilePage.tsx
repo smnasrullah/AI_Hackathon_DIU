@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useProfile, useUpdateProfile } from "../../api/hooks/users";
 import type { AvatarColor, ProfileOut } from "../../api/types";
 import { LiquidButton } from "../../components/ui/LiquidButton";
+import { PageHeader } from "../../components/ui/PageHeader";
 import { Skeleton, SkeletonText } from "../../components/ui/Skeleton";
 import { ErrorState } from "../../components/ui/StatePanel";
 import { TimeText } from "../../components/ui/TimeText";
@@ -104,10 +105,7 @@ export function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
-      <header>
-        <p className="ap-eyebrow">{t("profile.eyebrow")}</p>
-        <h1 className="mt-1 font-display text-h1 font-bold">{t("page.profile")}</h1>
-      </header>
+      <PageHeader eyebrow={t("profile.eyebrow")} title={t("page.profile")} />
       {q.isPending ? (
         <Section title={t("page.profile")}>
           <div className="flex items-center gap-4">

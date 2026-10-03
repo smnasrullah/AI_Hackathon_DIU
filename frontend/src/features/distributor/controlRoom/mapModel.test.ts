@@ -1,17 +1,18 @@
 import { describe, expect, it } from "vitest";
 
-import { agentFeatures, along, droplets, RISK_HEX, swapLines } from "./mapModel";
+import { agentFeatures, along, droplets, swapLines } from "./mapModel";
 import { mapAt, SWAP } from "./testFixtures";
 
-function colours(hour: number): Record<number, string> {
+// The style paints each dot from its level (tokens.css risk colours), so the level is what must change.
+function levels(hour: number): Record<number, string> {
   const fc = agentFeatures(mapAt(hour).agents, null);
-  return Object.fromEntries(fc.features.map((f) => [f.properties.id, f.properties.color]));
+  return Object.fromEntries(fc.features.map((f) => [f.properties.id, f.properties.level]));
 }
 
 describe("map model", () => {
   it("recolours dots when the scrubber moves", () => {
-    expect(colours(0)).toEqual({ 1: RISK_HEX.green, 2: RISK_HEX.amber, 3: RISK_HEX.green });
-    expect(colours(24)).toEqual({ 1: RISK_HEX.red, 2: RISK_HEX.red, 3: RISK_HEX.amber });
+    expect(levels(0)).toEqual({ 1: "green", 2: "amber", 3: "green" });
+    expect(levels(24)).toEqual({ 1: "red", 2: "red", 3: "amber" });
   });
 
   it("puts dots at lng/lat with severity for cluster colouring and marks the selection", () => {

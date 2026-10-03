@@ -5,6 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import { useMarkAllNotificationsRead, useNotifications } from "../../api/hooks/notifications";
 import type { NotificationItem } from "../../api/types";
 import { LiquidButton } from "../../components/ui/LiquidButton";
+import { PageHeader } from "../../components/ui/PageHeader";
 import { SegmentedControl } from "../../components/ui/SegmentedControl";
 import { SkeletonRows } from "../../components/ui/Skeleton";
 import { ErrorState } from "../../components/ui/StatePanel";
@@ -48,26 +49,26 @@ export function NotificationsPage() {
 
   return (
     <section className="mx-auto max-w-3xl space-y-5">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="ap-eyebrow">{t("inbox.unread")}: {formatNumber(q.data?.unread_count ?? 0, digits)}</p>
-          <h1 className="mt-1 font-display text-h1 font-bold">{t("inbox.title")}</h1>
-        </div>
-        <LiquidButton
-          variant="secondary"
-          icon={CheckCheck}
-          disabled={!q.data || q.data.unread_count === 0}
-          loading={markAll.isPending}
-          onClick={() =>
-            markAll.mutate(undefined, {
-              onSuccess: () => toast({ tone: "success", title: t("inbox.markedAll") }),
-              onError: () => toast({ tone: "error", title: t("inbox.failed") }),
-            })
-          }
-        >
-          {t("inbox.markAll")}
-        </LiquidButton>
-      </header>
+      <PageHeader
+        eyebrow={`${t("inbox.unread")}: ${formatNumber(q.data?.unread_count ?? 0, digits)}`}
+        title={t("inbox.title")}
+        actions={
+          <LiquidButton
+            variant="secondary"
+            icon={CheckCheck}
+            disabled={!q.data || q.data.unread_count === 0}
+            loading={markAll.isPending}
+            onClick={() =>
+              markAll.mutate(undefined, {
+                onSuccess: () => toast({ tone: "success", title: t("inbox.markedAll") }),
+                onError: () => toast({ tone: "error", title: t("inbox.failed") }),
+              })
+            }
+          >
+            {t("inbox.markAll")}
+          </LiquidButton>
+        }
+      />
 
       <div className="flex flex-wrap gap-3">
         <SegmentedControl

@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { ShortcutList } from "../../app/shell/ShortcutList";
 import { useShellStore } from "../../app/shell/shellStore";
 import { LiquidButton } from "../../components/ui/LiquidButton";
+import { PageHeader } from "../../components/ui/PageHeader";
 import { Section } from "../account/Section";
 import { useAuthStore } from "../auth/authStore";
 
@@ -22,10 +23,7 @@ export function HelpPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
-      <header>
-        <p className="ap-eyebrow">{t("help.eyebrow")}</p>
-        <h1 className="mt-1 font-display text-h1 font-bold">{t("page.help")}</h1>
-      </header>
+      <PageHeader eyebrow={t("help.eyebrow")} title={t("page.help")} />
 
       <Section title={t("help.faqTitle")}>
         <div className="divide-y divide-line">

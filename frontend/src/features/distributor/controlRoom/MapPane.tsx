@@ -2,7 +2,7 @@ import { Droplets, FilterX, Globe } from "lucide-react";
 import { lazy, Suspense, useCallback, useEffect, useState, type ComponentType, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import type { MapAgent, MapSwap } from "../../../api/types";
+import type { MapAgent, MapSwap, RiskLevel } from "../../../api/types";
 import { Skeleton } from "../../../components/ui/Skeleton";
 import { EmptyState, ErrorState } from "../../../components/ui/StatePanel";
 import { RISK_STYLE } from "../../../components/ui/risk";
@@ -20,7 +20,21 @@ const RiskMap = lazy(
   (): Promise<{ default: ComponentType<RiskMapProps> }> => import("./RiskMap").catch(() => ({ default: MapLoadFailed })),
 );
 
-const OVERLAY = "glass rounded-2xl px-3 py-2 text-xs text-fg";
+const OVERLAY = "glass rounded-[var(--radius-input)] border border-line px-3 py-2 text-xs text-fg shadow-soft";
+
+/** Same encoding as the map: size grows with risk, "Act now" has an extra ring (never colour alone). */
+const MARK_SIZE: Record<RiskLevel, string> = { green: "size-2.5", amber: "size-3", red: "size-3.5" };
+
+function LegendMark({ level }: { level: RiskLevel }) {
+  return (
+    <span aria-hidden className="grid size-5 shrink-0 place-items-center">
+      <span
+        className={cn("rounded-full border border-(--map-outline)", MARK_SIZE[level], level === "red" && "outline-2 outline-offset-2")}
+        style={{ background: RISK_STYLE[level].stroke, outlineColor: level === "red" ? RISK_STYLE[level].stroke : undefined }}
+      />
+    </span>
+  );
+}
 
 interface MapPaneProps {
   agents: MapAgent[];
@@ -42,14 +56,22 @@ function Legend() {
         const Icon = RISK_STYLE[level].icon;
         return (
           <li key={level} className="flex items-center gap-2">
-            <span aria-hidden className="size-2.5 rounded-full" style={{ background: RISK_STYLE[level].stroke, boxShadow: `0 0 8px ${RISK_STYLE[level].stroke}` }} />
+            <LegendMark level={level} />
             <Icon aria-hidden className={cn("size-3.5", RISK_STYLE[level].fg)} />
-            {t(`risk.${level}`)}
+            <span className="font-semibold">{t(`risk.${level}`)}</span>
           </li>
         );
       })}
       <li className="flex items-center gap-2">
-        <Droplets aria-hidden className="size-3.5 text-emoney" />
+        <span aria-hidden className="grid size-5 shrink-0 place-items-center">
+          <span className="ap-map-cluster-key num text-[10px] font-bold">3</span>
+        </span>
+        <span className="max-w-44">{t("controlRoom.map.clusterKey")}</span>
+      </li>
+      <li className="flex items-center gap-2">
+        <span aria-hidden className="grid size-5 shrink-0 place-items-center">
+          <Droplets className="size-3.5 text-emoney-fg" />
+        </span>
         {t("controlRoom.map.swapFlow")}
       </li>
     </ul>
@@ -71,7 +93,7 @@ export function MapPane({ agents, swaps, status, onRetry, retrying, summary, scr
   return (
     <section
       aria-labelledby="map-heading"
-      className={cn("relative isolate min-h-[420px] overflow-hidden rounded-[var(--radius-card)] border border-line bg-[#0A0F1F] shadow-lift", className)}
+      className={cn("relative isolate min-h-[420px] overflow-hidden rounded-[var(--radius-card)] border border-line bg-(--map-water) shadow-soft", className)}
     >
       <h2 id="map-heading" className="sr-only">
         {t("controlRoom.map.title")}
@@ -119,7 +141,7 @@ export function MapPane({ agents, swaps, status, onRetry, retrying, summary, scr
 
       {status === "pending" ? <Skeleton className="absolute inset-0 z-10 rounded-none opacity-60" /> : null}
       {status === "error" ? (
-        <div className="absolute inset-0 z-20 grid place-items-center bg-ink-950/50 p-6">
+        <div className="absolute inset-0 z-20 grid place-items-center bg-bg/70 p-6 backdrop-blur-sm">
           <ErrorState compact onRetry={onRetry} retrying={retrying} />
         </div>
       ) : null}

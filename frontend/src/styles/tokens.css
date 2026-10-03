@@ -97,6 +97,17 @@
   --mesh-c: rgba(255, 194, 14, 0.05);
   --wave-color: rgba(47, 91, 255, 0.07);
 
+  /* Map (read by the MapLibre style at runtime): soft water, white land, readable borders.
+     Risk dots use --risk-* fills with a dark outline (3:1+ against land) and a white halo. */
+  --map-water: #e3eaf4;
+  --map-land: #ffffff;
+  --map-border: rgba(75, 88, 120, 0.55);
+  --map-halo: #ffffff;
+  --map-outline: rgba(11, 19, 36, 0.72);
+  --map-selected: var(--ink-950);
+  --map-flow: var(--pulse-blue);
+  --map-droplet: var(--float-emoney);
+
   /* Aurora (hero + empty states only) */
   --aurora-yellow: rgba(255, 194, 14, 0.1);
   --aurora-blue: rgba(47, 91, 255, 0.1);
@@ -148,6 +159,13 @@
   --mesh-b: rgba(0, 184, 217, 0.08);
   --mesh-c: rgba(124, 92, 255, 0.06);
   --wave-color: rgba(142, 166, 255, 0.07);
+
+  --map-water: #070d1a;
+  --map-land: #16213a;
+  --map-border: rgba(142, 166, 255, 0.4);
+  --map-halo: #0a1120;
+  --map-outline: rgba(233, 238, 247, 0.8);
+  --map-selected: #ffffff;
 
   --skeleton-base: rgba(233, 238, 247, 0.07);
   --skeleton-shine: rgba(233, 238, 247, 0.08);

@@ -5,9 +5,10 @@ import { Marker, type Map as MlMap } from "maplibre-gl";
 import type { MapSwap } from "../../../api/types";
 import { SRC } from "./mapStyle";
 
-const CLUSTER_CLASS = "pointer-events-none num text-xs font-bold text-white";
+// Cluster counts sit on the calm centre of the cluster ring; data-sev="2" adds the "!" act-now badge (components.css).
+const CLUSTER_CLASS = "ap-map-cluster pointer-events-none num text-xs font-bold text-fg";
 const CHIP_CLASS =
-  "pointer-events-none num rounded-full border border-white/20 bg-[#121A33]/90 px-2 py-0.5 text-[11px] font-semibold text-white shadow-[0_0_16px_rgba(0,184,217,.35)]";
+  "pointer-events-none num rounded-full border border-line-strong bg-surface px-2 py-0.5 text-[11px] font-semibold text-fg shadow-soft";
 
 function label(className: string, text: string): HTMLElement {
   const el = document.createElement("div");
@@ -26,12 +27,16 @@ export function syncClusterLabels(map: MlMap, labels: Map<number, Marker>, forma
     seen.add(id);
     const [lng = 0, lat = 0] = f.geometry.coordinates;
     const text = format(Number(f.properties?.["point_count"]));
+    const sev = String(f.properties?.["maxSev"] ?? 0);
     const existing = labels.get(id);
     if (existing) {
       existing.setLngLat([lng, lat]);
       existing.getElement().textContent = text;
+      existing.getElement().dataset.sev = sev;
     } else {
-      labels.set(id, new Marker({ element: label(CLUSTER_CLASS, text) }).setLngLat([lng, lat]).addTo(map));
+      const el = label(CLUSTER_CLASS, text);
+      el.dataset.sev = sev;
+      labels.set(id, new Marker({ element: el }).setLngLat([lng, lat]).addTo(map));
     }
   }
   for (const [id, marker] of labels) {

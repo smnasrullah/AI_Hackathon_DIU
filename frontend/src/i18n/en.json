@@ -863,6 +863,7 @@
       "title": "Risk map",
       "legend": "Map legend",
       "swapFlow": "Swap flow",
+      "clusterKey": "Group: ring = worst level, ! = has Act now",
       "tilesOn": "Online map on",
       "tilesOff": "Offline map",
       "tilesHint": "Street tiles need internet. The offline map always works.",

@@ -2,6 +2,7 @@ import { Database, ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
+import { PageHeader } from "../../components/ui/PageHeader";
 import { formatNumber } from "../../lib/format";
 import { useLocale } from "../../lib/prefs";
 import { Section } from "../account/Section";
@@ -16,11 +17,7 @@ export function AboutPage() {
   const { digits } = useLocale();
   return (
     <div className="mx-auto max-w-3xl space-y-5">
-      <header>
-        <p className="ap-eyebrow">{t("about.eyebrow")}</p>
-        <h1 className="mt-1 font-display text-h1 font-bold">{t("page.about")}</h1>
-        <p className="mt-2 max-w-prose text-muted">{t("about.lead")}</p>
-      </header>
+      <PageHeader eyebrow={t("about.eyebrow")} title={t("page.about")} description={t("about.lead")} />
 
       <Section title={t("about.syntheticTitle")}>
         <p className="flex gap-3 text-small text-muted">

@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useUpdatePreferences } from "../../api/hooks/users";
 import type { PreferencesUpdate } from "../../api/types";
 import { LiquidButton } from "../../components/ui/LiquidButton";
+import { PageHeader } from "../../components/ui/PageHeader";
 import { SegmentedControl } from "../../components/ui/SegmentedControl";
 import { toast } from "../../components/ui/toastStore";
 import { useShellStore } from "../../app/shell/shellStore";
@@ -82,12 +83,7 @@ export function SettingsPage() {
 
   return (
     <article className="mx-auto max-w-2xl space-y-5" aria-labelledby={headingId}>
-      <header>
-        <p className="ap-eyebrow">{t("settings.eyebrow")}</p>
-        <h1 id={headingId} className="mt-1 font-display text-h1 font-bold">
-          {t("page.settings")}
-        </h1>
-      </header>
+      <PageHeader eyebrow={t("settings.eyebrow")} title={t("page.settings")} headingId={headingId} />
 
       <Section title={t("settings.display")}>
         <div className="divide-y divide-line">
