@@ -44,8 +44,9 @@ class TickReport:
     run: RunReport
 
 
-def _create(item: help_trigger.AgentPlan, now: datetime, cap: int) -> int | None:
-    """The new request id, or None: the item's skipped reason is set instead."""
+def _create(item: help_trigger.AgentPlan, now: datetime, cap: int, force: bool) -> int | None:
+    """The new request id, or None: the item's skipped reason is set instead. force: the
+    admin's demo simulation, not held back by the cooldown or the daily cap."""
     if item.needed_by is None:
         return None
     try:
@@ -57,7 +58,8 @@ def _create(item: help_trigger.AgentPlan, now: datetime, cap: int) -> int | None
                 deadline_after_stockout=item.asap,
                 agent_cap=cap,
                 candidates=[Candidate(a.user_id, a.distance_km) for a in item.asks],
-                created_by=HelpOrigin.system, now=now, simulated=item.simulated)
+                created_by=HelpOrigin.system, now=now, simulated=item.simulated,
+                bypass_limits=force and item.simulated)
             new_id = req.id
     except HelpError as exc:
         item.skipped = exc.code
@@ -68,10 +70,13 @@ def _create(item: help_trigger.AgentPlan, now: datetime, cap: int) -> int | None
     return new_id
 
 
-def run_trigger(now: datetime, agent_ids: set[int] | None = None) -> RunReport:
+def run_trigger(now: datetime, agent_ids: set[int] | None = None,
+                force: bool = False) -> RunReport:
+    """force: the admin's "simulate shortage" run (DEMO_MODE); see help_trigger._plan_one."""
     with Session(get_engine()) as s:
         tp, hp = help_settings.trigger_current(s), help_settings.current(s)
-        plans = help_trigger.plan(s, now, tp, hp, agent_ids, help_trigger.current_demo(s, now))
+        plans = help_trigger.plan(s, now, tp, hp, agent_ids, help_trigger.current_demo(s, now),
+                                  force)
     report = RunReport(dry_run=hp.dry_run, enabled=hp.enabled, plans=plans, created=[])
     _defer_beyond_cap(plans, tp.max_new_per_tick)
     for item in plans:
@@ -82,7 +87,7 @@ def run_trigger(now: datetime, agent_ids: set[int] | None = None) -> RunReport:
                      "asking %d", item.verdict.amount_bdt, item.float_type.value,
                      item.agent_code, len(item.asks))
             continue
-        new_id = _create(item, now, help_trigger.wave_one_cap(item.urgent, tp, hp))
+        new_id = _create(item, now, help_trigger.wave_one_cap(item.urgent, tp, hp), force)
         if new_id is not None:
             report.created.append(new_id)
             log.info("help trigger: request %d for agent %s (%s)", new_id, item.agent_code,

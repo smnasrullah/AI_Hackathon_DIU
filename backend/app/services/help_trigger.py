@@ -2,7 +2,8 @@
 
 The writes live in help_trigger_run.py (requests) and help_waves.py (wave advance). The demo
 shortage (admin helper, DEMO_MODE only) is applied here and every result it produces is marked
-simulated. Nothing here moves money.
+simulated; the admin's own "simulate shortage" run (force=True) is not held back by the
+cooldown, the daily cap, the demo auto cap or the recent-ask window. Nothing here moves money.
 """
 
 import uuid
@@ -33,7 +34,7 @@ from app.rules.help_trigger_rules import Helper, TriggerPolicy, Verdict
 from app.rules.rebalance_rules import ROUND_BDT
 from app.rules.risk_rules import HEADLINE_HORIZON
 from app.rules.swap_rules import Donor, Receiver, SwapConfig, haversine_km, pair
-from app.services import explanation, forecast, help_reason, risk
+from app.services import explanation, forecast, help_demo, help_reason, risk
 from app.services import liquidity_requests as help_requests
 from app.services.forecast import _utc
 from app.services.model_registry import active_model
@@ -157,7 +158,7 @@ def abuse_block(session: Session, agent_id: int, now: datetime,
                 hp: hrules.HelpPolicy) -> str | None:
     earlier = session.scalars(select(LiquidityRequest.created_at).where(
         LiquidityRequest.requester_agent_id == agent_id,
-        LiquidityRequest.created_at > now - hrules.DAY))
+        LiquidityRequest.created_at > help_demo.window_start(session, agent_id, now)))
     return hrules.abuse_block((_utc(t) for t in earlier), now, hp)
 
 
@@ -204,9 +205,10 @@ def _near_helpers(requester: Agent, float_type: FloatType, amount: float, tp: Tr
 
 def ranked_helpers(session: Session, requester: Agent, float_type: FloatType, amount: float,
                    now: datetime, tp: TriggerPolicy, sigs: dict[Key, Signal],
-                   exclude: set[uuid.UUID]) -> Pool:
+                   exclude: set[uuid.UUID], ignore_recent: bool = False) -> Pool:
     """Distributor users (always, no surplus test) and agent users ranked by rank_score.
-    Excluded: already asked in this request, opted out, inactive, asked recently."""
+    Excluded: already asked in this request, opted out, inactive, asked recently (unless
+    ignore_recent: the admin's demo simulation)."""
     distributor = session.get(Distributor, requester.distributor_id)
     dist_asks: list[Ask] = []
     if distributor is not None:
@@ -226,7 +228,7 @@ def ranked_helpers(session: Session, requester: Agent, float_type: FloatType, am
     for u in users:
         sig, km, surplus = near[u.agent_id or 0]
         asked, accepted, recent, last = stats.get(u.id, (0, 0, 0, None))
-        if rules.asked_recently(last, now, tp):
+        if not ignore_recent and rules.asked_recently(last, now, tp):
             continue
         helpers.append(Helper(u.id, km, surplus, recent, asked, accepted))
         asks[u.id] = Ask(u.id, sig.agent.code, UserRole.agent, round(km, 2))
@@ -241,9 +243,10 @@ def _reason(session: Session, sig: Signal, v: Verdict) -> help_reason.HelpReason
 
 
 def _plan_one(session: Session, sig: Signal, now: datetime, tp: TriggerPolicy,
-              hp: hrules.HelpPolicy, sigs: dict[Key, Signal]) -> AgentPlan:
+              hp: hrules.HelpPolicy, sigs: dict[Key, Signal], force: bool) -> AgentPlan:
     """`now` is wall-clock time; the forecast's hours count from its origin, which is placed at
-    `now` (app/core/clock.py), so needed_by and stockout_at are wall-clock times."""
+    `now` (app/core/clock.py), so needed_by and stockout_at are wall-clock times.
+    force: the admin's simulation; a simulated signal skips the requester and helper limits."""
     v = rules.evaluate(sig.balance, sig.drain[:, 2], sig.inflow[:, 0], sig.buffer, sig.level,
                        sig.median_h, tp)
     item = AgentPlan(sig.agent.id, sig.agent.code, sig.float_type, v, sig.simulated)
@@ -258,10 +261,16 @@ def _plan_one(session: Session, sig: Signal, now: datetime, tp: TriggerPolicy,
     if help_requests.active_for(session, key) is not None:
         item.skipped = "active_request"
         return item
-    item.skipped = abuse_block(session, sig.agent.id, now, hp)
-    if item.skipped:
-        return item
-    pool = ranked_helpers(session, sig.agent, sig.float_type, v.amount_bdt, now, tp, sigs, set())
+    bypass = force and sig.simulated
+    if not bypass:
+        item.skipped = abuse_block(session, sig.agent.id, now, hp)
+        if item.skipped is None and help_demo.auto_capped(session, sig.agent.id,
+                                                          sig.float_type, now):
+            item.skipped = "demo_daily_auto"
+        if item.skipped:
+            return item
+    pool = ranked_helpers(session, sig.agent, sig.float_type, v.amount_bdt, now, tp, sigs, set(),
+                          ignore_recent=bypass)
     item.asks = pool.distributors + pool.agents[:wave_one_cap(item.urgent, tp, hp)]
     if not item.asks:
         item.skipped = "no_candidates"
@@ -275,11 +284,12 @@ def wave_one_cap(urgent: bool, tp: TriggerPolicy, hp: hrules.HelpPolicy) -> int:
 
 
 def plan(session: Session, now: datetime, tp: TriggerPolicy, hp: hrules.HelpPolicy,
-         agent_ids: set[int] | None = None, demo: Demo | None = None) -> list[AgentPlan]:
+         agent_ids: set[int] | None = None, demo: Demo | None = None,
+         force: bool = False) -> list[AgentPlan]:
     """Every agent and float: verdict, skip reason and who would be asked. Never writes."""
     sigs = signals(session, now, tp, demo)
     keys = sorted(k for k in sigs if agent_ids is None or k[0] in agent_ids)
-    return [_plan_one(session, sigs[k], now, tp, hp, sigs) for k in keys]
+    return [_plan_one(session, sigs[k], now, tp, hp, sigs, force) for k in keys]
 
 
 def simulate_shortage(session: Session, user: User, agent_id: int, float_type: FloatType,

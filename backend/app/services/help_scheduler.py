@@ -2,8 +2,9 @@
 
 A tick = claim-timeout sweep, wave advance, trigger (help_trigger_run.tick). It runs only
 - once bootstrap is ready (before that the tables or the forecast may not exist yet), and in
-  DEMO_MODE not before HELP_SCHEDULER_DEMO_START_DELAY_S after this process first saw it ready
-  (a fresh demo does not open with a burst of requests), and
+  DEMO_MODE, after a FRESH bootstrap only (the database was seeded in that run), not before
+  HELP_SCHEDULER_DEMO_START_DELAY_S after it became ready (a new demo does not open with a
+  burst of requests); a plain restart does not wait again, and
 - in the one process holding the leader lock (app/core/leader.py: Postgres advisory lock,
   file lock on SQLite), so several workers or instances never act twice.
 Every tick is idempotent anyway (dedupe, compare-and-set moves), as a second line of defence.
@@ -31,6 +32,8 @@ from app.services import help_trigger_run, system_status
 
 log = logging.getLogger(__name__)
 STATUS_KEY = "help_scheduler_status"
+FRESH_SEED_KEY = "bootstrap_fresh_seed"  # bootstrap.py seed: this run seeded the database
+FRESH_READY_KEY = "bootstrap_fresh_ready_at"  # bootstrap.py mark-ready: when that run was ready
 LOCK_ID = 7_310_455_001  # pg advisory lock key of the help scheduler (any fixed bigint)
 WAIT_POLL_S = 5  # while bootstrap runs (or the demo start delay), look again this often
 QUIET = {"waiting": "waiting for bootstrap",
@@ -38,18 +41,27 @@ QUIET = {"waiting": "waiting for bootstrap",
          "standby": "another process is the leader; standing by"}
 _stop = threading.Event()
 _thread: threading.Thread | None = None
-# This process: when it first saw bootstrap ready, and whether it has ticked since.
-_start: dict[str, datetime | bool | None] = {"ready_since": None, "ticked": False}
+# This process: whether it has ticked since it started.
+_start: dict[str, bool] = {"ticked": False}
+
+
+def fresh_ready_at() -> datetime | None:
+    """When the last fresh bootstrap (a newly seeded database) became ready, if recorded."""
+    with Session(get_engine()) as s:
+        row = s.get(SystemMeta, FRESH_READY_KEY)
+    if row is None or not isinstance(row.value, str):
+        return None
+    return clock.as_utc(datetime.fromisoformat(row.value))
 
 
 def _held_for_demo(now: datetime) -> bool:
-    """DEMO_MODE: hold the very first tick until ready + the start delay."""
+    """DEMO_MODE: after a fresh bootstrap, hold the first tick until ready + the start delay."""
     settings = get_settings()
     if not settings.demo_mode or _start["ticked"]:
         return False
-    since = _start["ready_since"]
-    if not isinstance(since, datetime):
-        _start["ready_since"] = since = now
+    since = fresh_ready_at()
+    if since is None:
+        return False  # a restart of an existing database: no delay
     return now < since + timedelta(seconds=settings.help_scheduler_demo_start_delay_s)
 
 

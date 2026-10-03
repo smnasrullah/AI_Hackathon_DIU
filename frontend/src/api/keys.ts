@@ -70,6 +70,7 @@ export const qk = {
     admin: (q: HelpRequestListQuery = {}) => ["help-requests", "admin", q] as const,
     settings: ["help-requests", "admin", "settings"] as const,
     trigger: ["help-requests", "admin", "trigger"] as const,
+    demo: ["help-requests", "admin", "demo"] as const,
     agents: ["help-requests", "agents"] as const,
   },
   system: { freshness: ["system", "freshness"] as const, llm: ["llm", "status"] as const },

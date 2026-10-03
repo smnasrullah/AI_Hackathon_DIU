@@ -1898,7 +1898,28 @@
         "none": "No request was created for that shop.",
         "failed": "The simulation could not run.",
         "dryRun": "Dry run is on: nothing was sent. {{n}} people would have been asked.",
-        "switchedOff": "Help requests are switched off: nothing was sent. {{n}} people would have been asked."
+        "switchedOff": "Help requests are switched off: nothing was sent. {{n}} people would have been asked.",
+        "blocked": {
+          "active_request": "This shop already has an open request for that float. Open it, or reset the demo state first.",
+          "no_candidates": "Nobody nearby can help with that amount right now.",
+          "no_recipients": "Nobody nearby can help with that amount right now.",
+          "feature_disabled": "Help requests are switched off, so nothing was created.",
+          "deadline_passed": "The deadline had already passed, so nothing was created.",
+          "other": "No request was created for that shop."
+        }
+      },
+      "demoMode": {
+        "title": "Demo mode is on",
+        "lead": "These demo defaults are in force so the wave story works without changing any setting. A value you save yourself still wins.",
+        "none": "No demo defaults are in force; your own settings apply.",
+        "autoCap": "The automatic check makes at most {{n}} request(s) per shop and float per day.",
+        "startDelay": "After a fresh start, the first automatic check waits {{n}} seconds.",
+        "lastReset": "Last demo reset:",
+        "reset": "Reset demo help-request state",
+        "resetTitle": "Reset the demo help requests?",
+        "resetBody": "Open and claimed requests of the demo shops are cancelled (they stay in the history), any simulated shortage ends, and their cooldowns and daily limits start again from now. Nobody is messaged. This is written to the audit log.",
+        "resetDone": "Demo state reset: {{n}} request(s) cancelled.",
+        "resetFailed": "The reset did not work. Try again."
       }
     },
     "urgent": "Urgent",

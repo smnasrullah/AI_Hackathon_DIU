@@ -1,6 +1,8 @@
 import { api } from "../../lib/api";
 import type {
   AgentProfile,
+  DemoHelpInfo,
+  DemoResetOut,
   DryRunOut,
   HelpNoteIn,
   HelpRequestItem,
@@ -88,6 +90,16 @@ export async function dryRunHelp(agentIds: number[] | null): Promise<DryRunOut> 
 /** DEMO_MODE only: forces one agent into a 30-minute shortage and runs the helper search now. */
 export async function simulateShortage(body: SimulateIn): Promise<SimulateOut> {
   return (await api.post<SimulateOut>(`${ADMIN}/simulate-shortage`, body)).data;
+}
+
+/** What DEMO_MODE changes for help requests (read-only). */
+export async function getDemoHelp(): Promise<DemoHelpInfo> {
+  return (await api.get<DemoHelpInfo>(`${ADMIN}/demo`)).data;
+}
+
+/** DEMO_MODE only: cancels the demo agents' open requests and restarts their limits. */
+export async function resetDemoHelp(): Promise<DemoResetOut> {
+  return (await api.post<DemoResetOut>(`${ADMIN}/demo-reset`)).data;
 }
 
 export async function sweepHelpRequests(): Promise<HelpSweepOut> {

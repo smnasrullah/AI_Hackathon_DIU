@@ -117,9 +117,16 @@ class Settings(BaseSettings):
     # Urgent (stock-out sooner than twice the floor): wave 1 asks this many times more agents.
     help_trigger_urgent_wave_multiplier: float = 2.0
     help_trigger_max_new_per_tick: int = 3  # new requests per tick, most urgent first
-    # DEMO_MODE: the scheduler's first tick waits this long after bootstrap is ready, so a fresh
-    # demo does not open with a burst of requests before anyone is watching.
+    # DEMO_MODE: after a FRESH bootstrap (the database was just seeded) the scheduler's first
+    # tick waits this long, so a new demo does not open with a burst of requests before anyone
+    # is watching. A plain restart does not wait.
     help_scheduler_demo_start_delay_s: int = 120
+    # DEMO_MODE: demo defaults for the wave story (small wave 1, short waves, no recent-ask
+    # window; app/services/help_settings.py DEMO_*). Admin overrides still win. Off = env defaults.
+    help_demo_defaults: bool = True
+    # DEMO_MODE: the automatic trigger makes at most this many requests per agent and float in
+    # a rolling 24 h (0 = no extra limit). The admin "simulate shortage" is not limited by it.
+    help_demo_auto_per_day: int = 1
 
     llm_provider: LlmProvider = "auto"
     llm_model: str = "claude-haiku-4-5-20251001"

@@ -14,9 +14,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.core.config import get_settings
 from app.core.deps import SessionDep, require_roles
-from app.models import Agent, User
+from app.models import Agent, SystemMeta, User
 from app.models.enums import Lang, UserRole
 from app.schemas.help_trigger import (
+    DemoHelpInfo,
+    DemoOverride,
+    DemoResetOut,
     DryRunIn,
     DryRunOut,
     OptOutIn,
@@ -29,7 +32,7 @@ from app.schemas.help_trigger import (
     TriggerSettingsIn,
     TriggerSettingsOut,
 )
-from app.services import help_reason, help_settings, help_trigger_run
+from app.services import help_demo, help_reason, help_settings, help_trigger_run
 from app.services import help_trigger as trig
 from app.services.liquidity_requests import now_utc
 
@@ -160,13 +163,56 @@ def simulate_shortage(body: SimulateIn, user: Admin, session: SessionDep) -> Sim
         session.rollback()
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail=exc.code) from exc
     session.commit()
-    report = help_trigger_run.run_trigger(now, {body.agent_id})
+    report = help_trigger_run.run_trigger(now, {body.agent_id}, force=True)
     mine = [p for p in report.plans if p.float_type == body.float_type]
     plan = mine[0] if mine else None
     if plan is None:  # no forecast covers this agent yet: the demo cannot act on it
         raise HTTPException(status.HTTP_409_CONFLICT, detail="no_forecast")
+    blocked = None  # a clear reason when this float got no request (or would get none)
+    if not report.enabled:
+        blocked = "feature_disabled"
+    elif not plan.would_create:
+        blocked = plan.skipped or plan.verdict.reason
     return SimulateOut(agent_id=body.agent_id, agent_code=plan.agent_code,
                        float_type=body.float_type, until=until,
                        created_request_ids=report.created, plan=_item_out(plan, user.lang),
                        dry_run=report.dry_run, enabled=report.enabled, sent=report.sent,
-                       would_create=[_item_out(p, user.lang) for p in report.would_create])
+                       would_create=[_item_out(p, user.lang) for p in report.would_create],
+                       blocked_reason=blocked)
+
+
+@admin_router.get("/demo", response_model=DemoHelpInfo)
+def demo_info(_user: Admin, session: SessionDep) -> DemoHelpInfo:
+    """What DEMO_MODE changes for help requests: demo defaults in force, the automatic-request
+    cap, the fresh-bootstrap start delay and the last demo reset. Read-only."""
+    s = get_settings()
+    on = help_settings.demo_defaults_on()
+    stored: dict[str, object] = {}
+    for key in (help_settings.KEY, help_settings.TRIGGER_KEY):
+        row = session.get(SystemMeta, key)
+        if row is not None and isinstance(row.value, dict):
+            stored.update(row.value)
+    demo = {**help_settings.DEMO_HELP, **help_settings.DEMO_TRIGGER} if on else {}
+    reset = session.get(SystemMeta, help_demo.RESET_KEY)
+    last = (reset.value.get("at") if reset is not None and isinstance(reset.value, dict)
+            else None)
+    return DemoHelpInfo(
+        demo_mode=s.demo_mode, defaults_on=on,
+        overrides=[DemoOverride(name=k, value=v) for k, v in demo.items()
+                   if k not in stored or stored[k] == v],
+        auto_per_day=s.help_demo_auto_per_day if s.demo_mode else 0,
+        start_delay_s=s.help_scheduler_demo_start_delay_s if s.demo_mode else 0,
+        last_reset_at=last)
+
+
+@admin_router.post("/demo-reset", response_model=DemoResetOut)
+def demo_reset(user: Admin, session: SessionDep) -> DemoResetOut:
+    """DEMO_MODE only. Cancels the demo agents' open or claimed requests (kept and audited,
+    nobody notified), ends a simulated shortage and restarts their cooldown, daily cap and demo
+    auto cap from now. Audit logged (help_demo.reset)."""
+    if not get_settings().demo_mode:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="demo_mode_off")
+    result = help_demo.reset(session, user, now_utc())
+    session.commit()
+    return DemoResetOut(cancelled_request_ids=result.cancelled_request_ids,
+                        agent_ids=result.agent_ids, reset_at=result.at)

@@ -52,6 +52,9 @@ def env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
     monkeypatch.setenv("LLM_PROVIDER", "auto")
     monkeypatch.setenv("LLM_API_KEY", "")
     monkeypatch.setenv("DEMO_MODE", "true")
+    # Tests run the real help rules; tests/test_help_demo_mode.py switches the demo ones on.
+    monkeypatch.setenv("HELP_DEMO_DEFAULTS", "false")
+    monkeypatch.setenv("HELP_DEMO_AUTO_PER_DAY", "0")
     get_settings.cache_clear()
     get_engine.cache_clear()
     yield tmp_path
@@ -75,6 +78,8 @@ def _seed_env(mp: pytest.MonkeyPatch) -> None:
     mp.setenv("LLM_PROVIDER", "auto")
     mp.setenv("LLM_API_KEY", "")
     mp.setenv("DEMO_MODE", "true")
+    mp.setenv("HELP_DEMO_DEFAULTS", "false")
+    mp.setenv("HELP_DEMO_AUTO_PER_DAY", "0")
 
 
 def migrate_and_seed() -> None:

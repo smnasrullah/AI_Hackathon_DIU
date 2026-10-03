@@ -98,6 +98,31 @@ class SimulateOut(BaseModel):
     enabled: bool
     sent: bool  # false under dry run or the kill switch: nothing was created or sent
     would_create: list[PlanItemOut]  # then: what WOULD have been sent, and to whom
+    # Why no request was made although the run was live (e.g. active_request, no_candidates,
+    # feature_disabled, below the trigger); None when one was made or under dry run.
+    blocked_reason: str | None = None
+
+
+class DemoOverride(BaseModel):
+    name: str  # setting name, as in the help / trigger settings
+    value: float | int
+
+
+class DemoHelpInfo(BaseModel):
+    """What DEMO_MODE changes for help requests (read-only, shown to admins)."""
+
+    demo_mode: bool
+    defaults_on: bool  # HELP_DEMO_DEFAULTS
+    overrides: list[DemoOverride]  # demo defaults in force (an admin's own setting still wins)
+    auto_per_day: int  # automatic requests per agent and float per 24 h, 0 = no extra limit
+    start_delay_s: int  # first scheduler tick after a fresh bootstrap
+    last_reset_at: datetime | None
+
+
+class DemoResetOut(BaseModel):
+    cancelled_request_ids: list[int]
+    agent_ids: list[int]
+    reset_at: datetime
 
 
 class TriggerRunOut(BaseModel):

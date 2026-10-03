@@ -8,6 +8,7 @@ import {
   confirmLateHelpRequest,
   declineHelpRequest,
   dryRunHelp,
+  getDemoHelp,
   getHelpRequest,
   getHelpSettings,
   getTriggerSettings,
@@ -17,6 +18,7 @@ import {
   listMyHelpRequests,
   putHelpSettings,
   putTriggerSettings,
+  resetDemoHelp,
   simulateShortage,
   withdrawHelpRequest,
 } from "../services/helpRequests";
@@ -124,6 +126,18 @@ export function useSimulateShortage() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (body: SimulateIn) => simulateShortage(body),
+    onSettled: () => client.invalidateQueries({ queryKey: qk.help.all }),
+  });
+}
+
+export function useDemoHelp(enabled: boolean) {
+  return useQuery({ queryKey: qk.help.demo, queryFn: getDemoHelp, enabled });
+}
+
+export function useResetDemoHelp() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: resetDemoHelp,
     onSettled: () => client.invalidateQueries({ queryKey: qk.help.all }),
   });
 }

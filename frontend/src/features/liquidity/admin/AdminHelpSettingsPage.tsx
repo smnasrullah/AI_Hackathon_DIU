@@ -5,6 +5,7 @@ import { useSystemStatus } from "../../../api/hooks/system";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import { ErrorState } from "../../../components/ui/StatePanel";
 import { SkeletonPanel } from "../../../components/ui/Skeleton";
+import { DemoModePanel } from "./DemoModePanel";
 import { DemoShortage } from "./DemoShortage";
 import { DryRunPreview } from "./DryRunPreview";
 import { PolicyForm } from "./PolicyForm";
@@ -21,6 +22,8 @@ export function AdminHelpSettingsPage() {
   return (
     <div className="space-y-8">
       <PageHeader title={t("liquidity.admin.title")} description={t("liquidity.admin.lead")} />
+
+      {demo ? <DemoModePanel /> : null}
 
       {policy.isPending || trigger.isPending ? (
         <div className="grid gap-6 lg:grid-cols-2">

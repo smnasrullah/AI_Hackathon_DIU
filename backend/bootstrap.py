@@ -7,6 +7,7 @@ import argparse
 import logging
 import sys
 import time
+from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy import select
@@ -16,7 +17,7 @@ from sqlalchemy.orm import Session
 from app.core.config import DATA_VERSION, get_settings
 from app.core.db import get_engine
 from app.models.system_meta import SystemMeta
-from app.services import auth, jobs, notifications, pipeline
+from app.services import auth, help_scheduler, jobs, notifications, pipeline
 from app.services import seed as reference_seed
 from ml import registry
 from ml.data_gen import generate
@@ -61,6 +62,7 @@ def seed() -> int:
     with Session(get_engine()) as session, session.begin():
         _set_meta(session, "seed", settings.seed)
         _set_meta(session, "data_version", DATA_VERSION)
+        _set_meta(session, help_scheduler.FRESH_SEED_KEY, True)  # mark-ready stamps the time
     log.info("seeded data_version=%s seed=%d counts=%s", DATA_VERSION, settings.seed, counts)
     return 0
 
@@ -127,6 +129,11 @@ def e2e_fixtures() -> int:
 def mark_ready() -> int:
     with Session(get_engine()) as session, session.begin():
         _set_meta(session, "bootstrap_state", "ready")
+        # Fresh bootstrap (seeded in this run): the DEMO_MODE scheduler start delay counts from
+        # now. A plain restart keeps the old stamp, so it does not wait again.
+        if _get_meta(session, help_scheduler.FRESH_SEED_KEY):
+            _set_meta(session, help_scheduler.FRESH_READY_KEY, datetime.now(UTC).isoformat())
+            _set_meta(session, help_scheduler.FRESH_SEED_KEY, False)
         # A restart killed any admin job that was still running in the old process.
         jobs.mark_interrupted(session)
     return 0

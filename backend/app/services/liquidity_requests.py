@@ -16,6 +16,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.clock import as_utc
+from app.core.config import get_settings
 from app.core.db import savepoint
 from app.models import LiquidityRequest, User
 from app.models.enums import (
@@ -29,7 +30,7 @@ from app.models.enums import (
 from app.models.enums import NotificationSeverity as Severity
 from app.rules import help_request_rules as rules
 from app.schemas.liquidity_request import HelpRequestItem
-from app.services import help_notify, help_settings
+from app.services import help_demo, help_notify, help_settings
 from app.services.help_actions import cancel, claim, confirm, confirm_late, decline, withdraw
 from app.services.help_core import (
     HELPER_ROLES,
@@ -58,12 +59,15 @@ def create(session: Session, *, requester_agent_id: int, float_type: FloatType,
            actor: uuid.UUID | None = None, now: datetime | None = None,
            simulated: bool = False, reason: HelpReason | None = None, urgent: bool = False,
            stockout_at: datetime | None = None, deadline_after_stockout: bool = False,
-           agent_cap: int | None = None) -> tuple[LiquidityRequest, bool]:
+           agent_cap: int | None = None,
+           bypass_limits: bool = False) -> tuple[LiquidityRequest, bool]:
     """(request, created). An active request for the same agent and float is returned as is.
 
     A lost dedupe race (another writer inserted the active request between our check and our
     insert) rolls back only a savepoint, so it is safe inside a caller's larger transaction.
     agent_cap: agents in wave 1 (default: the policy's wave size; larger for urgent requests).
+    bypass_limits: the admin's demo simulation (honoured only for a simulated request in
+    DEMO_MODE) skips the cooldown and the daily cap; never the dedupe or the kill switch.
     """
     now = now or now_utc()
     policy = help_settings.current(session)
@@ -77,9 +81,9 @@ def create(session: Session, *, requester_agent_id: int, float_type: FloatType,
         raise HelpError("deadline_passed")
     earlier = session.scalars(select(LiquidityRequest.created_at).where(
         LiquidityRequest.requester_agent_id == requester_agent_id,
-        LiquidityRequest.created_at > now - rules.DAY))
+        LiquidityRequest.created_at > help_demo.window_start(session, requester_agent_id, now)))
     block = rules.abuse_block((as_utc(t) for t in earlier), now, policy)
-    if block:
+    if block and not (bypass_limits and simulated and get_settings().demo_mode):
         raise HelpError(block)
     cap = policy.max_recipients_per_wave if agent_cap is None else agent_cap
     helpers = _wave_members(_eligible(session, requester_agent_id, candidates), cap)
@@ -114,7 +118,7 @@ def create(session: Session, *, requester_agent_id: int, float_type: FloatType,
                               else Decimal(str(round(cand.distance_km, 2)))))
     session.flush()
     audit(session, actor, "create", req, None, now, policy, recipients=len(helpers),
-          created_by=created_by.value, urgent=urgent)
+          created_by=created_by.value, urgent=urgent, simulated=simulated)
     help_notify.send(session, policy, req, (u.id for u, _ in helpers), "new", actor,
                      Severity.critical if urgent else Severity.warning)
     help_notify.send(session, policy, req, help_notify.requester_users(session, req), "created",

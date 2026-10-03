@@ -24,7 +24,7 @@ OVERVIEW = "/api/v1/admin/overview"
 @pytest.fixture(autouse=True)
 def fresh_process(monkeypatch: pytest.MonkeyPatch) -> None:
     """Each test is a newly started process; no DEMO_MODE start delay unless a test sets one."""
-    monkeypatch.setattr(help_scheduler, "_start", {"ready_since": None, "ticked": False})
+    monkeypatch.setattr(help_scheduler, "_start", {"ticked": False})
     monkeypatch.setenv("HELP_SCHEDULER_DEMO_START_DELAY_S", "0")
     get_settings.cache_clear()
 

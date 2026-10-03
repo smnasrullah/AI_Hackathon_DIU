@@ -169,6 +169,49 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/liquidity-requests/demo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Demo Info
+         * @description What DEMO_MODE changes for help requests: demo defaults in force, the automatic-request
+         *     cap, the fresh-bootstrap start delay and the last demo reset. Read-only.
+         */
+        get: operations["demo_info_api_v1_admin_liquidity_requests_demo_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/liquidity-requests/demo-reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Demo Reset
+         * @description DEMO_MODE only. Cancels the demo agents' open or claimed requests (kept and audited,
+         *     nobody notified), ends a simulated shortage and restarts their cooldown, daily cap and demo
+         *     auto cap from now. Audit logged (help_demo.reset).
+         */
+        post: operations["demo_reset_api_v1_admin_liquidity_requests_demo_reset_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/liquidity-requests/dry-run": {
         parameters: {
             query?: never;
@@ -2526,9 +2569,46 @@ export interface components {
             /** Seed */
             seed: number | null;
         };
+        /**
+         * DemoHelpInfo
+         * @description What DEMO_MODE changes for help requests (read-only, shown to admins).
+         */
+        DemoHelpInfo: {
+            /** Auto Per Day */
+            auto_per_day: number;
+            /** Defaults On */
+            defaults_on: boolean;
+            /** Demo Mode */
+            demo_mode: boolean;
+            /** Last Reset At */
+            last_reset_at: string | null;
+            /** Overrides */
+            overrides: components["schemas"]["DemoOverride"][];
+            /** Start Delay S */
+            start_delay_s: number;
+        };
         /** DemoLoginRequest */
         DemoLoginRequest: {
             role: components["schemas"]["UserRole"];
+        };
+        /** DemoOverride */
+        DemoOverride: {
+            /** Name */
+            name: string;
+            /** Value */
+            value: number;
+        };
+        /** DemoResetOut */
+        DemoResetOut: {
+            /** Agent Ids */
+            agent_ids: number[];
+            /** Cancelled Request Ids */
+            cancelled_request_ids: number[];
+            /**
+             * Reset At
+             * Format: date-time
+             */
+            reset_at: string;
         };
         /** DriftBucket */
         DriftBucket: {
@@ -4192,6 +4272,8 @@ export interface components {
             agent_code: string;
             /** Agent Id */
             agent_id: number;
+            /** Blocked Reason */
+            blocked_reason?: string | null;
             /** Created Request Ids */
             created_request_ids: number[];
             /** Dry Run */
@@ -4845,6 +4927,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    demo_info_api_v1_admin_liquidity_requests_demo_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DemoHelpInfo"];
+                };
+            };
+        };
+    };
+    demo_reset_api_v1_admin_liquidity_requests_demo_reset_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DemoResetOut"];
                 };
             };
         };

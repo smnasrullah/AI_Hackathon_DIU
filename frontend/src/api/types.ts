@@ -155,5 +155,7 @@ export type DryRunOut = S["DryRunOut"];
 export type PlanItemOut = S["PlanItemOut"];
 export type SimulateIn = S["SimulateIn"];
 export type SimulateOut = S["SimulateOut"];
+export type DemoHelpInfo = S["DemoHelpInfo"];
+export type DemoResetOut = S["DemoResetOut"];
 export type AgentProfile = S["AgentProfile"];
 export type HelpRequestListQuery = QueryOf<"list_mine_api_v1_liquidity_requests_mine_get">;

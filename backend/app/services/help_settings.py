@@ -2,6 +2,8 @@
 
 Overrides live in system_meta under KEY, so they survive restarts and need no redeploy.
 The automatic trigger's settings are stored the same way under TRIGGER_KEY.
+In DEMO_MODE (with HELP_DEMO_DEFAULTS) the DEMO_* values replace the env defaults, so the wave
+story works out of the box; an admin's stored override still wins over them.
 """
 
 from dataclasses import asdict, fields, replace
@@ -16,9 +18,23 @@ from app.rules.help_trigger_rules import TriggerPolicy
 
 KEY = "help_request_settings"
 TRIGGER_KEY = "help_trigger_settings"
+# One helper agent per wave (urgent: twice that), so waves 2 and 3 still have someone to ask.
+DEMO_HELP: dict[str, Any] = {"max_recipients_per_wave": 1}
+DEMO_TRIGGER: dict[str, Any] = {"max_request_bdt": 100_000.0, "wave_timeout_min": 2,
+                                "max_waves": 3, "recent_ask_h": 0.0}
+
+
+def demo_defaults_on() -> bool:
+    s = get_settings()
+    return s.demo_mode and s.help_demo_defaults
 
 
 def defaults() -> HelpPolicy:
+    policy = _env_defaults()
+    return replace(policy, **DEMO_HELP) if demo_defaults_on() else policy
+
+
+def _env_defaults() -> HelpPolicy:
     s = get_settings()
     return HelpPolicy(enabled=s.help_enabled, dry_run=s.help_dry_run,
                       claim_timeout_min=s.help_claim_timeout_min,
@@ -36,6 +52,11 @@ def current(session: Session) -> HelpPolicy:
 
 
 def trigger_defaults() -> TriggerPolicy:
+    policy = _env_trigger_defaults()
+    return replace(policy, **DEMO_TRIGGER) if demo_defaults_on() else policy
+
+
+def _env_trigger_defaults() -> TriggerPolicy:
     s = get_settings()
     return TriggerPolicy(horizon_h=s.help_trigger_horizon_h,
                          buffer_pct=s.help_trigger_buffer_pct,

@@ -1970,6 +1970,56 @@
     "title": "DataSummary",
     "type": "object"
    },
+   "DemoHelpInfo": {
+    "description": "What DEMO_MODE changes for help requests (read-only, shown to admins).",
+    "properties": {
+     "auto_per_day": {
+      "title": "Auto Per Day",
+      "type": "integer"
+     },
+     "defaults_on": {
+      "title": "Defaults On",
+      "type": "boolean"
+     },
+     "demo_mode": {
+      "title": "Demo Mode",
+      "type": "boolean"
+     },
+     "last_reset_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Reset At"
+     },
+     "overrides": {
+      "items": {
+       "$ref": "#/components/schemas/DemoOverride"
+      },
+      "title": "Overrides",
+      "type": "array"
+     },
+     "start_delay_s": {
+      "title": "Start Delay S",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "demo_mode",
+     "defaults_on",
+     "overrides",
+     "auto_per_day",
+     "start_delay_s",
+     "last_reset_at"
+    ],
+    "title": "DemoHelpInfo",
+    "type": "object"
+   },
    "DemoLoginRequest": {
     "additionalProperties": false,
     "properties": {
@@ -1981,6 +2031,61 @@
      "role"
     ],
     "title": "DemoLoginRequest",
+    "type": "object"
+   },
+   "DemoOverride": {
+    "properties": {
+     "name": {
+      "title": "Name",
+      "type": "string"
+     },
+     "value": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "integer"
+       }
+      ],
+      "title": "Value"
+     }
+    },
+    "required": [
+     "name",
+     "value"
+    ],
+    "title": "DemoOverride",
+    "type": "object"
+   },
+   "DemoResetOut": {
+    "properties": {
+     "agent_ids": {
+      "items": {
+       "type": "integer"
+      },
+      "title": "Agent Ids",
+      "type": "array"
+     },
+     "cancelled_request_ids": {
+      "items": {
+       "type": "integer"
+      },
+      "title": "Cancelled Request Ids",
+      "type": "array"
+     },
+     "reset_at": {
+      "format": "date-time",
+      "title": "Reset At",
+      "type": "string"
+     }
+    },
+    "required": [
+     "cancelled_request_ids",
+     "agent_ids",
+     "reset_at"
+    ],
+    "title": "DemoResetOut",
     "type": "object"
    },
    "DriftBucket": {
@@ -6620,6 +6725,17 @@
       "title": "Agent Id",
       "type": "integer"
      },
+     "blocked_reason": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Blocked Reason"
+     },
      "created_request_ids": {
       "items": {
        "type": "integer"
@@ -8361,6 +8477,60 @@
      }
     ],
     "summary": "List All",
+    "tags": [
+     "liquidity-requests"
+    ]
+   }
+  },
+  "/api/v1/admin/liquidity-requests/demo": {
+   "get": {
+    "description": "What DEMO_MODE changes for help requests: demo defaults in force, the automatic-request\ncap, the fresh-bootstrap start delay and the last demo reset. Read-only.",
+    "operationId": "demo_info_api_v1_admin_liquidity_requests_demo_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DemoHelpInfo"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Demo Info",
+    "tags": [
+     "liquidity-requests"
+    ]
+   }
+  },
+  "/api/v1/admin/liquidity-requests/demo-reset": {
+   "post": {
+    "description": "DEMO_MODE only. Cancels the demo agents' open or claimed requests (kept and audited,\nnobody notified), ends a simulated shortage and restarts their cooldown, daily cap and demo\nauto cap from now. Audit logged (help_demo.reset).",
+    "operationId": "demo_reset_api_v1_admin_liquidity_requests_demo_reset_post",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DemoResetOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Demo Reset",
     "tags": [
      "liquidity-requests"
     ]

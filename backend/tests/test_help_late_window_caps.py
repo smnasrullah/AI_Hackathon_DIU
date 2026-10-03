@@ -16,7 +16,7 @@ from app.core.config import get_settings
 from app.core.db import get_engine
 from app.core.leader import Leader
 from app.main import create_app
-from app.models import Agent, User
+from app.models import Agent, SystemMeta, User
 from app.models.enums import FloatType, Lang, RiskLevelCode
 from app.rules import help_trigger_rules as rules
 from app.rules.help_trigger_rules import TriggerPolicy
@@ -199,13 +199,15 @@ def test_dry_run_lists_only_this_ticks_requests(client: TestClient, seeded: Path
 
 def test_demo_mode_holds_the_first_tick(client: TestClient, seeded: Path,
                                         monkeypatch: pytest.MonkeyPatch, fake: FakeClock) -> None:
-    monkeypatch.setattr(help_scheduler, "_start", {"ready_since": None, "ticked": False})
+    monkeypatch.setattr(help_scheduler, "_start", {"ticked": False})
     monkeypatch.setenv("HELP_SCHEDULER_DEMO_START_DELAY_S", "120")
     get_settings.cache_clear()
     get_settings().bootstrap_state_file.write_text("ready", encoding="utf-8")
+    with Session(get_engine()) as s, s.begin():  # a fresh bootstrap became ready at T0
+        s.merge(SystemMeta(key=help_scheduler.FRESH_READY_KEY, value=T0.isoformat()))
     leader = Leader(get_engine(), "help-scheduler", help_scheduler.LOCK_ID)
     try:
-        assert help_scheduler.run_once(leader, 60) == "demo_delay"  # ready seen at T0
+        assert help_scheduler.run_once(leader, 60) == "demo_delay"  # fresh, ready at T0
         fake.now = T0 + timedelta(seconds=119)
         assert help_scheduler.run_once(leader, 60) == "demo_delay"
         fake.now = T0 + timedelta(seconds=120)
@@ -219,7 +221,7 @@ def test_demo_mode_holds_the_first_tick(client: TestClient, seeded: Path,
 def test_without_demo_mode_the_first_tick_is_not_held(client: TestClient, seeded: Path,
                                                       monkeypatch: pytest.MonkeyPatch,
                                                       fake: FakeClock) -> None:
-    monkeypatch.setattr(help_scheduler, "_start", {"ready_since": None, "ticked": False})
+    monkeypatch.setattr(help_scheduler, "_start", {"ticked": False})
     monkeypatch.setenv("HELP_SCHEDULER_DEMO_START_DELAY_S", "120")
     monkeypatch.setenv("DEMO_MODE", "false")
     get_settings.cache_clear()
