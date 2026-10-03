@@ -23,7 +23,7 @@ export function HelpPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-5">
       <header>
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">{t("help.eyebrow")}</p>
+        <p className="ap-eyebrow">{t("help.eyebrow")}</p>
         <h1 className="mt-1 font-display text-h1 font-bold">{t("page.help")}</h1>
       </header>
 

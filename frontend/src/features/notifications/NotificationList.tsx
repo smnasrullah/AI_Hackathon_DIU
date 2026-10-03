@@ -97,7 +97,7 @@ export function NotificationList({ items, onOpen }: { items: NotificationItem[];
             : formatDateTime(new Date(`${g.day}T12:00:00+06:00`), lang, digits).split(",")[0];
         return (
           <section key={g.day} aria-label={label}>
-            <h3 className="px-3 pb-1 font-mono text-xs uppercase tracking-[0.14em] text-muted">{label}</h3>
+            <h3 className="px-3 pb-1 ap-eyebrow">{label}</h3>
             <motion.ul variants={listStagger} initial="hidden" animate="show" className="space-y-0.5">
               {g.items.map((item) => (
                 <Row key={item.id} item={item} onOpen={onOpen} />

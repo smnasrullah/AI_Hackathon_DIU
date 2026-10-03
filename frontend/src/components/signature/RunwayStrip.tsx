@@ -83,7 +83,7 @@ export function RunwayStrip({ subtitle, series, capacity, ghost, stockout, event
   });
 
   return (
-    <figure ref={ref} className={cn("rounded-[var(--radius-card)] border border-line bg-surface p-4 shadow-soft", className)}>
+    <figure ref={ref} className={cn("ap-card p-4 shadow-soft", className)}>
       <div className="flex items-center justify-between gap-2">
         <p className="font-semibold">
           {t("runway.title")}

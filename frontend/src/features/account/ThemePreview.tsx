@@ -24,7 +24,7 @@ export function ThemePreview({ theme }: { theme: Theme }) {
     >
       <div className="rounded-[var(--radius-card)] border border-watch/60 bg-surface p-4 shadow-soft">
         <div className="flex items-center justify-between gap-3">
-          <span className="font-mono text-xs uppercase tracking-[0.14em] text-muted">{t("settings.preview")}</span>
+          <span className="ap-eyebrow">{t("settings.preview")}</span>
           <RiskPill level="amber" size="sm" />
         </div>
         <p className="mt-2 font-display text-h2 font-bold">

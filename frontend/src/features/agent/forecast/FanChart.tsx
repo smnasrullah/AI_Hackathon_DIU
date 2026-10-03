@@ -75,7 +75,7 @@ export function FanChart({ floatType, series, capacity, asOf, stockout, events, 
   }
 
   return (
-    <figure className="rounded-[var(--radius-card)] border border-line bg-surface p-4 shadow-soft">
+    <figure className="ap-card p-4 shadow-soft">
       <div aria-live="polite" className="min-h-11">
         <p className="num font-semibold">{readout}</p>
         <p className="num text-xs text-muted">{range}</p>

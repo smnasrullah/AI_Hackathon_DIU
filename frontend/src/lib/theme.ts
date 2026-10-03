@@ -4,7 +4,7 @@ import { usePrefsStore } from "./prefs";
 
 export type ResolvedTheme = "light" | "dark";
 
-const THEME_COLOR: Record<ResolvedTheme, string> = { light: "#F7F3EA", dark: "#0A0F1F" };
+const THEME_COLOR: Record<ResolvedTheme, string> = { light: "#F4F6FA", dark: "#0A1120" };
 const REVEAL_MS = MS.reveal;
 const REVEAL_EASING = `cubic-bezier(${EASE.join(",")})`;
 

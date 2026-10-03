@@ -50,7 +50,7 @@ export function NotificationsPage() {
     <section className="mx-auto max-w-3xl space-y-5">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">{t("inbox.unread")}: {formatNumber(q.data?.unread_count ?? 0, digits)}</p>
+          <p className="ap-eyebrow">{t("inbox.unread")}: {formatNumber(q.data?.unread_count ?? 0, digits)}</p>
           <h1 className="mt-1 font-display text-h1 font-bold">{t("inbox.title")}</h1>
         </div>
         <LiquidButton
@@ -84,7 +84,7 @@ export function NotificationsPage() {
         />
       </div>
 
-      <div className="rounded-[var(--radius-card)] border border-line bg-surface p-2">
+      <div className="ap-card p-2">
         {q.isPending ? (
           <div className="p-3">
             <SkeletonRows rows={6} cols={1} />

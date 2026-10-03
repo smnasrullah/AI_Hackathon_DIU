@@ -32,7 +32,7 @@ export function HourlyList({ rows, floatType }: HourlyListProps) {
     r.day === 0 ? t("forecast.today") : r.day === 1 ? t("forecast.tomorrow") : formatDateTime(new Date(r.ts), lang, digits).split(",")[0];
 
   return (
-    <section aria-labelledby="hourly-heading" className="rounded-[var(--radius-card)] border border-line bg-surface p-4 shadow-soft">
+    <section aria-labelledby="hourly-heading" className="ap-card p-4 shadow-soft">
       <h2 id="hourly-heading" className="font-display text-h2 font-bold">
         {t("forecast.hourly")}
       </h2>

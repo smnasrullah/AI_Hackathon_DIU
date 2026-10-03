@@ -43,7 +43,7 @@ function ToastCard({ toast }: { toast: Toast }) {
       drag={reduced ? false : "x"}
       dragSnapToOrigin
       onDragEnd={onDragEnd}
-      className="glass pointer-events-auto flex w-full items-start gap-3 rounded-2xl border border-line p-3.5 text-fg"
+      className="glass pointer-events-auto flex w-full items-start gap-3 rounded-[var(--radius-card)] border border-line p-3.5 text-fg shadow-lift"
     >
       <Icon aria-hidden className={cn("mt-0.5 size-5 shrink-0", accent)} />
       <div className="min-w-0 flex-1">
@@ -67,7 +67,7 @@ export function Toasts() {
   const { t } = useTranslation();
   const toasts = useToastStore((s) => s.toasts);
   return (
-    <section aria-label={t("toast.region")} className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center p-4 sm:justify-end">
+    <section aria-label={t("toast.region")} className="pointer-events-none fixed inset-x-0 bottom-0 z-(--z-toast) flex justify-center p-4 sm:justify-end">
       <ol role="status" aria-live="polite" className="flex w-full max-w-sm flex-col gap-2">
         <AnimatePresence initial={false}>
           {toasts.map((toast) => (

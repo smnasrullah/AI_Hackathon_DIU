@@ -10,8 +10,8 @@ import { PulseLine } from "../signature/PulseLine";
 type Variant = "primary" | "secondary" | "ghost" | "danger";
 
 const VARIANT: Record<Variant, string> = {
-  primary: "bg-brand text-on-brand shadow-soft hover:brightness-105",
-  secondary: "border border-line-strong bg-surface text-fg hover:bg-surface-2",
+  primary: "bg-primary text-on-primary shadow-soft hover:bg-primary-hover",
+  secondary: "border border-line-strong bg-surface text-fg shadow-xs hover:bg-surface-2",
   ghost: "text-fg hover:bg-surface-2",
   danger: "bg-act-solid text-white shadow-soft hover:brightness-105",
 };

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useRecommendation } from "../../../api/hooks/agents";
 import { useRequests } from "../../../api/hooks/requests";
+import { PageHeader } from "../../../components/ui/PageHeader";
 import { SkeletonCard } from "../../../components/ui/Skeleton";
 import { EmptyState, ErrorState } from "../../../components/ui/StatePanel";
 import { NoAgentState } from "../AgentPageStates";
@@ -19,10 +20,7 @@ export function RebalancePage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-h1 font-bold">{t("rebalance.title")}</h1>
-        <p className="mt-1 text-small text-muted">{t("rebalance.lead")}</p>
-      </header>
+      <PageHeader title={t("rebalance.title")} description={t("rebalance.lead")} />
       {id === null ? (
         <NoAgentState />
       ) : (

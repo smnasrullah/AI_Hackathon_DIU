@@ -32,12 +32,11 @@ export function LoginPanel() {
   return (
     <div
       ref={ref}
-      data-theme="dark"
-      className="relative isolate hidden overflow-hidden rounded-[var(--radius-card)] border border-white/10 bg-ink-950 p-10 text-fg shadow-glow lg:flex lg:flex-col"
+      className="ap-card relative isolate hidden overflow-hidden bg-surface/70 p-10 text-fg lg:flex lg:flex-col"
     >
       <Aurora className="-z-10" />
       <Grain className="-z-10" />
-      <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">{t("login.eyebrow")}</p>
+      <p className="ap-eyebrow">{t("login.eyebrow")}</p>
       <h2 className="mt-3 max-w-md font-display text-display font-bold">{t("login.panelTitle")}</h2>
       <p className="mt-4 max-w-sm text-body text-muted">{t("login.panelBody")}</p>
       <div className="mt-auto flex items-end gap-8 pt-10">

@@ -35,7 +35,7 @@ export function SearchBox({ label, value, onSettled, testId }: SearchBoxProps) {
           onChange={(e) => setText(e.target.value)}
           maxLength={80}
           data-testid={testId}
-          className="min-h-10 w-full rounded-[var(--radius-input)] border border-line-strong bg-bg pl-9 pr-3 text-small outline-none focus:border-pulse"
+          className="min-h-10 w-full rounded-[var(--radius-input)] border border-line-strong bg-surface pl-9 pr-3 text-small shadow-xs outline-none transition-[border-color,box-shadow] hover:border-ink-600/50 focus:border-pulse focus:ring-4 focus:ring-pulse/20"
         />
       </span>
     </div>

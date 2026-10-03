@@ -17,7 +17,7 @@ export function AboutPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-5">
       <header>
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">{t("about.eyebrow")}</p>
+        <p className="ap-eyebrow">{t("about.eyebrow")}</p>
         <h1 className="mt-1 font-display text-h1 font-bold">{t("page.about")}</h1>
         <p className="mt-2 max-w-prose text-muted">{t("about.lead")}</p>
       </header>

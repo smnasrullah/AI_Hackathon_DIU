@@ -17,7 +17,7 @@ export function StatChip({ label, value, icon: Icon, delta, className }: StatChi
   const { t } = useTranslation();
   const DeltaIcon = delta?.direction === "up" ? ArrowUpRight : ArrowDownRight;
   return (
-    <div className={cn("inline-flex items-center gap-2 rounded-full border border-line bg-surface py-1.5 pl-2.5 pr-3", className)}>
+    <div className={cn("inline-flex items-center gap-2 rounded-full border border-line bg-surface py-1.5 pl-2.5 pr-3 shadow-xs", className)}>
       {Icon ? <Icon aria-hidden className="size-4 text-muted" /> : null}
       <span className="text-small text-muted">{label}</span>
       <span className="num text-small font-semibold">{value}</span>

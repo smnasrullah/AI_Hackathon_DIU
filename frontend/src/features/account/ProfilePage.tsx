@@ -66,7 +66,7 @@ function ProfileForm({ profile }: { profile: ProfileOut }) {
             onChange={(e) => setName(e.target.value)}
             aria-invalid={!ok}
             aria-describedby="display-name-hint"
-            className="mt-1.5 min-h-11 w-full rounded-[var(--radius-input)] border border-line-strong bg-bg px-3 text-body outline-none focus:border-pulse aria-[invalid=true]:border-act"
+            className="mt-1.5 min-h-11 w-full rounded-[var(--radius-input)] border border-line-strong bg-surface px-3 text-body shadow-xs outline-none transition-[border-color,box-shadow] hover:border-ink-600/50 focus:border-pulse focus:ring-4 focus:ring-pulse/20 aria-[invalid=true]:border-act"
           />
           <p id="display-name-hint" className={cn("mt-1 text-xs", ok ? "text-muted" : "text-act-fg")}>
             {ok ? t("profile.displayNameHint") : t("profile.displayNameInvalid")}
@@ -105,7 +105,7 @@ export function ProfilePage() {
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       <header>
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">{t("profile.eyebrow")}</p>
+        <p className="ap-eyebrow">{t("profile.eyebrow")}</p>
         <h1 className="mt-1 font-display text-h1 font-bold">{t("page.profile")}</h1>
       </header>
       {q.isPending ? (

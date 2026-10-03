@@ -30,7 +30,7 @@ export const FloatingField = forwardRef<HTMLInputElement, FloatingFieldProps>(fu
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
           className={cn(
-            "peer block h-14 w-full rounded-[var(--radius-input)] border border-line-strong bg-surface px-3.5 pb-1.5 pt-5 text-body text-fg transition-colors duration-200 focus:border-pulse focus:outline-none focus-visible:ring-2 focus-visible:ring-pulse/40 aria-[invalid=true]:border-act",
+            "peer block h-14 w-full rounded-[var(--radius-input)] border border-line-strong bg-surface px-3.5 pb-1.5 pt-5 text-body text-fg transition-colors duration-200 shadow-xs hover:border-ink-600/50 focus:border-pulse focus:outline-none focus:ring-4 focus:ring-pulse/20 aria-[invalid=true]:border-act",
             trailing ? "pr-12" : undefined,
             className,
           )}

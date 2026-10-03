@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 
 import { useAnomalies } from "../../../api/hooks/anomalies";
 import type { AnomalyStatus } from "../../../api/types";
+import { PageHeader } from "../../../components/ui/PageHeader";
 import { Pagination } from "../../../components/ui/Pagination";
 import { SegmentedControl } from "../../../components/ui/SegmentedControl";
 import { SkeletonRows } from "../../../components/ui/Skeleton";
@@ -135,10 +136,7 @@ export function AnomaliesPage() {
 
   return (
     <div className="space-y-4" data-testid="anomalies-page">
-      <header>
-        <h1 className="font-display text-h1 font-bold">{t("anomalies.title")}</h1>
-        <p className="mt-1 text-small text-muted">{t("anomalies.lead")}</p>
-      </header>
+      <PageHeader title={t("anomalies.title")} description={t("anomalies.lead")} />
       {wide ? (
         <div className="grid grid-cols-[minmax(280px,360px)_minmax(0,1fr)] items-start gap-4">
           {list}

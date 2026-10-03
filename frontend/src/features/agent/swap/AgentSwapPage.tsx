@@ -1,6 +1,7 @@
 import { ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import { PageHeader } from "../../../components/ui/PageHeader";
 import { NoAgentState } from "../AgentPageStates";
 import { SwapOffers } from "../rebalance/SwapOffers";
 import { useMyAgentId } from "../useAgentData";
@@ -12,10 +13,7 @@ export function AgentSwapPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-h1 font-bold">{t("page.agentSwap")}</h1>
-        <p className="mt-1 text-small text-muted">{t("rebalance.swaps.lead")}</p>
-      </header>
+      <PageHeader title={t("page.agentSwap")} description={t("rebalance.swaps.lead")} />
       {id === null ? <NoAgentState /> : <SwapOffers agentId={id} grouped />}
       <p className="flex items-center gap-1.5 text-xs text-muted">
         <ShieldCheck aria-hidden className="size-3.5" />

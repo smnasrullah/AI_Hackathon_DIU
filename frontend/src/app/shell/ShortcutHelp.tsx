@@ -13,10 +13,10 @@ export function ShortcutHelp({ includeSidebar }: { includeSidebar: boolean }) {
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Portal>
-        <Dialog.Overlay className="ap-overlay fixed inset-0 z-50 bg-ink-950/50" />
+        <Dialog.Overlay className="ap-overlay fixed inset-0 z-(--z-overlay) bg-ink-950/40 backdrop-blur-[2px]" />
         <Dialog.Content
           aria-describedby={undefined}
-          className="ap-dialog fixed left-1/2 top-1/2 z-50 w-[min(92vw,28rem)] -translate-x-1/2 -translate-y-1/2 rounded-[var(--radius-card)] border border-line bg-surface p-6 text-fg shadow-lift"
+          className="ap-dialog fixed left-1/2 top-1/2 z-(--z-overlay) w-[min(92vw,28rem)] -translate-x-1/2 -translate-y-1/2 ap-card p-6 text-fg shadow-lift"
         >
           <div className="flex items-start justify-between gap-4">
             <Dialog.Title className="flex items-center gap-2 font-display text-h2 font-bold">

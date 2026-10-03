@@ -20,6 +20,19 @@ export function Aurora({ className }: { className?: string }) {
   );
 }
 
+/**
+ * Fixed, behind-everything page background: static gradient mesh + faint wave lines that drift
+ * over minutes (stopped for reduced motion / low-end). Parent must be `relative isolate`.
+ */
+export function PageBackdrop() {
+  return (
+    <div aria-hidden data-testid="page-backdrop" className="ap-backdrop">
+      <div className="ap-backdrop-waves ap-backdrop-waves--top" />
+      <div className="ap-backdrop-waves" />
+    </div>
+  );
+}
+
 /** 3-4% grain from a pre-rendered tile. */
 export function Grain({ className }: { className?: string }) {
   return <div aria-hidden className={cn("ap-grain", className)} />;

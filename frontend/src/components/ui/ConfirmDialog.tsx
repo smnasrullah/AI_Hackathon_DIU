@@ -45,8 +45,8 @@ export function ConfirmDialog({
   return (
     <Dialog.Root open={open} onOpenChange={change}>
       <Dialog.Portal>
-        <Dialog.Overlay className="ap-overlay fixed inset-0 z-50 bg-ink-950/50" />
-        <Dialog.Content className="ap-dialog fixed left-1/2 top-1/2 z-50 w-[min(92vw,28rem)] -translate-x-1/2 -translate-y-1/2 rounded-[var(--radius-card)] border border-line bg-surface p-6 text-fg shadow-lift">
+        <Dialog.Overlay className="ap-overlay fixed inset-0 z-(--z-overlay) bg-ink-950/40 backdrop-blur-[2px]" />
+        <Dialog.Content className="ap-dialog fixed left-1/2 top-1/2 z-(--z-overlay) w-[min(92vw,28rem)] -translate-x-1/2 -translate-y-1/2 ap-card p-6 text-fg shadow-lift">
           <div className="flex items-start justify-between gap-4">
             <Dialog.Title className="font-display text-h2 font-bold">{title}</Dialog.Title>
             <Dialog.Close
@@ -69,7 +69,7 @@ export function ConfirmDialog({
                 placeholder={t("dialog.notePlaceholder")}
                 rows={3}
                 aria-describedby={`${noteId}-hint`}
-                className="mt-1.5 w-full resize-none rounded-[var(--radius-input)] border border-line-strong bg-bg px-3 py-2 text-body outline-none focus:border-pulse"
+                className="mt-1.5 w-full resize-none rounded-[var(--radius-input)] border border-line-strong bg-surface px-3 py-2 text-body shadow-xs outline-none transition-[border-color,box-shadow] hover:border-ink-600/50 focus:border-pulse focus:ring-4 focus:ring-pulse/20"
               />
               <p id={`${noteId}-hint`} className="mt-1 text-xs text-muted">
                 {t("dialog.noteHint", { count: noteMinLength })}

@@ -8,6 +8,7 @@ import { useSwaps } from "../../../api/hooks/swaps";
 import { exportSwapsCsv } from "../../../api/services/swaps";
 import type { SwapItem, SwapStatus } from "../../../api/types";
 import { LiquidButton } from "../../../components/ui/LiquidButton";
+import { PageHeader } from "../../../components/ui/PageHeader";
 import { SkeletonCard } from "../../../components/ui/Skeleton";
 import { StatChip } from "../../../components/ui/StatChip";
 import { EmptyState, ErrorState } from "../../../components/ui/StatePanel";
@@ -105,20 +106,20 @@ export function SwapsPage() {
 
   return (
     <div className="space-y-4" data-testid="swaps-page">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-display text-h1 font-bold">{t("swaps.title")}</h1>
-          <p className="mt-1 text-small text-muted">{t("swaps.lead")}</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {pending.data ? (
-            <StatChip icon={Truck} label={t("swaps.vanTrips")} value={formatNumber(pending.data.van_trips_avoided, digits)} />
-          ) : null}
-          <LiquidButton variant="secondary" icon={Download} loading={exporting} onClick={() => void exportCsv()}>
-            {t("swaps.export")}
-          </LiquidButton>
-        </div>
-      </header>
+      <PageHeader
+        title={t("swaps.title")}
+        description={t("swaps.lead")}
+        actions={
+          <>
+            {pending.data ? (
+              <StatChip icon={Truck} label={t("swaps.vanTrips")} value={formatNumber(pending.data.van_trips_avoided, digits)} />
+            ) : null}
+            <LiquidButton variant="secondary" icon={Download} loading={exporting} onClick={() => void exportCsv()}>
+              {t("swaps.export")}
+            </LiquidButton>
+          </>
+        }
+      />
 
       <div className="grid gap-4 lg:grid-cols-3">
         {COLUMNS.map((c) => (

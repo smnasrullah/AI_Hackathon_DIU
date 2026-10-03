@@ -70,10 +70,10 @@ export function CommandPalette() {
   return (
     <Dialog.Root open={open} onOpenChange={change}>
       <Dialog.Portal>
-        <Dialog.Overlay className="ap-overlay fixed inset-0 z-50 bg-ink-950/50" />
+        <Dialog.Overlay className="ap-overlay fixed inset-0 z-(--z-overlay) bg-ink-950/40 backdrop-blur-[2px]" />
         <Dialog.Content
           aria-describedby={undefined}
-          className="ap-dialog fixed left-1/2 top-[12vh] z-50 w-[min(94vw,36rem)] -translate-x-1/2 overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface text-fg shadow-lift"
+          className="ap-dialog fixed left-1/2 top-[12vh] z-(--z-overlay) w-[min(94vw,36rem)] -translate-x-1/2 overflow-hidden ap-card text-fg shadow-lift"
           data-testid="command-palette"
         >
           <Dialog.Title className="sr-only">{t("palette.title")}</Dialog.Title>

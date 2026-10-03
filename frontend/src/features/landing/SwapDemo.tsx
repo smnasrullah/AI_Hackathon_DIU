@@ -34,7 +34,7 @@ export function SwapDemo() {
   const amount = formatMoney(AMOUNT, digits, { lang });
 
   return (
-    <div ref={ref} className="rounded-[var(--radius-card)] border border-line bg-surface p-5 shadow-soft">
+    <div ref={ref} className="ap-card p-5 shadow-soft">
       <p className="sr-only">{t("landing.story.swapSummary", { amount })}</p>
       <div aria-hidden className="grid grid-cols-[1fr_2fr_1fr] items-center gap-2">
         <AgentNode name={t("landing.story.swapTo")} fill={0.86} tone="spare" />

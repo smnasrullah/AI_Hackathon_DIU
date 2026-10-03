@@ -29,7 +29,7 @@ export function KitSection({ id, title, note, children, wide = false }: { id: st
 function ThemePane({ theme, children }: { theme: "light" | "dark"; children: ReactNode }) {
   return (
     <div data-theme={theme} className="min-w-0 rounded-[var(--radius-card)] border border-line bg-bg p-4 text-fg md:p-5">
-      <p className="mb-3 font-mono text-xs uppercase tracking-[0.18em] text-muted">{theme}</p>
+      <p className="mb-3 ap-eyebrow">{theme}</p>
       {children}
     </div>
   );

@@ -64,7 +64,7 @@ export function RecommendationCard({ agentId, item, request }: RecommendationCar
     <article
       data-testid={`recommendation-${item.id}`}
       className={cn(
-        "rounded-[var(--radius-card)] border border-line bg-surface p-5 shadow-soft",
+        "ap-card p-5 shadow-soft",
         item.status === "expired" && "opacity-70",
       )}
     >

@@ -114,8 +114,8 @@ export function LoginForm() {
   const passwordField = register("password");
 
   return (
-    <div ref={scope} className="rounded-[var(--radius-card)] border border-line bg-surface p-6 shadow-lift md:p-8">
-      <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">{t("login.eyebrow")}</p>
+    <div ref={scope} className="ap-card p-6 shadow-lift md:p-8">
+      <p className="ap-eyebrow">{t("login.eyebrow")}</p>
       <h1 className="mt-2 font-display text-h1 font-bold">{t("login.title")}</h1>
       <p className="mt-1 text-body text-muted">{t("login.subtitle")}</p>
 

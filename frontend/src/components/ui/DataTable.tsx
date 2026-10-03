@@ -104,7 +104,7 @@ export function DataTable<T>({
   if (!loading && sorted && sorted.length === 0) return <EmptyState title={empty.title} body={empty.body} action={empty.action} compact />;
 
   return (
-    <div className="overflow-auto rounded-[var(--radius-card)] border border-line bg-surface" style={{ maxHeight }}>
+    <div className="overflow-auto ap-card" style={{ maxHeight }}>
       <table className="w-full border-separate border-spacing-0 text-small">
         <caption className="sr-only">{caption}</caption>
         <thead className="sticky top-0 z-10">
@@ -119,7 +119,7 @@ export function DataTable<T>({
                   scope="col"
                   aria-sort={col.sortValue ? ariaSort : undefined}
                   className={cn(
-                    "glass border-b border-line px-4 py-3 font-semibold text-muted",
+                    "border-b border-line bg-surface-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.06em] text-muted",
                     col.align === "right" ? "text-right" : "text-left",
                   )}
                 >
@@ -128,7 +128,7 @@ export function DataTable<T>({
                       type="button"
                       onClick={() => toggle(col.key)}
                       aria-label={t("table.sortBy", { column: col.header })}
-                      className={cn("inline-flex items-center gap-1 hover:text-fg", active && "text-fg")}
+                      className={cn("-my-1 inline-flex min-h-8 items-center gap-1 uppercase hover:text-fg", active && "text-fg")}
                     >
                       {col.header}
                       <SortIcon aria-hidden className="size-3.5" />

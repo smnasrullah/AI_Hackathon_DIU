@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useImpactComparison, useImpactSummary } from "../../../api/hooks/system";
 import type { ImpactSummary } from "../../../api/types";
 import { BentoTile } from "../../../components/signature/BentoTile";
+import { PageHeader } from "../../../components/ui/PageHeader";
 import { SkeletonCard, SkeletonText } from "../../../components/ui/Skeleton";
 import { StaggerGroup } from "../../../components/ui/Stagger";
 import { SourceChip } from "../../../components/ui/SourceChip";
@@ -28,7 +29,7 @@ function Assumptions({ summary }: { summary: ImpactSummary }) {
     [t("impact.assume.fee"), formatPercent(a.cashout_fee_pct / 100, digits)],
   ];
   return (
-    <section aria-labelledby="impact-assume" className="rounded-[var(--radius-card)] border border-line bg-surface p-5">
+    <section aria-labelledby="impact-assume" className="ap-card p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 id="impact-assume" className="font-display text-h2 font-bold">
           {t("impact.assume.title")}
@@ -80,16 +81,14 @@ export function ImpactPage() {
 
   return (
     <div className="space-y-4" data-testid="impact-page">
-      <header>
-        <h1 className="font-display text-h1 font-bold">{t("impact.title")}</h1>
-        <p className="mt-1 text-small text-muted">{t("impact.lead")}</p>
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted">
+      <PageHeader title={t("impact.title")} description={t("impact.lead")}>
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted">
           <SourceChip source="model" />
           <SourceChip source="rule" />
           <span className="num">{period}</span>
           <span className="num">· {s.model_version}</span>
         </div>
-      </header>
+      </PageHeader>
 
       <StaggerGroup className="grid gap-4 md:grid-cols-3" data-testid="impact-bento">
         <BentoTile
@@ -114,7 +113,7 @@ export function ImpactPage() {
       {comparison.isError ? <p className="text-xs text-muted">{t("impact.noDaily")}</p> : null}
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <section aria-labelledby="impact-compare" className="rounded-[var(--radius-card)] border border-line bg-surface p-5">
+        <section aria-labelledby="impact-compare" className="ap-card p-5">
           <h2 id="impact-compare" className="font-display text-h2 font-bold">
             {t("impact.compareTitle")}
           </h2>

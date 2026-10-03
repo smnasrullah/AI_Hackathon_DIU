@@ -26,7 +26,7 @@ export function WordingBlock({ templateText, narration, pending }: WordingBlockP
   const Icon = ai ? Sparkles : FileText;
 
   return (
-    <div className="rounded-[var(--radius-card)] border border-line bg-surface p-4 shadow-soft">
+    <div className="ap-card p-4 shadow-soft">
       <div aria-live="polite">
         {/* Keyed: the new wording replaces the template at once and fades in over it. */}
         <motion.div

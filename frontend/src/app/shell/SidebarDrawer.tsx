@@ -30,13 +30,13 @@ export function SidebarDrawer({ items, area }: { items: NavItem[]; area: string 
         </Dialog.Trigger>
       </Tip>
       <Dialog.Portal>
-        <Dialog.Overlay data-testid="sidebar-backdrop" className="ap-overlay fixed inset-0 z-50 bg-ink-950/50" />
+        <Dialog.Overlay data-testid="sidebar-backdrop" className="ap-overlay fixed inset-0 z-(--z-overlay) bg-ink-950/40 backdrop-blur-[2px]" />
         <Dialog.Content
           data-testid="sidebar-drawer"
-          className="ap-sheet fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col border-r border-line bg-surface pb-4 text-fg shadow-lift"
+          className="ap-sheet fixed inset-y-0 left-0 z-(--z-overlay) flex w-72 max-w-[85vw] flex-col border-r border-line bg-surface pb-4 text-fg shadow-lift"
         >
           <div className="flex min-h-16 items-center justify-between px-4 pb-2 pt-4">
-            <Dialog.Title className="px-1 font-mono text-xs uppercase tracking-[0.18em] text-muted">{area}</Dialog.Title>
+            <Dialog.Title className="px-1 ap-eyebrow">{area}</Dialog.Title>
             <Dialog.Close
               aria-label={t("shell.closeMenu")}
               data-testid="sidebar-close"

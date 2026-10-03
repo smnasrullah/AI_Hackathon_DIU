@@ -30,7 +30,7 @@ export function ColumnChooser({ hidden, onChange }: ColumnChooserProps) {
           sideOffset={8}
           collisionPadding={12}
           aria-label={t("agentsTable.columnsHint")}
-          className="ap-sheet z-50 w-56 rounded-[var(--radius-card)] border border-line bg-surface p-2 text-fg shadow-lift"
+          className="ap-sheet z-(--z-overlay) w-56 ap-card p-2 text-fg shadow-lift"
         >
           <p className="px-2 pb-1 pt-1 text-xs font-semibold text-muted">{t("agentsTable.columnsHint")}</p>
           <ul>

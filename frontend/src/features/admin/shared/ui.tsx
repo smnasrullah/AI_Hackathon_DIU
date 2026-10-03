@@ -2,19 +2,12 @@
 import { CircleAlert, CircleCheck, CircleDashed, CircleDot, type LucideIcon } from "lucide-react";
 import { useId, type ReactNode } from "react";
 
+import { PageHeader } from "../../../components/ui/PageHeader";
 import { cn } from "../../../lib/cn";
 import { FIELD } from "./fields";
 
 export function AdminHeader({ title, lead, actions }: { title: string; lead: string; actions?: ReactNode }) {
-  return (
-    <header className="flex flex-wrap items-end justify-between gap-3">
-      <div className="max-w-3xl">
-        <h1 className="font-display text-h1 font-bold">{title}</h1>
-        <p className="mt-1 text-small text-muted">{lead}</p>
-      </div>
-      {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
-    </header>
-  );
+  return <PageHeader title={title} description={lead} actions={actions} />;
 }
 
 interface PanelProps {
@@ -28,7 +21,7 @@ interface PanelProps {
 export function Panel({ title, children, aside, className, testId }: PanelProps) {
   const id = useId();
   return (
-    <section aria-labelledby={id} data-testid={testId} className={cn("rounded-[var(--radius-card)] border border-line bg-surface p-5", className)}>
+    <section aria-labelledby={id} data-testid={testId} className={cn("ap-card p-5 md:p-6", className)}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 id={id} className="font-display text-h2 font-bold">
           {title}

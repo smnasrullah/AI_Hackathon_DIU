@@ -32,7 +32,7 @@ export function WhyStones({ reasons, generatedBy, modelVersion, className }: Why
   const WordingIcon = generatedBy === "template" ? FileText : Sparkles;
 
   return (
-    <div ref={ref} className={cn("rounded-[var(--radius-card)] border border-line bg-surface p-4 shadow-soft", className)}>
+    <div ref={ref} className={cn("ap-card p-4 shadow-soft", className)}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="font-display text-h2 font-bold">{t("why.title")}</p>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-pulse/12 px-2.5 py-1 text-xs font-semibold text-pulse-fg">

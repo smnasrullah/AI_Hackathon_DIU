@@ -61,7 +61,7 @@ export function FairnessChart({ report }: { report: FairnessReport }) {
 
   return (
     <div ref={ref} className="grid gap-4 lg:grid-cols-2" data-testid="fairness-chart" data-group-by={report.group_by}>
-      <figure className="rounded-[var(--radius-card)] border border-line bg-surface p-4">
+      <figure className="ap-card p-4">
         <figcaption>
           <p className="font-semibold">{t("rai.error.title")}</p>
           <p className="text-xs text-muted">{t("rai.error.lead")}</p>
@@ -87,7 +87,7 @@ export function FairnessChart({ report }: { report: FairnessReport }) {
         ))}
       </figure>
 
-      <figure className="rounded-[var(--radius-card)] border border-line bg-surface p-4">
+      <figure className="ap-card p-4">
         <figcaption>
           <p className="font-semibold">{t("rai.recall.title")}</p>
           <p className="text-xs text-muted">{t("rai.recall.lead")}</p>

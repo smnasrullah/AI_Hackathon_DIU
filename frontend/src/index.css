@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "./styles/tokens.css";
 @import "./styles/effects.css";
+@import "./styles/components.css";
 
 @theme inline {
   --color-bg: var(--bg);
@@ -14,6 +15,9 @@
   --color-glass: var(--glass-bg);
   --color-on-brand: var(--on-brand);
   --color-on-pulse: var(--on-pulse);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-on-primary: var(--on-primary);
 
   --color-ink-950: var(--ink-950);
   --color-ink-900: var(--ink-900);
@@ -41,7 +45,8 @@
   --color-risk-amber: var(--risk-watch);
   --color-risk-red: var(--risk-act);
 
-  --font-display: "Bricolage Grotesque", "Inter", "Hind Siliguri", system-ui, sans-serif;
+  /* One clean Latin family (Inter) for display and body; Bangla always shapes with Hind Siliguri. */
+  --font-display: "Inter", "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif;
   --font-sans: "Inter", "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif;
   --font-bangla: "Hind Siliguri", "Noto Sans Bengali", "Inter", system-ui, sans-serif;
   /* Bangla fallback so unit words inside numeric (.num) blocks still shape with a full Bangla font. */
@@ -51,19 +56,23 @@
   --text-display-xl--line-height: 0.95;
   --text-display: 48px;
   --text-display--line-height: 1;
-  --text-h1: 32px;
-  --text-h1--line-height: 1.15;
-  --text-h2: 24px;
-  --text-h2--line-height: 1.25;
+  --text-h1: 28px;
+  --text-h1--line-height: 1.2;
+  --text-h2: 20px;
+  --text-h2--line-height: 1.35;
+  --text-h3: 17px;
+  --text-h3--line-height: 1.4;
   --text-body: 16px;
-  --text-body--line-height: 1.5;
+  --text-body--line-height: 1.55;
   --text-small: 14px;
-  --text-small--line-height: 1.45;
+  --text-small--line-height: 1.5;
 
-  --radius-card: 20px;
-  --radius-input: 12px;
+  /* Mirrors tokens.css (utilities rounded-card / rounded-input / rounded-chip). */
+  --radius-card: 16px;
+  --radius-input: 10px;
   --radius-chip: 999px;
 
+  --shadow-xs: var(--elev-xs);
   --shadow-soft: var(--elev-soft);
   --shadow-lift: var(--elev-lift);
   --shadow-glow: var(--glow);
@@ -86,7 +95,14 @@ body {
   background: var(--bg);
   color: var(--fg);
   font-family: var(--font-sans);
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Latin headings sit slightly tighter; the :lang(bn) rule below resets this for Bangla. */
+:is(h1, h2, h3) {
+  letter-spacing: -0.012em;
 }
 
 /* letter-spacing breaks Bangla conjuncts and vowel signs apart: no tracking-* on Bangla, ever
@@ -94,7 +110,11 @@ body {
 :lang(bn) {
   font-family: var(--font-bangla);
   line-height: 1.7;
-  letter-spacing: normal;
+  letter-spacing: normal !important;
+}
+
+:lang(bn) * {
+  letter-spacing: normal !important;
 }
 
 :lang(bn) body,
@@ -108,15 +128,21 @@ body:lang(bn) {
   line-height: 1.35;
 }
 
-/* Numbers: JetBrains Mono, tabular, in every language. */
+/* Numbers: the body face with tabular figures, in every language (Bangla digits shape with Hind Siliguri). */
 .num {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
 :focus-visible {
   outline: 2px solid var(--pulse-blue);
   outline-offset: 2px;
+  border-radius: inherit;
+}
+
+::selection {
+  background: rgba(47, 91, 255, 0.18);
 }
 
 .glass {

@@ -99,7 +99,7 @@ function Tour() {
   const cardLeft = box ? Math.min(Math.max(12, box.x + box.w / 2 - CARD_W / 2), Math.max(12, view.w - CARD_W - 12)) : 12;
 
   return (
-    <div className="fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-labelledby={titleId} data-testid="onboarding-tour">
+    <div className="fixed inset-0 z-(--z-tour)" role="dialog" aria-modal="true" aria-labelledby={titleId} data-testid="onboarding-tour">
       <svg className="absolute inset-0 size-full" aria-hidden>
         <defs>
           <mask id={`${titleId}-mask`}>
@@ -128,9 +128,9 @@ function Tour() {
         animate={{ opacity: 1, x: cardLeft, y: cardTop }}
         transition={reduced ? REDUCED : SPRING.soft}
         style={{ width: view.w ? Math.min(CARD_W, view.w - 24) : CARD_W }}
-        className="absolute left-0 top-0 rounded-[var(--radius-card)] border border-line bg-surface p-5 text-fg shadow-lift"
+        className="absolute left-0 top-0 ap-card p-5 text-fg shadow-lift"
       >
-        <p className="font-mono text-xs uppercase tracking-[0.14em] text-muted">
+        <p className="ap-eyebrow">
           {t("tour.step", { n: formatNumber(index + 1, digits), total: formatNumber(steps.length, digits) })}
         </p>
         <h2 id={titleId} className="mt-1 font-display text-h2 font-bold">

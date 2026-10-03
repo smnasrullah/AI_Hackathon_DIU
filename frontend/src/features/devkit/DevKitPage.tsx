@@ -28,10 +28,10 @@ export function DevKitPage() {
   return (
     <MotionPrefs reduced={MOTION_OVERRIDE[motion]}>
       <div className="min-h-screen bg-bg text-fg">
-        <header className="glass sticky top-0 z-40 border-b border-line">
+        <header className="glass sticky top-0 z-(--z-sticky) border-b border-line">
           <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3">
             <div className="mr-auto">
-              <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">Dev only</p>
+              <p className="ap-eyebrow">Dev only</p>
               <p className="font-display text-h2 font-bold leading-none">Design kit</p>
             </div>
             <SegmentedControl

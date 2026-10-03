@@ -49,7 +49,7 @@ export function FoundationSections() {
         </div>
       </KitSection>
 
-      <KitSection id="type" title="Type scale" note="Bricolage display, Inter body, Hind Siliguri Bangla, JetBrains Mono numbers">
+      <KitSection id="type" title="Type scale" note="Inter display and body, Hind Siliguri Bangla, tabular Inter numbers">
         <div className="space-y-2">
           <p className="font-display text-display-xl font-bold">৳১,২০,০০০</p>
           <p className="font-display text-display font-bold">Runway 48</p>

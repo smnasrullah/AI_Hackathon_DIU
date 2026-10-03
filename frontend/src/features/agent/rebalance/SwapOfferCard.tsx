@@ -56,7 +56,7 @@ export function SwapOfferCard({ swap, agentId }: { swap: SwapItem; agentId: numb
     <article
       data-testid={`swap-offer-${swap.id}`}
       data-status={swap.status}
-      className="rounded-[var(--radius-card)] border border-line bg-surface p-5 shadow-soft"
+      className="ap-card p-5 shadow-soft"
     >
       <p className="flex items-start gap-2 font-semibold">
         <Direction aria-hidden className="mt-0.5 size-5 shrink-0 text-pulse-fg" />

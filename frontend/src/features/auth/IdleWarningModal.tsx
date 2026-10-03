@@ -15,7 +15,7 @@ export function IdleWarningModal({ secondsLeft, onStay, onLogout }: Props) {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-[var(--ink-950)]/60 p-4">
+    <div className="fixed inset-0 z-(--z-overlay) grid place-items-center bg-[var(--ink-950)]/60 p-4">
       <div
         role="alertdialog"
         aria-modal="true"
@@ -24,9 +24,9 @@ export function IdleWarningModal({ secondsLeft, onStay, onLogout }: Props) {
         onKeyDown={(e) => {
           if (e.key === "Escape") onStay();
         }}
-        className="w-full max-w-sm rounded-[var(--radius-card)] border border-line bg-surface p-6 text-fg shadow-lg"
+        className="w-full max-w-sm ap-card p-6 text-fg shadow-lg"
       >
-        <div className="flex items-center gap-2 text-risk-amber">
+        <div className="flex items-center gap-2 text-watch-fg">
           <Clock className="size-5" aria-hidden />
           <p className="font-mono text-xs uppercase tracking-[0.18em]">Idle</p>
         </div>
@@ -45,7 +45,7 @@ export function IdleWarningModal({ secondsLeft, onStay, onLogout }: Props) {
             ref={stayRef}
             type="button"
             onClick={onStay}
-            className="ap-press min-h-11 flex-1 rounded-full bg-brand px-4 font-semibold text-[var(--ink-950)]"
+            className="ap-press min-h-11 flex-1 rounded-[var(--radius-input)] bg-primary px-4 font-semibold text-on-primary shadow-soft hover:bg-primary-hover"
           >
             Stay signed in
           </button>

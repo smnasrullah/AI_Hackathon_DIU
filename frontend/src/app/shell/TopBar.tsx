@@ -40,7 +40,7 @@ export function TopBar({ home, crumbs, compact }: TopBarProps) {
   const save = useSavePreferences();
 
   return (
-    <header className="glass sticky top-0 z-40 border-b border-line">
+    <header className="glass sticky top-0 z-(--z-sticky) border-b border-line">
       <div className={cn("flex min-h-16 items-center gap-2", compact ? "px-3" : "px-4 md:px-6")}>
         <Brand home={home} compact={compact} />
         {compact ? null : <Breadcrumbs crumbs={crumbs} className="ml-2 hidden flex-1 lg:block" />}

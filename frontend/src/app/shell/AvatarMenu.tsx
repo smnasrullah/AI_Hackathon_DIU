@@ -41,7 +41,7 @@ export function AvatarMenu() {
         <Menu.Content
           align="end"
           sideOffset={8}
-          className="ap-dialog z-50 w-64 rounded-[var(--radius-card)] border border-line bg-surface p-2 text-fg shadow-lift"
+          className="ap-dialog z-(--z-overlay) w-64 ap-card p-2 text-fg shadow-lift"
         >
           <div className="flex items-center gap-3 px-3 py-2">
             <Avatar name={name} color={user.avatar_color} />

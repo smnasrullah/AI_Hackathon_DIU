@@ -37,7 +37,7 @@ export function AnswerCard({ turn, onRetry, retryDisabled }: AnswerCardProps) {
   const phase = turn.final || turn.streamed ? "final" : "draft";
 
   return (
-    <div data-testid="copilot-answer" className="max-w-[92%] rounded-[var(--radius-card)] border border-line bg-surface px-4 py-3 shadow-soft">
+    <div data-testid="copilot-answer" className="max-w-[92%] ap-card px-4 py-3 shadow-soft">
       {turn.state === "failed" ? (
         <p role="alert" className="text-small text-act-fg">
           {t("copilot.failed")}{" "}

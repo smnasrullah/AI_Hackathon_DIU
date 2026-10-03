@@ -78,7 +78,7 @@ export function NotificationBell() {
           sideOffset={8}
           collisionPadding={12}
           aria-label={t("inbox.title")}
-          className="ap-sheet z-50 flex max-h-[min(80vh,36rem)] w-[min(92vw,24rem)] flex-col rounded-[var(--radius-card)] border border-line bg-surface text-fg shadow-lift"
+          className="ap-sheet z-(--z-overlay) flex max-h-[min(80vh,36rem)] w-[min(92vw,24rem)] flex-col ap-card text-fg shadow-lift"
         >
           <div className="flex items-center justify-between gap-2 border-b border-line px-4 py-3">
             <h2 className="font-display text-h2 font-bold">{t("inbox.title")}</h2>

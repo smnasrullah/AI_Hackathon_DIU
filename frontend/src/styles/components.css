@@ -1,0 +1,90 @@
+/*
+ * Shared component classes, built only from tokens.css. In the components layer so any
+ * Tailwind utility on the same element still wins (e.g. `ap-card shadow-lift`, `ap-card bg-surface-2`).
+ */
+@layer components {
+  /* Card: soft hairline, quiet ambient shadow, opaque surface for readable data. */
+  .ap-card {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--elev-soft);
+  }
+
+  /* Small label above a page or card title. Bangla keeps normal spacing (index.css :lang rule). */
+  .ap-eyebrow {
+    font-size: 12px;
+    line-height: 1.4;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* Page backdrop: a static gradient mesh plus one faint, slow wave line set (SVG mask, no image). */
+  .ap-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    background:
+      radial-gradient(60rem 38rem at -8% -12%, var(--mesh-a), transparent 62%),
+      radial-gradient(48rem 34rem at 108% 4%, var(--mesh-b), transparent 60%),
+      radial-gradient(56rem 36rem at 55% 115%, var(--mesh-c), transparent 62%),
+      var(--bg);
+  }
+
+  .ap-backdrop-waves {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: calc(100% + 1200px);
+    height: min(42vh, 360px);
+    background: var(--wave-color);
+    -webkit-mask: var(--ap-wave-mask) repeat-x left bottom / 1200px 100%;
+    mask: var(--ap-wave-mask) repeat-x left bottom / 1200px 100%;
+    will-change: transform;
+    animation: ap-wave-drift 140s linear infinite;
+  }
+
+  .ap-backdrop-waves--top {
+    top: 0;
+    bottom: auto;
+    height: min(26vh, 220px);
+    opacity: 0.6;
+    transform: scaleY(-1);
+    animation-name: ap-wave-drift-flipped;
+    animation-duration: 180s;
+  }
+}
+
+/* Three thin sine lines, one 1200px period wide so the tile repeats seamlessly. */
+:root {
+  --ap-wave-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 240' preserveAspectRatio='none'%3E%3Cg fill='none' stroke='%23000' stroke-width='1.5'%3E%3Cpath d='M0 150 C 200 110 400 110 600 150 S 1000 190 1200 150'/%3E%3Cpath d='M0 180 C 200 145 400 145 600 180 S 1000 215 1200 180' stroke-opacity='.7'/%3E%3Cpath d='M0 120 C 200 90 400 90 600 120 S 1000 150 1200 120' stroke-opacity='.45'/%3E%3C/g%3E%3Cpath d='M0 200 C 200 170 400 170 600 200 S 1000 230 1200 200 V240 H0Z' fill='%23000' fill-opacity='.35'/%3E%3C/svg%3E");
+}
+
+@keyframes ap-wave-drift {
+  to { transform: translate3d(-1200px, 0, 0); }
+}
+@keyframes ap-wave-drift-flipped {
+  from { transform: scaleY(-1); }
+  to { transform: translate3d(-1200px, 0, 0) scaleY(-1); }
+}
+
+/* Waves never move for reduced motion, low-end devices, or hidden tabs. */
+@media (prefers-reduced-motion: reduce) {
+  .ap-backdrop-waves { animation: none !important; }
+}
+[data-reduced-motion="true"] .ap-backdrop-waves,
+[data-low-end="true"] .ap-backdrop-waves {
+  animation: none !important;
+}
+[data-page-hidden="true"] .ap-backdrop-waves {
+  animation-play-state: paused;
+}
+
+/* Print: no backdrop. */
+@media print {
+  .ap-backdrop { display: none; }
+}

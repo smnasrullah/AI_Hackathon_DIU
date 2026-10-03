@@ -6,6 +6,7 @@ import { streamCopilotChat } from "../../../api/services/copilot";
 import { CopilotSheet } from "../../../components/signature/CopilotSheet";
 import { LangText } from "../../../components/ui/LangText";
 import { LiquidButton } from "../../../components/ui/LiquidButton";
+import { PageHeader } from "../../../components/ui/PageHeader";
 import { useLocale } from "../../../lib/prefs";
 import { AnswerCard, type Turn } from "./AnswerCard";
 import { MicButton } from "./MicButton";
@@ -98,7 +99,7 @@ export function CopilotPage() {
           onChange={(e) => setText(e.target.value)}
           placeholder={t(speech.listening ? "copilot.mic.listening" : "copilot.placeholder")}
           autoComplete="off"
-          className="min-h-11 w-full min-w-0 rounded-[var(--radius-input)] border border-line-strong bg-bg px-3 text-body outline-none focus:border-pulse"
+          className="min-h-11 w-full min-w-0 rounded-[var(--radius-input)] border border-line-strong bg-surface px-3 text-body shadow-xs outline-none transition-[border-color,box-shadow] hover:border-ink-600/50 focus:border-pulse focus:ring-4 focus:ring-pulse/20"
         />
         <LiquidButton type="submit" icon={Send} disabled={busy || text.trim().length === 0} loading={busy}>
           {t("copilot.send")}
@@ -113,10 +114,7 @@ export function CopilotPage() {
   return (
     <div className="space-y-4 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:items-start lg:gap-6 lg:space-y-0">
       <div className="space-y-4">
-        <header>
-          <h1 className="font-display text-h1 font-bold">{t("copilot.title")}</h1>
-          <p className="mt-1 text-small text-muted">{t("copilot.lead")}</p>
-        </header>
+        <PageHeader title={t("copilot.title")} description={t("copilot.lead")} />
         <SuggestionChips onPick={ask} disabled={busy} />
       </div>
 

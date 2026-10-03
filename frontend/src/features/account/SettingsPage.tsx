@@ -83,7 +83,7 @@ export function SettingsPage() {
   return (
     <article className="mx-auto max-w-2xl space-y-5" aria-labelledby={headingId}>
       <header>
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">{t("settings.eyebrow")}</p>
+        <p className="ap-eyebrow">{t("settings.eyebrow")}</p>
         <h1 id={headingId} className="mt-1 font-display text-h1 font-bold">
           {t("page.settings")}
         </h1>

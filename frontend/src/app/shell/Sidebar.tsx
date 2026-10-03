@@ -23,12 +23,12 @@ export function Sidebar({ items, area }: { items: NavItem[]; area: string }) {
     <aside
       data-collapsed={collapsed}
       className={cn(
-        "sticky top-0 flex h-screen shrink-0 flex-col border-r border-line bg-surface",
+        "glass sticky top-0 flex h-screen shrink-0 flex-col border-r border-line",
         collapsed ? "w-16 md:w-[76px]" : "w-64",
       )}
     >
       <div className={cn("flex min-h-16 items-center px-3 pb-2 pt-4", collapsed ? "justify-center" : "justify-between")}>
-        {collapsed ? null : <p className="px-1 font-mono text-xs uppercase tracking-[0.18em] text-muted">{area}</p>}
+        {collapsed ? null : <p className="px-1 ap-eyebrow">{area}</p>}
         {narrow ? (
           <SidebarDrawer items={items} area={area} />
         ) : (

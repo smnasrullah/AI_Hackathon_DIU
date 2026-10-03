@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 
 import type { FloatType } from "../../../api/types";
+import { PageHeader } from "../../../components/ui/PageHeader";
 import { NoAgentState } from "../AgentPageStates";
 import { WhyPanel } from "../home/WhyPanel";
 import { isFloatType } from "../runwayModel";
@@ -18,10 +19,7 @@ export function ExplainPage() {
 
   return (
     <div className="space-y-4">
-      <header>
-        <h1 className="font-display text-h1 font-bold">{t("explain.title")}</h1>
-        <p className="mt-1 text-small text-muted">{t("explain.lead")}</p>
-      </header>
+      <PageHeader title={t("explain.title")} description={t("explain.lead")} />
 
       <dl className="grid gap-2 text-small sm:grid-cols-2">
         <div className="rounded-xl border border-line bg-surface p-3">

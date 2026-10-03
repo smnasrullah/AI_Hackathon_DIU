@@ -90,7 +90,7 @@ export function ChangePasswordForm() {
               </p>
             ) : null}
             {error ? (
-              <p id={`${field.name}-error`} className="mt-1 text-sm text-risk-red">
+              <p id={`${field.name}-error`} className="mt-1 text-sm text-act-fg">
                 {error.message}
               </p>
             ) : null}
@@ -110,7 +110,7 @@ export function ChangePasswordForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="ap-press min-h-11 rounded-full bg-brand px-5 font-semibold text-[var(--ink-950)] disabled:opacity-60"
+        className="ap-press min-h-11 rounded-[var(--radius-input)] bg-primary px-5 font-semibold text-on-primary shadow-soft hover:bg-primary-hover disabled:opacity-60"
       >
         {isSubmitting ? "Saving…" : "Change password"}
       </button>

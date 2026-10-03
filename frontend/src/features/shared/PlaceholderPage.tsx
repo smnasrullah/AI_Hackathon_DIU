@@ -5,8 +5,8 @@ import type { PageDef } from "../../app/routes";
 export function PlaceholderPage({ page }: { page: PageDef }) {
   const { id } = useParams();
   return (
-    <section className="rounded-[var(--radius-card)] border border-line bg-surface p-6 md:p-8">
-      <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">{page.features}</p>
+    <section className="ap-card p-6 md:p-8">
+      <p className="ap-eyebrow">{page.features}</p>
       <h1 className="mt-2 font-display text-3xl font-bold md:text-4xl">
         {page.title}
         {id ? <span className="font-mono text-2xl text-muted"> #{id}</span> : null}

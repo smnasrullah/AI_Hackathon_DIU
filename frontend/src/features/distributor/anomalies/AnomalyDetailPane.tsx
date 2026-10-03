@@ -28,7 +28,7 @@ function Narrative({ id }: { id: number }) {
         {t("anomalies.narrative")}
       </h3>
       {q.isPending ? (
-        <div className="rounded-[var(--radius-card)] border border-line bg-surface p-4">
+        <div className="ap-card p-4">
           <SkeletonText lines={3} />
         </div>
       ) : q.isError ? (

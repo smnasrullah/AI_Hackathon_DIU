@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import type { ReactNode } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 
+import { PageBackdrop } from "../../components/backdrop/Backdrop";
 import { PulseLine } from "../../components/signature/PulseLine";
 import { ThemeToggle } from "../../components/ui/ThemeToggle";
 import { Notices } from "../../features/shared/Notices";
@@ -29,7 +30,8 @@ export function PublicLayout({ width = "narrow", children }: PublicLayoutProps) 
   const { pathname } = useLocation();
   const content = children ?? <Outlet />;
   return (
-    <div className="flex min-h-screen flex-col bg-bg text-fg">
+    <div className="relative isolate flex min-h-screen flex-col bg-bg text-fg">
+      {width === "full" ? null : <PageBackdrop />}
       <header className="relative flex items-center justify-between gap-3 px-4 py-4 md:px-6">
         <Link to="/" className="flex min-h-11 items-center gap-2 rounded-lg">
           <span className="w-12" aria-hidden>

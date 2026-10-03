@@ -15,7 +15,7 @@ export function Tip({ label, enabled, children }: { label: string; enabled: bool
     <Tooltip.Root>
       <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
       <Tooltip.Portal>
-        <Tooltip.Content side="right" sideOffset={10} className="ap-sheet z-50 rounded-lg bg-ink-900 px-2.5 py-1.5 text-xs font-semibold text-paper shadow-lift">
+        <Tooltip.Content side="right" sideOffset={10} className="ap-sheet z-(--z-overlay) rounded-lg bg-ink-900 px-2.5 py-1.5 text-xs font-semibold text-paper shadow-lift">
           {label}
         </Tooltip.Content>
       </Tooltip.Portal>
@@ -49,17 +49,19 @@ function SideLink({ item, collapsed, layoutId }: SideLinkProps) {
         end={item.end}
         aria-label={collapsed ? label : undefined}
         className={cn(
-          "relative isolate flex min-h-11 items-center gap-3 rounded-xl px-3 text-small transition-colors",
+          "relative isolate flex min-h-11 items-center gap-3 rounded-xl px-3 text-small font-medium transition-colors",
           collapsed && "justify-center px-0",
-          active ? "font-semibold text-fg" : "text-muted hover:text-fg",
+          active ? "font-semibold text-pulse-fg" : "text-muted hover:bg-surface-2 hover:text-fg",
         )}
       >
         {active ? (
           <motion.span
             layoutId={layoutId}
             transition={reduced ? { duration: 0 } : SPRING.snappy}
-            className="pointer-events-none absolute inset-0 -z-10 rounded-xl bg-surface-2 shadow-glow"
-          />
+            className="pointer-events-none absolute inset-0 -z-10 rounded-xl bg-pulse/10 ring-1 ring-inset ring-pulse/15"
+          >
+            <span className="absolute inset-y-2.5 left-0 w-[3px] rounded-full bg-pulse" />
+          </motion.span>
         ) : null}
         <Icon aria-hidden className="size-5 shrink-0" />
         {collapsed ? null : <span className="truncate">{label}</span>}
@@ -77,7 +79,7 @@ interface SideNavListProps extends Omit<SideLinkProps, "item"> {
 export function SideNavList({ items, collapsed, layoutId, tour }: SideNavListProps) {
   const { t } = useTranslation();
   return (
-    <nav aria-label={t("shell.mainNav")} data-tour={tour ? "nav" : undefined} className="flex flex-col gap-1 px-3">
+    <nav aria-label={t("shell.mainNav")} data-tour={tour ? "nav" : undefined} className="flex flex-col gap-1 px-3 pb-4">
       {items.map((item) => (
         <SideLink key={item.to} item={item} collapsed={collapsed} layoutId={layoutId} />
       ))}

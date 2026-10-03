@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { Outlet, useLocation } from "react-router-dom";
 
+import { PageBackdrop } from "../../components/backdrop/Backdrop";
 import { useAuthStore } from "../../features/auth/authStore";
 import { ROLE_HOME } from "../../features/auth/types";
 import { Notices } from "../../features/shared/Notices";
@@ -47,22 +48,25 @@ export function AppShell() {
     ) : null;
 
   const page = (
-    <main id="main" tabIndex={-1} className={cn("flex-1 outline-none", agent ? "px-4 pb-6 pt-3" : "p-4 md:p-6")}>
-      {subRow ? <div className="mb-4">{subRow}</div> : null}
-      <RouteErrorBoundary resetKey={pathname}>
-        <motion.div key={pathname} variants={pageVariants} initial="initial" animate="enter">
-          <Outlet />
-        </motion.div>
-      </RouteErrorBoundary>
+    <main id="main" tabIndex={-1} className={cn("flex-1 outline-none", agent ? "px-4 pb-8 pt-4" : "px-4 py-5 md:px-6 md:py-6 xl:px-8")}>
+      <div className={cn("mx-auto w-full", !agent && "max-w-(--page-max)")}>
+        {subRow ? <div className="mb-4">{subRow}</div> : null}
+        <RouteErrorBoundary resetKey={pathname}>
+          <motion.div key={pathname} variants={pageVariants} initial="initial" animate="enter">
+            <Outlet />
+          </motion.div>
+        </RouteErrorBoundary>
+      </div>
     </main>
   );
 
   return (
     <Tooltip.Provider delayDuration={300}>
-      <a href="#main" className="sr-only z-[70] rounded-xl bg-brand px-4 py-2 font-semibold text-on-brand focus:not-sr-only focus:fixed focus:left-3 focus:top-3">
+      <a href="#main" className="sr-only z-(--z-skip) rounded-xl bg-brand px-4 py-2 font-semibold text-on-brand focus:not-sr-only focus:fixed focus:left-3 focus:top-3">
         {t("shell.skip")}
       </a>
-      <div data-testid="app-shell" data-role={role} className="min-h-screen bg-bg text-fg">
+      <div data-testid="app-shell" data-role={role} className="relative isolate min-h-screen bg-bg text-fg">
+        <PageBackdrop />
         <OfflineBanner />
         {role === "agent" ? (
           <div className="mx-auto flex min-h-screen max-w-md flex-col md:max-w-2xl">

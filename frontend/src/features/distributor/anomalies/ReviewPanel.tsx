@@ -62,7 +62,7 @@ export function ReviewPanel({ anomaly }: { anomaly: AnomalyDetail }) {
   }
 
   return (
-    <section aria-labelledby="review-title" className="rounded-[var(--radius-card)] border border-line bg-surface p-4">
+    <section aria-labelledby="review-title" className="ap-card p-4">
       <h3 id="review-title" className="font-display text-h2 font-bold">
         {t("anomalies.review.title")}
       </h3>

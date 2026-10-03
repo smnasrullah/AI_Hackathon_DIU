@@ -23,10 +23,10 @@ export function PreparingScreen({ state }: { state: BootstrapState }) {
   return (
     <main className="grid min-h-screen place-items-center bg-bg px-6 text-fg">
       <section
-        className="w-full max-w-md rounded-[var(--radius-card)] border border-line bg-surface p-8 shadow-[0_8px_30px_rgba(10,15,31,0.08)]"
+        className="w-full max-w-md ap-card p-8 shadow-[0_8px_30px_rgba(10,15,31,0.08)]"
         aria-live="polite"
       >
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">AgentPulse AI</p>
+        <p className="ap-eyebrow">AgentPulse AI</p>
         <h1 className="mt-2 flex items-center gap-2 font-display text-3xl font-bold">
           {failed && <CircleAlert aria-hidden className="size-7 text-risk-red" />}
           {failed ? "Setup stopped" : "Preparing demo data…"}

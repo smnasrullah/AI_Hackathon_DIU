@@ -5,8 +5,8 @@ import type { ReactNode } from "react";
 export function AuthCard({ eyebrow, title, subtitle, children, testId }: { eyebrow: string; title: string; subtitle?: string; children: ReactNode; testId?: string }) {
   return (
     <div className="mx-auto w-full max-w-md py-4 lg:py-10" data-testid={testId}>
-      <div className="rounded-[var(--radius-card)] border border-line bg-surface p-6 shadow-lift md:p-8">
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">{eyebrow}</p>
+      <div className="ap-card p-6 shadow-lift md:p-8">
+        <p className="ap-eyebrow">{eyebrow}</p>
         <h1 className="mt-2 font-display text-h1 font-bold">{title}</h1>
         {subtitle ? <p className="mt-1 text-body text-muted">{subtitle}</p> : null}
         {children}

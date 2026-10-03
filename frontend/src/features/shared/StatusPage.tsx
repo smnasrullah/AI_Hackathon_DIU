@@ -20,8 +20,8 @@ export type StatusAction = {
 } & ({ to: string; onClick?: never } | { onClick: () => void; to?: never });
 
 const LINK_STYLE: Record<"primary" | "secondary", string> = {
-  primary: "bg-brand text-on-brand shadow-soft hover:brightness-105",
-  secondary: "border border-line-strong bg-surface text-fg hover:bg-surface-2",
+  primary: "bg-primary text-on-primary shadow-soft hover:bg-primary-hover",
+  secondary: "border border-line-strong bg-surface text-fg shadow-xs hover:bg-surface-2",
 };
 
 function ActionLink({ action }: { action: StatusAction & { to: string } }) {
@@ -64,7 +64,7 @@ export function StatusPage({ code, illustration, title, body, pageTitle, actions
       initial="hidden"
       animate="show"
       data-paused={active ? "false" : "true"}
-      className="relative isolate mx-auto mt-6 max-w-xl overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface px-6 py-10 text-center"
+      className="relative isolate mx-auto mt-6 max-w-xl overflow-hidden ap-card px-6 py-10 text-center"
     >
       <Aurora className="-z-10" />
       <p aria-hidden className="flex justify-center gap-1 font-mono text-display-xl font-medium text-muted">

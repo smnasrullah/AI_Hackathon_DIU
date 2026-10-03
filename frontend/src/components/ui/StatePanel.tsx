@@ -34,7 +34,7 @@ function Panel({ illustration, title, body, action, role, compact, className }: 
       animate="show"
       data-paused={active ? "false" : "true"}
       className={cn(
-        "relative isolate overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface text-center",
+        "relative isolate overflow-hidden ap-card text-center",
         compact ? "px-4 py-6" : "px-6 py-10",
         className,
       )}

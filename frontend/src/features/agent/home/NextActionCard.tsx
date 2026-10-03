@@ -43,7 +43,7 @@ export function NextActionCard({ agentId }: { agentId: number }) {
   }
 
   return (
-    <section aria-labelledby="next-action" className="rounded-[var(--radius-card)] border border-line bg-surface p-5 shadow-soft">
+    <section aria-labelledby="next-action" className="ap-card p-5 shadow-soft">
       <ActionSummary item={item} />
       {item.status === "open" ? (
         <LiquidButton className="mt-5 w-full" size="lg" icon={Send} loading={request.isPending} onClick={() => ask(item.id)}>

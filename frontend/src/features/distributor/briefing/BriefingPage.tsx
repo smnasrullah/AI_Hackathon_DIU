@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { useDistributorBriefing } from "../../../api/hooks/briefing";
 import type { LlmText } from "../../../api/types";
 import { LiquidButton } from "../../../components/ui/LiquidButton";
+import { PageHeader } from "../../../components/ui/PageHeader";
 import { SkeletonText } from "../../../components/ui/Skeleton";
 import { SourceChip } from "../../../components/ui/SourceChip";
 import { ErrorState } from "../../../components/ui/StatePanel";
@@ -52,18 +53,20 @@ export function BriefingPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-4" data-testid="briefing-page">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-display text-h1 font-bold">{t("briefing.title")}</h1>
-          <p className="mt-1 text-small text-muted">{t("briefing.lead")}</p>
-        </div>
-        <LiquidButton variant="secondary" size="sm" icon={RotateCw} loading={q.isFetching && !q.isPending} onClick={() => void q.refetch()}>
-          {t("briefing.refresh")}
-        </LiquidButton>
-      </header>
+      <PageHeader
+        title={t("briefing.title")}
+        description={t("briefing.lead")}
+        actions={
+          <>
+            <LiquidButton variant="secondary" size="sm" icon={RotateCw} loading={q.isFetching && !q.isPending} onClick={() => void q.refetch()}>
+              {t("briefing.refresh")}
+            </LiquidButton>
+          </>
+        }
+      />
 
       {q.isPending ? (
-        <div className="rounded-[var(--radius-card)] border border-line bg-surface p-5">
+        <div className="ap-card p-5">
           <SkeletonText lines={6} />
         </div>
       ) : q.isError ? (

@@ -94,7 +94,7 @@ function Simulator({ agentId, floatType, base }: { agentId: number; floatType: F
 
   return (
     <>
-      <section aria-labelledby={`${sliderId}-label`} className="rounded-[var(--radius-card)] border border-line bg-surface p-5 shadow-soft">
+      <section aria-labelledby={`${sliderId}-label`} className="ap-card p-5 shadow-soft">
         <div className="flex items-baseline justify-between gap-3">
           <label id={`${sliderId}-label`} htmlFor={sliderId} className="font-semibold">
             {t("whatif.slider", { float: t(`float.${floatType}`) })}

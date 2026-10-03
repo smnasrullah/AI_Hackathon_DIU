@@ -17,7 +17,7 @@ export function PeerChart({ features, peerCount, peerGroup }: { features: PeerFe
   const num = (v: number) => formatNumber(v, digits, { fraction: 2 });
 
   return (
-    <figure className="rounded-[var(--radius-card)] border border-line bg-surface p-4" data-testid="peer-chart">
+    <figure className="ap-card p-4" data-testid="peer-chart">
       <figcaption className="text-small font-semibold">{t("anomalies.peers.title", { count: peerCount, group: peerGroup })}</figcaption>
       <ul className="mt-3 space-y-4">
         {features.map((f, i) => {

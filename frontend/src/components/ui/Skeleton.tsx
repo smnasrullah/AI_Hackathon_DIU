@@ -42,7 +42,7 @@ export function SkeletonText({ lines = 3, className }: { lines?: number; classNa
 /** Shaped like a VesselGauge card: title, tall vessel, figure. */
 export function SkeletonGauge({ className }: { className?: string }) {
   return (
-    <Loading className={cn("rounded-[var(--radius-card)] border border-line bg-surface p-4", className)}>
+    <Loading className={cn("ap-card p-4", className)}>
       <Skeleton className="h-3.5 w-20" />
       <Skeleton className="mt-3 h-40 rounded-[28px]" />
       <Skeleton className="mt-3 h-6 w-28" />
@@ -53,7 +53,7 @@ export function SkeletonGauge({ className }: { className?: string }) {
 /** Shaped like a RunwayStrip: ribbon row, band, axis. */
 export function SkeletonRunway({ className }: { className?: string }) {
   return (
-    <Loading className={cn("rounded-[var(--radius-card)] border border-line bg-surface p-4", className)}>
+    <Loading className={cn("ap-card p-4", className)}>
       <div className="flex gap-2">
         <Skeleton className="h-4 w-16 rounded-full" />
         <Skeleton className="h-4 w-12 rounded-full" />
@@ -71,7 +71,7 @@ export function SkeletonRunway({ className }: { className?: string }) {
 /** Shaped like a titled panel with label / value rows (admin and settings sections). */
 export function SkeletonPanel({ rows = 4, className }: { rows?: number; className?: string }) {
   return (
-    <Loading className={cn("rounded-[var(--radius-card)] border border-line bg-surface p-5", className)}>
+    <Loading className={cn("ap-card p-5", className)}>
       <Skeleton className="h-6 w-40" />
       <div className="mt-4 space-y-3">
         {Array.from({ length: rows }, (_, i) => (
@@ -88,7 +88,7 @@ export function SkeletonPanel({ rows = 4, className }: { rows?: number; classNam
 /** Shaped like a CountdownCard / BentoTile. */
 export function SkeletonCard({ className }: { className?: string }) {
   return (
-    <Loading className={cn("rounded-[var(--radius-card)] border border-line bg-surface p-5", className)}>
+    <Loading className={cn("ap-card p-5", className)}>
       <div className="flex items-start justify-between">
         <div className="flex-1 space-y-2">
           <Skeleton className="h-3.5 w-32" />

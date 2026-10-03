@@ -30,7 +30,7 @@ function TileState({ q, children }: { q: TileQuery; children: ReactNode }) {
   if (q.isPending) return <SkeletonCard className="h-full" />;
   if (q.isError) {
     return (
-      <div role="alert" className="flex h-full flex-col items-start justify-between gap-3 rounded-[var(--radius-card)] border border-line bg-surface p-5">
+      <div role="alert" className="flex h-full flex-col items-start justify-between gap-3 ap-card p-5">
         <p className="text-small text-muted">{t("state.errorTitle")}</p>
         <button type="button" onClick={() => void q.refetch()} className="ap-press inline-flex min-h-11 items-center gap-2 rounded-full border border-line px-4 text-small font-semibold">
           <RotateCw aria-hidden className={cn("size-4", q.isFetching && "animate-spin")} />

@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router-dom";
 
 import { useFairness, useModelCard } from "../../api/hooks/system";
 import type { GroupBy } from "../../api/types";
+import { PageHeader } from "../../components/ui/PageHeader";
 import { SegmentedControl } from "../../components/ui/SegmentedControl";
 import { SkeletonCard, SkeletonText } from "../../components/ui/Skeleton";
 import { SourceChip } from "../../components/ui/SourceChip";
@@ -97,10 +98,7 @@ export function ResponsibleAiPage() {
 
   return (
     <div className="space-y-6" data-testid="responsible-ai-page">
-      <header>
-        <h1 className="font-display text-h1 font-bold">{t("rai.title")}</h1>
-        <p className="mt-1 text-small text-muted">{t("rai.lead")}</p>
-      </header>
+      <PageHeader title={t("rai.title")} description={t("rai.lead")} />
       <PermanentNotices />
 
       <section aria-labelledby="rai-fairness" className="space-y-3">

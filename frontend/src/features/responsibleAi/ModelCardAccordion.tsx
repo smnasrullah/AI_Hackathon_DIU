@@ -76,7 +76,7 @@ export function ModelCardAccordion({ card }: { card: ModelCard }) {
   const d = card.data;
 
   return (
-    <ul className="overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface" data-testid="model-card">
+    <ul className="overflow-hidden ap-card" data-testid="model-card">
       <Item title={t("rai.card.models")} open={open.has("models")} onToggle={() => toggle("models")}>
         <ul className="space-y-3">
           {card.models.map((m) => (

@@ -85,7 +85,7 @@ export function BentoTile({ title, value, format = "number", icon: Icon, sparkli
       onPointerMove={onMove}
       onPointerLeave={onLeave}
       style={{ rotateX: rx, rotateY: ry, transformPerspective: 800 }}
-      className={cn("relative overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface p-5 shadow-soft", className)}
+      className={cn("relative overflow-hidden ap-card p-5 shadow-soft", className)}
     >
       <div className="flex items-center justify-between gap-2">
         <p className="text-small font-semibold text-muted">{title}</p>

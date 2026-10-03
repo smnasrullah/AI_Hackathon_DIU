@@ -8,6 +8,7 @@ import { exportRiskCsv } from "../../../api/services/agents";
 import type { AgentRiskRow, RiskLevel, RiskSort } from "../../../api/types";
 import { DataTable, type Column, type SortState } from "../../../components/ui/DataTable";
 import { LiquidButton } from "../../../components/ui/LiquidButton";
+import { PageHeader } from "../../../components/ui/PageHeader";
 import { Pagination } from "../../../components/ui/Pagination";
 import { RiskPill } from "../../../components/ui/RiskPill";
 import { SegmentedControl } from "../../../components/ui/SegmentedControl";
@@ -128,18 +129,18 @@ export function AgentsPage() {
 
   return (
     <div className="space-y-4" data-testid="agents-page">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-display text-h1 font-bold">{t("agentsTable.title")}</h1>
-          <p className="mt-1 text-small text-muted">{t("agentsTable.lead")}</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <ColumnChooser hidden={state.hidden} onChange={(hidden) => update({ hidden })} />
-          <LiquidButton variant="secondary" icon={Download} loading={exporting} onClick={() => void exportCsv()} data-testid="export-csv">
-            {t("agentsTable.export")}
-          </LiquidButton>
-        </div>
-      </header>
+      <PageHeader
+        title={t("agentsTable.title")}
+        description={t("agentsTable.lead")}
+        actions={
+          <>
+            <ColumnChooser hidden={state.hidden} onChange={(hidden) => update({ hidden })} />
+            <LiquidButton variant="secondary" icon={Download} loading={exporting} onClick={() => void exportCsv()} data-testid="export-csv">
+              {t("agentsTable.export")}
+            </LiquidButton>
+          </>
+        }
+      />
 
       <div className="flex flex-wrap items-center gap-3">
         <label className="relative min-w-56 flex-1">
@@ -151,7 +152,7 @@ export function AgentsPage() {
             onChange={(e) => setSearch(e.target.value)}
             maxLength={80}
             placeholder={t("agentsTable.search")}
-            className="min-h-11 w-full rounded-[var(--radius-input)] border border-line-strong bg-surface pl-9 pr-3 text-body outline-none focus:border-pulse"
+            className="min-h-11 w-full rounded-[var(--radius-input)] border border-line-strong bg-surface pl-9 pr-3 text-body shadow-xs outline-none transition-[border-color,box-shadow] hover:border-ink-600/50 focus:border-pulse focus:ring-4 focus:ring-pulse/20"
           />
         </label>
         <SegmentedControl<string>

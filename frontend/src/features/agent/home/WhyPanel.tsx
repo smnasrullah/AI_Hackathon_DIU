@@ -39,7 +39,7 @@ export function WhyPanel({ agentId, initialFloat, forecastPath = "/agent/forecas
       </div>
 
       {ex.isPending ? (
-        <div className="rounded-[var(--radius-card)] border border-line bg-surface p-4">
+        <div className="ap-card p-4">
           <SkeletonText lines={4} />
         </div>
       ) : ex.isError ? (
