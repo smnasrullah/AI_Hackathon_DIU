@@ -19,6 +19,12 @@ __pycache__/
 scripts/.check.lock
 scripts/.check-build-*.stamp
 
+# Local runtime artifacts (databases, logs, bootstrap state, check stamps)
+*.db
+*local-server.log
+bootstrap_state.txt
+*.stamp
+
 # OS / editor
 .DS_Store
 Thumbs.db
