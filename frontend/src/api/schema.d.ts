@@ -148,6 +148,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/liquidity-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List All
+         * @description Every help request, newest first.
+         */
+        get: operations["list_all_api_v1_admin_liquidity_requests_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/liquidity-requests/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Settings
+         * @description Kill switch, dry run, claim timeout, cooldown, daily cap, recipients per wave.
+         */
+        get: operations["read_settings_api_v1_admin_liquidity_requests_settings_get"];
+        /**
+         * Write Settings
+         * @description Change any subset of the switches (audit_log keeps old and new values).
+         */
+        put: operations["write_settings_api_v1_admin_liquidity_requests_settings_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/liquidity-requests/sweep": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sweep
+         * @description Reopen timed-out claims and expire overdue requests now. Safe to repeat.
+         */
+        post: operations["sweep_api_v1_admin_liquidity_requests_sweep_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/llm/logs": {
         parameters: {
             query?: never;
@@ -966,6 +1030,166 @@ export interface paths {
         get: operations["get_summary_api_v1_impact_summary_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/liquidity-requests/inbox": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Inbox
+         * @description Requests the caller was asked to help with (amount, area and deadline; no balances).
+         */
+        get: operations["list_inbox_api_v1_liquidity_requests_inbox_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/liquidity-requests/mine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Mine
+         * @description As requester: an agent's own requests; a distributor's agents' requests. Newest first.
+         */
+        get: operations["list_mine_api_v1_liquidity_requests_mine_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/liquidity-requests/{request_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Request
+         * @description One request. Unknown ids and ids outside the caller's reach are both 403.
+         */
+        get: operations["get_request_api_v1_liquidity_requests__request_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/liquidity-requests/{request_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel
+         * @description The requester agent or an admin cancels an open or claimed request.
+         */
+        post: operations["cancel_api_v1_liquidity_requests__request_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/liquidity-requests/{request_id}/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Claim
+         * @description A listed recipient accepts. Exactly one wins; the others get 409 already_taken.
+         */
+        post: operations["claim_api_v1_liquidity_requests__request_id__claim_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/liquidity-requests/{request_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm
+         * @description The requester agent or their distributor confirms receipt.
+         */
+        post: operations["confirm_api_v1_liquidity_requests__request_id__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/liquidity-requests/{request_id}/decline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Decline
+         * @description A listed recipient says no; nobody else is affected.
+         */
+        post: operations["decline_api_v1_liquidity_requests__request_id__decline_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/liquidity-requests/{request_id}/withdraw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Withdraw
+         * @description The helper who claimed it backs out before confirmation; the request reopens.
+         */
+        post: operations["withdraw_api_v1_liquidity_requests__request_id__withdraw_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2477,6 +2701,173 @@ export interface components {
              */
             status: "ok";
         };
+        /** HelpNoteIn */
+        HelpNoteIn: {
+            /** Note */
+            note?: string | null;
+        };
+        /**
+         * HelpOrigin
+         * @enum {string}
+         */
+        HelpOrigin: "system" | "user";
+        /**
+         * HelpRecipientOut
+         * @description Owner view only.
+         */
+        HelpRecipientOut: {
+            /** Display */
+            display: string;
+            /** Distance Km */
+            distance_km: number | null;
+            /** Notified At */
+            notified_at: string | null;
+            /** Responded At */
+            responded_at: string | null;
+            response: components["schemas"]["HelpResponse"];
+            role: components["schemas"]["UserRole"];
+            /**
+             * User Id
+             * Format: uuid
+             */
+            user_id: string;
+            /** Wave Number */
+            wave_number: number;
+        };
+        /** HelpRequestItem */
+        HelpRequestItem: {
+            /**
+             * Advisory
+             * @default true
+             * @constant
+             */
+            advisory: true;
+            /** Amount Needed */
+            amount_needed: number;
+            /** Claim Expires At */
+            claim_expires_at: string | null;
+            /** Claimed At */
+            claimed_at: string | null;
+            claimed_by?: components["schemas"]["HelpRecipientOut"] | null;
+            /**
+             * Claimed By Me
+             * @default false
+             */
+            claimed_by_me: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            created_by: components["schemas"]["HelpOrigin"];
+            float_type: components["schemas"]["FloatType"];
+            /** Fulfilled At */
+            fulfilled_at: string | null;
+            /** Id */
+            id: number;
+            /** My Distance Km */
+            my_distance_km?: number | null;
+            my_response?: components["schemas"]["HelpResponse"] | null;
+            /**
+             * Needed By
+             * Format: date-time
+             */
+            needed_by: string;
+            /** Reason Summary */
+            reason_summary?: string | null;
+            /** Recipients */
+            recipients?: components["schemas"]["HelpRecipientOut"][] | null;
+            requester: components["schemas"]["HelpRequester"];
+            status: components["schemas"]["HelpStatus"];
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /**
+             * View
+             * @enum {string}
+             */
+            view: "owner" | "recipient";
+            /** Wave Number */
+            wave_number: number;
+        };
+        /** HelpRequestPage */
+        HelpRequestPage: {
+            /** Items */
+            items: components["schemas"]["HelpRequestItem"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
+        /** HelpRequester */
+        HelpRequester: {
+            /** Agent Id */
+            agent_id: number;
+            /** Code */
+            code: string;
+            /** District */
+            district: string;
+            /** Name */
+            name: string;
+            /** Upazila */
+            upazila: string | null;
+        };
+        /**
+         * HelpResponse
+         * @description One recipient's answer to a help request.
+         * @enum {string}
+         */
+        HelpResponse: "none" | "accepted" | "declined" | "expired" | "superseded";
+        /**
+         * HelpSettingsIn
+         * @description Partial update; omitted fields keep their value.
+         */
+        HelpSettingsIn: {
+            /** Claim Timeout Min */
+            claim_timeout_min?: number | null;
+            /** Cooldown Min */
+            cooldown_min?: number | null;
+            /** Daily Cap Per Agent */
+            daily_cap_per_agent?: number | null;
+            /** Dry Run */
+            dry_run?: boolean | null;
+            /** Enabled */
+            enabled?: boolean | null;
+            /** Max Recipients Per Wave */
+            max_recipients_per_wave?: number | null;
+        };
+        /** HelpSettingsOut */
+        HelpSettingsOut: {
+            /** Claim Timeout Min */
+            claim_timeout_min: number;
+            /** Cooldown Min */
+            cooldown_min: number;
+            /** Daily Cap Per Agent */
+            daily_cap_per_agent: number;
+            /** Dry Run */
+            dry_run: boolean;
+            /** Enabled */
+            enabled: boolean;
+            /** Max Recipients Per Wave */
+            max_recipients_per_wave: number;
+        };
+        /**
+         * HelpStatus
+         * @description Liquidity help request; transitions live in app/rules/help_request_rules.py.
+         * @enum {string}
+         */
+        HelpStatus: "open" | "claimed" | "fulfilled" | "expired" | "cancelled";
+        /** HelpSweepOut */
+        HelpSweepOut: {
+            /** Expired */
+            expired: number;
+            /** Reopened */
+            reopened: number;
+        };
         /** HorizonRisk */
         HorizonRisk: {
             /** Confidence */
@@ -3075,7 +3466,7 @@ export interface components {
          * NotificationType
          * @enum {string}
          */
-        NotificationType: "risk_change" | "swap_offer" | "swap_decision" | "anomaly" | "system";
+        NotificationType: "risk_change" | "swap_offer" | "swap_decision" | "anomaly" | "system" | "help_request";
         /** OrgAgent */
         OrgAgent: {
             /** Code */
@@ -3978,6 +4369,112 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_all_api_v1_admin_liquidity_requests_get: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["HelpStatus"] | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HelpRequestPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_settings_api_v1_admin_liquidity_requests_settings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HelpSettingsOut"];
+                };
+            };
+        };
+    };
+    write_settings_api_v1_admin_liquidity_requests_settings_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HelpSettingsIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HelpSettingsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sweep_api_v1_admin_liquidity_requests_sweep_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HelpSweepOut"];
                 };
             };
         };
@@ -5347,6 +5844,274 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ImpactSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_inbox_api_v1_liquidity_requests_inbox_get: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["HelpStatus"] | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HelpRequestPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_mine_api_v1_liquidity_requests_mine_get: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["HelpStatus"] | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HelpRequestPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_request_api_v1_liquidity_requests__request_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HelpRequestItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_api_v1_liquidity_requests__request_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["HelpNoteIn"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HelpRequestItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    claim_api_v1_liquidity_requests__request_id__claim_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HelpRequestItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    confirm_api_v1_liquidity_requests__request_id__confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["HelpNoteIn"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HelpRequestItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    decline_api_v1_liquidity_requests__request_id__decline_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["HelpNoteIn"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HelpRequestItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    withdraw_api_v1_liquidity_requests__request_id__withdraw_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["HelpNoteIn"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HelpRequestItem"];
                 };
             };
             /** @description Validation Error */

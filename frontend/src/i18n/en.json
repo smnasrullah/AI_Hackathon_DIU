@@ -280,6 +280,17 @@
     "swaps_pending": "New swaps waiting for your approval: {{count}}",
     "swap_decision": "Your {{amount_bdt}} {{float_type}} swap with {{counterpart_code}} was {{status}}",
     "anomalies_new": "New anomaly flags to review: {{count}}",
+    "help": {
+      "new": "{{agent_code}} ({{area}}) needs {{amount_bdt}} {{float_type}} by {{needed_by}}. Can you help?",
+      "created": "A help request for {{amount_bdt}} {{float_type}} was sent to nearby helpers",
+      "covered": "This request is now covered by another helper",
+      "claimed": "A helper accepted your {{amount_bdt}} {{float_type}} request. Confirm when it arrives",
+      "reopened": "The {{amount_bdt}} {{float_type}} request from {{agent_code}} is open again",
+      "claim_expired": "Your claim on {{agent_code}}'s request timed out and was released",
+      "fulfilled": "The {{amount_bdt}} {{float_type}} request from {{agent_code}} was confirmed as received",
+      "cancelled": "The {{amount_bdt}} {{float_type}} request from {{agent_code}} was cancelled",
+      "expired": "The {{amount_bdt}} {{float_type}} request from {{agent_code}} expired without a helper"
+    },
     "fallback": "New update"
   },
   "swapStatus": {

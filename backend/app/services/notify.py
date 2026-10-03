@@ -1,6 +1,7 @@
 """Write in-app notifications for pipeline and human events, to the right users only.
 
-agent: own headline risk change, swap offers on own agent, decisions on own swaps.
+agent: own headline risk change, swap offers on own agent, decisions on own swaps,
+liquidity help requests they are part of (app/services/help_notify.py decides who).
 distributor: red-count change in own territory, new anomalies, new pending swaps.
 Texts are i18n keys + params (numbers from the backend). Users with notify_in_app off get none.
 """
@@ -177,3 +178,17 @@ def anomalies_new(session: Session, flags: list[Anomaly]) -> int:
                          "agent_code": agents[found[0].agent_id][1] if single else None},
                         ("anomaly", str(found[0].id) if single else None))
     return written
+
+
+# --- liquidity help requests ------------------------------------------------------------------
+
+def help_event(session: Session, users: Iterable[uuid.UUID], key: str,
+               severity: NotificationSeverity, params: dict[str, Param], request_id: int) -> int:
+    """One help-request notification per opted-in active user (keys under notifications.help)."""
+    wanted = set(users)
+    if not wanted:
+        return 0
+    opted = session.scalars(select(User.id).where(
+        User.id.in_(wanted), User.is_active.is_(True), User.notify_in_app.is_(True))).all()
+    return _add(session, sorted(opted), NotificationType.help_request, severity,
+                f"notifications.help.{key}", params, ("liquidity_request", str(request_id)))

@@ -1,6 +1,7 @@
 from app.models.actions import AuditLog, Recommendation, RecommendationRequest, SwapSuggestion
 from app.models.base import Base
 from app.models.jobs import AdminJob
+from app.models.liquidity import LiquidityRequest, LiquidityRequestRecipient
 from app.models.llm import CopilotMessage, KnowledgeDoc, LlmCache, LlmCallLog
 from app.models.notifications import Notification
 from app.models.org import (
@@ -37,6 +38,8 @@ __all__ = [
     "ForecastExplanation",
     "ImpactResult",
     "KnowledgeDoc",
+    "LiquidityRequest",
+    "LiquidityRequestRecipient",
     "LlmCache",
     "LlmCallLog",
     "LoginFailure",

@@ -2887,6 +2887,508 @@
     "title": "HealthResponse",
     "type": "object"
    },
+   "HelpNoteIn": {
+    "properties": {
+     "note": {
+      "anyOf": [
+       {
+        "maxLength": 500,
+        "minLength": 1,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "title": "HelpNoteIn",
+    "type": "object"
+   },
+   "HelpOrigin": {
+    "enum": [
+     "system",
+     "user"
+    ],
+    "title": "HelpOrigin",
+    "type": "string"
+   },
+   "HelpRecipientOut": {
+    "description": "Owner view only.",
+    "properties": {
+     "display": {
+      "title": "Display",
+      "type": "string"
+     },
+     "distance_km": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Distance Km"
+     },
+     "notified_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Notified At"
+     },
+     "responded_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Responded At"
+     },
+     "response": {
+      "$ref": "#/components/schemas/HelpResponse"
+     },
+     "role": {
+      "$ref": "#/components/schemas/UserRole"
+     },
+     "user_id": {
+      "format": "uuid",
+      "title": "User Id",
+      "type": "string"
+     },
+     "wave_number": {
+      "title": "Wave Number",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "user_id",
+     "display",
+     "role",
+     "wave_number",
+     "response",
+     "notified_at",
+     "responded_at",
+     "distance_km"
+    ],
+    "title": "HelpRecipientOut",
+    "type": "object"
+   },
+   "HelpRequestItem": {
+    "properties": {
+     "advisory": {
+      "const": true,
+      "default": true,
+      "title": "Advisory",
+      "type": "boolean"
+     },
+     "amount_needed": {
+      "title": "Amount Needed",
+      "type": "number"
+     },
+     "claim_expires_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Claim Expires At"
+     },
+     "claimed_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Claimed At"
+     },
+     "claimed_by": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/HelpRecipientOut"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "claimed_by_me": {
+      "default": false,
+      "title": "Claimed By Me",
+      "type": "boolean"
+     },
+     "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+     },
+     "created_by": {
+      "$ref": "#/components/schemas/HelpOrigin"
+     },
+     "float_type": {
+      "$ref": "#/components/schemas/FloatType"
+     },
+     "fulfilled_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Fulfilled At"
+     },
+     "id": {
+      "title": "Id",
+      "type": "integer"
+     },
+     "my_distance_km": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "My Distance Km"
+     },
+     "my_response": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/HelpResponse"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "needed_by": {
+      "format": "date-time",
+      "title": "Needed By",
+      "type": "string"
+     },
+     "reason_summary": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reason Summary"
+     },
+     "recipients": {
+      "anyOf": [
+       {
+        "items": {
+         "$ref": "#/components/schemas/HelpRecipientOut"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Recipients"
+     },
+     "requester": {
+      "$ref": "#/components/schemas/HelpRequester"
+     },
+     "status": {
+      "$ref": "#/components/schemas/HelpStatus"
+     },
+     "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+     },
+     "view": {
+      "enum": [
+       "owner",
+       "recipient"
+      ],
+      "title": "View",
+      "type": "string"
+     },
+     "wave_number": {
+      "title": "Wave Number",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "id",
+     "view",
+     "requester",
+     "float_type",
+     "amount_needed",
+     "needed_by",
+     "status",
+     "wave_number",
+     "created_by",
+     "created_at",
+     "updated_at",
+     "claimed_at",
+     "claim_expires_at",
+     "fulfilled_at"
+    ],
+    "title": "HelpRequestItem",
+    "type": "object"
+   },
+   "HelpRequestPage": {
+    "properties": {
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/HelpRequestItem"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "page": {
+      "title": "Page",
+      "type": "integer"
+     },
+     "page_size": {
+      "title": "Page Size",
+      "type": "integer"
+     },
+     "total": {
+      "title": "Total",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "items",
+     "total",
+     "page",
+     "page_size"
+    ],
+    "title": "HelpRequestPage",
+    "type": "object"
+   },
+   "HelpRequester": {
+    "properties": {
+     "agent_id": {
+      "title": "Agent Id",
+      "type": "integer"
+     },
+     "code": {
+      "title": "Code",
+      "type": "string"
+     },
+     "district": {
+      "title": "District",
+      "type": "string"
+     },
+     "name": {
+      "title": "Name",
+      "type": "string"
+     },
+     "upazila": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Upazila"
+     }
+    },
+    "required": [
+     "agent_id",
+     "code",
+     "name",
+     "upazila",
+     "district"
+    ],
+    "title": "HelpRequester",
+    "type": "object"
+   },
+   "HelpResponse": {
+    "description": "One recipient's answer to a help request.",
+    "enum": [
+     "none",
+     "accepted",
+     "declined",
+     "expired",
+     "superseded"
+    ],
+    "title": "HelpResponse",
+    "type": "string"
+   },
+   "HelpSettingsIn": {
+    "description": "Partial update; omitted fields keep their value.",
+    "properties": {
+     "claim_timeout_min": {
+      "anyOf": [
+       {
+        "maximum": 1440.0,
+        "minimum": 1.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Claim Timeout Min"
+     },
+     "cooldown_min": {
+      "anyOf": [
+       {
+        "maximum": 1440.0,
+        "minimum": 0.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cooldown Min"
+     },
+     "daily_cap_per_agent": {
+      "anyOf": [
+       {
+        "maximum": 100.0,
+        "minimum": 1.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Daily Cap Per Agent"
+     },
+     "dry_run": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Dry Run"
+     },
+     "enabled": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Enabled"
+     },
+     "max_recipients_per_wave": {
+      "anyOf": [
+       {
+        "maximum": 50.0,
+        "minimum": 1.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Max Recipients Per Wave"
+     }
+    },
+    "title": "HelpSettingsIn",
+    "type": "object"
+   },
+   "HelpSettingsOut": {
+    "properties": {
+     "claim_timeout_min": {
+      "title": "Claim Timeout Min",
+      "type": "integer"
+     },
+     "cooldown_min": {
+      "title": "Cooldown Min",
+      "type": "integer"
+     },
+     "daily_cap_per_agent": {
+      "title": "Daily Cap Per Agent",
+      "type": "integer"
+     },
+     "dry_run": {
+      "title": "Dry Run",
+      "type": "boolean"
+     },
+     "enabled": {
+      "title": "Enabled",
+      "type": "boolean"
+     },
+     "max_recipients_per_wave": {
+      "title": "Max Recipients Per Wave",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "enabled",
+     "dry_run",
+     "claim_timeout_min",
+     "cooldown_min",
+     "daily_cap_per_agent",
+     "max_recipients_per_wave"
+    ],
+    "title": "HelpSettingsOut",
+    "type": "object"
+   },
+   "HelpStatus": {
+    "description": "Liquidity help request; transitions live in app/rules/help_request_rules.py.",
+    "enum": [
+     "open",
+     "claimed",
+     "fulfilled",
+     "expired",
+     "cancelled"
+    ],
+    "title": "HelpStatus",
+    "type": "string"
+   },
+   "HelpSweepOut": {
+    "properties": {
+     "expired": {
+      "title": "Expired",
+      "type": "integer"
+     },
+     "reopened": {
+      "title": "Reopened",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "reopened",
+     "expired"
+    ],
+    "title": "HelpSweepOut",
+    "type": "object"
+   },
    "HorizonRisk": {
     "properties": {
      "confidence": {
@@ -4501,7 +5003,8 @@
      "swap_offer",
      "swap_decision",
      "anomaly",
-     "system"
+     "system",
+     "help_request"
     ],
     "title": "NotificationType",
     "type": "string"
@@ -6911,6 +7414,184 @@
     "summary": "Get Job",
     "tags": [
      "admin"
+    ]
+   }
+  },
+  "/api/v1/admin/liquidity-requests": {
+   "get": {
+    "description": "Every help request, newest first.",
+    "operationId": "list_all_api_v1_admin_liquidity_requests_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "status",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/HelpStatus"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page",
+      "required": false,
+      "schema": {
+       "default": 1,
+       "maximum": 10000,
+       "minimum": 1,
+       "title": "Page",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page_size",
+      "required": false,
+      "schema": {
+       "default": 20,
+       "maximum": 100,
+       "minimum": 1,
+       "title": "Page Size",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HelpRequestPage"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "List All",
+    "tags": [
+     "liquidity-requests"
+    ]
+   }
+  },
+  "/api/v1/admin/liquidity-requests/settings": {
+   "get": {
+    "description": "Kill switch, dry run, claim timeout, cooldown, daily cap, recipients per wave.",
+    "operationId": "read_settings_api_v1_admin_liquidity_requests_settings_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HelpSettingsOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Read Settings",
+    "tags": [
+     "liquidity-requests"
+    ]
+   },
+   "put": {
+    "description": "Change any subset of the switches (audit_log keeps old and new values).",
+    "operationId": "write_settings_api_v1_admin_liquidity_requests_settings_put",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/HelpSettingsIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HelpSettingsOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Write Settings",
+    "tags": [
+     "liquidity-requests"
+    ]
+   }
+  },
+  "/api/v1/admin/liquidity-requests/sweep": {
+   "post": {
+    "description": "Reopen timed-out claims and expire overdue requests now. Safe to repeat.",
+    "operationId": "sweep_api_v1_admin_liquidity_requests_sweep_post",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HelpSweepOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Sweep",
+    "tags": [
+     "liquidity-requests"
     ]
    }
   },
@@ -9470,6 +10151,532 @@
     "summary": "Get Summary",
     "tags": [
      "impact"
+    ]
+   }
+  },
+  "/api/v1/liquidity-requests/inbox": {
+   "get": {
+    "description": "Requests the caller was asked to help with (amount, area and deadline; no balances).",
+    "operationId": "list_inbox_api_v1_liquidity_requests_inbox_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "status",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/HelpStatus"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page",
+      "required": false,
+      "schema": {
+       "default": 1,
+       "maximum": 10000,
+       "minimum": 1,
+       "title": "Page",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page_size",
+      "required": false,
+      "schema": {
+       "default": 20,
+       "maximum": 100,
+       "minimum": 1,
+       "title": "Page Size",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HelpRequestPage"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "List Inbox",
+    "tags": [
+     "liquidity-requests"
+    ]
+   }
+  },
+  "/api/v1/liquidity-requests/mine": {
+   "get": {
+    "description": "As requester: an agent's own requests; a distributor's agents' requests. Newest first.",
+    "operationId": "list_mine_api_v1_liquidity_requests_mine_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "status",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/HelpStatus"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page",
+      "required": false,
+      "schema": {
+       "default": 1,
+       "maximum": 10000,
+       "minimum": 1,
+       "title": "Page",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page_size",
+      "required": false,
+      "schema": {
+       "default": 20,
+       "maximum": 100,
+       "minimum": 1,
+       "title": "Page Size",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HelpRequestPage"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "List Mine",
+    "tags": [
+     "liquidity-requests"
+    ]
+   }
+  },
+  "/api/v1/liquidity-requests/{request_id}": {
+   "get": {
+    "description": "One request. Unknown ids and ids outside the caller's reach are both 403.",
+    "operationId": "get_request_api_v1_liquidity_requests__request_id__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "request_id",
+      "required": true,
+      "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
+       "title": "Request Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HelpRequestItem"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Get Request",
+    "tags": [
+     "liquidity-requests"
+    ]
+   }
+  },
+  "/api/v1/liquidity-requests/{request_id}/cancel": {
+   "post": {
+    "description": "The requester agent or an admin cancels an open or claimed request.",
+    "operationId": "cancel_api_v1_liquidity_requests__request_id__cancel_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "request_id",
+      "required": true,
+      "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
+       "title": "Request Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "anyOf": [
+         {
+          "$ref": "#/components/schemas/HelpNoteIn"
+         },
+         {
+          "type": "null"
+         }
+        ],
+        "title": "Body"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HelpRequestItem"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Cancel",
+    "tags": [
+     "liquidity-requests"
+    ]
+   }
+  },
+  "/api/v1/liquidity-requests/{request_id}/claim": {
+   "post": {
+    "description": "A listed recipient accepts. Exactly one wins; the others get 409 already_taken.",
+    "operationId": "claim_api_v1_liquidity_requests__request_id__claim_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "request_id",
+      "required": true,
+      "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
+       "title": "Request Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HelpRequestItem"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Claim",
+    "tags": [
+     "liquidity-requests"
+    ]
+   }
+  },
+  "/api/v1/liquidity-requests/{request_id}/confirm": {
+   "post": {
+    "description": "The requester agent or their distributor confirms receipt.",
+    "operationId": "confirm_api_v1_liquidity_requests__request_id__confirm_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "request_id",
+      "required": true,
+      "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
+       "title": "Request Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "anyOf": [
+         {
+          "$ref": "#/components/schemas/HelpNoteIn"
+         },
+         {
+          "type": "null"
+         }
+        ],
+        "title": "Body"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HelpRequestItem"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Confirm",
+    "tags": [
+     "liquidity-requests"
+    ]
+   }
+  },
+  "/api/v1/liquidity-requests/{request_id}/decline": {
+   "post": {
+    "description": "A listed recipient says no; nobody else is affected.",
+    "operationId": "decline_api_v1_liquidity_requests__request_id__decline_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "request_id",
+      "required": true,
+      "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
+       "title": "Request Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "anyOf": [
+         {
+          "$ref": "#/components/schemas/HelpNoteIn"
+         },
+         {
+          "type": "null"
+         }
+        ],
+        "title": "Body"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HelpRequestItem"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Decline",
+    "tags": [
+     "liquidity-requests"
+    ]
+   }
+  },
+  "/api/v1/liquidity-requests/{request_id}/withdraw": {
+   "post": {
+    "description": "The helper who claimed it backs out before confirmation; the request reopens.",
+    "operationId": "withdraw_api_v1_liquidity_requests__request_id__withdraw_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "request_id",
+      "required": true,
+      "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
+       "title": "Request Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "anyOf": [
+         {
+          "$ref": "#/components/schemas/HelpNoteIn"
+         },
+         {
+          "type": "null"
+         }
+        ],
+        "title": "Body"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HelpRequestItem"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Withdraw",
+    "tags": [
+     "liquidity-requests"
     ]
    }
   },

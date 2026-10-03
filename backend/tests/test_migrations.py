@@ -19,7 +19,7 @@ CORE_TABLES = {
     "events", "weather_daily", "forecasts", "stockout_predictions", "risk_levels",
     "recommendations", "swap_suggestions", "anomalies", "impact_results", "audit_log",
     "model_versions", "llm_call_log", "llm_cache", "copilot_messages", "knowledge_docs",
-    "login_failures", "notifications",
+    "login_failures", "notifications", "liquidity_requests", "liquidity_request_recipients",
 }
 AGENT_TS_TABLES = {
     "transactions": "ix_transactions_agent_ts",

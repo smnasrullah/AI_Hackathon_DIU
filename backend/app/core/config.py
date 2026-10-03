@@ -92,6 +92,15 @@ class Settings(BaseSettings):
     impact_decision_hours: list[int] = [8, 14, 20]
     impact_cashout_fee_pct: float = 1.85
 
+    # Liquidity help requests: defaults only; admins override them at runtime
+    # (app/services/help_settings.py, stored in system_meta).
+    help_enabled: bool = True
+    help_dry_run: bool = False
+    help_claim_timeout_min: int = 20
+    help_cooldown_min: int = 30
+    help_daily_cap_per_agent: int = 3
+    help_max_recipients_per_wave: int = 5
+
     llm_provider: LlmProvider = "auto"
     llm_model: str = "claude-haiku-4-5-20251001"
     llm_base_url: str = ""

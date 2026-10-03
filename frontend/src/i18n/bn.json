@@ -280,6 +280,17 @@
     "swaps_pending": "অনুমোদনের অপেক্ষায় নতুন সোয়াপ: {{count}}",
     "swap_decision": "{{counterpart_code}}-এর সাথে আপনার {{amount_bdt}} {{float_type}} সোয়াপ {{status}}",
     "anomalies_new": "পর্যালোচনার জন্য নতুন অস্বাভাবিকতা: {{count}}",
+    "help": {
+      "new": "{{agent_code}} ({{area}})-এর {{needed_by}}-এর মধ্যে {{amount_bdt}} {{float_type}} দরকার। আপনি কি সাহায্য করতে পারবেন?",
+      "created": "{{amount_bdt}} {{float_type}}-এর সাহায্যের অনুরোধ কাছের সাহায্যকারীদের পাঠানো হয়েছে",
+      "covered": "এই অনুরোধটি এখন অন্য একজন সাহায্যকারী নিয়েছেন",
+      "claimed": "একজন সাহায্যকারী আপনার {{amount_bdt}} {{float_type}} অনুরোধ নিয়েছেন। পৌঁছালে নিশ্চিত করুন",
+      "reopened": "{{agent_code}}-এর {{amount_bdt}} {{float_type}} অনুরোধটি আবার খোলা হয়েছে",
+      "claim_expired": "{{agent_code}}-এর অনুরোধে আপনার নেওয়া সময় শেষ, অনুরোধটি ছেড়ে দেওয়া হয়েছে",
+      "fulfilled": "{{agent_code}}-এর {{amount_bdt}} {{float_type}} অনুরোধ পাওয়া গেছে বলে নিশ্চিত হয়েছে",
+      "cancelled": "{{agent_code}}-এর {{amount_bdt}} {{float_type}} অনুরোধ বাতিল হয়েছে",
+      "expired": "{{agent_code}}-এর {{amount_bdt}} {{float_type}} অনুরোধের সময় শেষ, কেউ সাহায্য করেননি"
+    },
     "fallback": "নতুন খবর"
   },
   "swapStatus": {

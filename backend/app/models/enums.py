@@ -87,6 +87,31 @@ class SwapResponse(StrEnum):
     declined = "declined"
 
 
+class HelpStatus(StrEnum):
+    """Liquidity help request; transitions live in app/rules/help_request_rules.py."""
+
+    open = "open"
+    claimed = "claimed"
+    fulfilled = "fulfilled"
+    expired = "expired"
+    cancelled = "cancelled"
+
+
+class HelpResponse(StrEnum):
+    """One recipient's answer to a help request."""
+
+    none = "none"
+    accepted = "accepted"
+    declined = "declined"
+    expired = "expired"
+    superseded = "superseded"
+
+
+class HelpOrigin(StrEnum):
+    system = "system"
+    user = "user"
+
+
 class AnomalyStatus(StrEnum):
     open = "open"
     confirmed = "confirmed"
@@ -143,6 +168,7 @@ class NotificationType(StrEnum):
     swap_decision = "swap_decision"
     anomaly = "anomaly"
     system = "system"
+    help_request = "help_request"
 
 
 class NotificationSeverity(StrEnum):
@@ -164,6 +190,9 @@ PG_ENUM_NAMES: dict[type[StrEnum], str] = {
     RequestStatus: "request_status",
     SwapStatus: "swap_status",
     SwapResponse: "swap_response",
+    HelpStatus: "help_status",
+    HelpResponse: "help_response",
+    HelpOrigin: "help_origin",
     AnomalyStatus: "anomaly_status",
     ImpactScenario: "impact_scenario",
     LlmIntent: "llm_intent",
