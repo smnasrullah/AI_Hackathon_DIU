@@ -17,6 +17,7 @@ from app.schemas.admin import (
     AdminUser,
     AdminUserCreate,
     AdminUserPage,
+    AdminUserReject,
     AdminUserUpdate,
     AuditPage,
     OrgDirectory,
@@ -31,7 +32,9 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 Admin = Annotated[User, Depends(require_roles(UserRole.admin))]
 _USER_STATUS = {"user_not_found": status.HTTP_404_NOT_FOUND,
                 "email_taken": status.HTTP_409_CONFLICT,
-                "cannot_change_self": status.HTTP_409_CONFLICT}
+                "cannot_change_self": status.HTTP_409_CONFLICT,
+                "not_pending": status.HTTP_409_CONFLICT,
+                "user_rejected": status.HTTP_409_CONFLICT}
 
 
 def _user_http(exc: UserAdminError) -> HTTPException:
@@ -78,6 +81,19 @@ def update_user(user_id: uuid.UUID, body: AdminUserUpdate, user: Admin,
     """Name, role + link, or active flag. Disabling revokes every session. audit_log."""
     try:
         item = admin_users.update_user(session, user, user_id, body)
+    except UserAdminError as exc:
+        raise _user_http(exc) from exc
+    session.commit()
+    return item
+
+
+@router.post("/users/{user_id}/reject", response_model=AdminUser)
+def reject_user(user_id: uuid.UUID, body: AdminUserReject, user: Admin,
+                session: SessionDep) -> AdminUser:
+    """Reject a pending self-signup (kept, never deleted; it can never sign in). 409 when the
+    account is not pending. audit_log user.reject."""
+    try:
+        item = admin_users.reject(session, user, user_id, body.note)
     except UserAdminError as exc:
         raise _user_http(exc) from exc
     session.commit()

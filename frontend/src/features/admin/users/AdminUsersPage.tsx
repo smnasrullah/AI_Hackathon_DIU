@@ -1,9 +1,9 @@
-import { BadgeCheck, Pencil, UserCheck, UserPlus, UserX } from "lucide-react";
+import { BadgeCheck, Ban, Pencil, UserCheck, UserPlus, UserX } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 
-import { useAdminUsers, useUpdateUser } from "../../../api/hooks/admin";
+import { useAdminUsers, useRejectUser, useUpdateUser } from "../../../api/hooks/admin";
 import type { AdminUser, UserRole } from "../../../api/types";
 import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
 import { DataTable, type Column } from "../../../components/ui/DataTable";
@@ -20,20 +20,20 @@ import { ROLES } from "./userForm";
 
 const PAGE_SIZE = 25;
 type RoleFilter = UserRole | "all";
-type StatusFilter = "active" | "pending" | "disabled" | "all";
+type StatusFilter = "active" | "pending" | "rejected" | "disabled" | "all";
 
 function pick<T extends string>(raw: string | null, allowed: readonly T[], fallback: T): T {
   return allowed.find((a) => a === raw) ?? fallback;
 }
 
-/** /admin/users: list with role / status / search in the URL; create, edit, approve sign-ups,
- * disable / enable. */
+/** /admin/users: list with role / status / search in the URL; create, edit, approve or reject
+ * sign-ups, disable / enable. */
 export function AdminUsersPage() {
   const { t } = useTranslation();
   const me = useAuthStore((s) => s.user?.id);
   const [params, setParams] = useSearchParams();
   const role = pick<RoleFilter>(params.get("role"), ["all", ...ROLES], "all");
-  const status = pick<StatusFilter>(params.get("status"), ["all", "active", "pending", "disabled"], "all");
+  const status = pick<StatusFilter>(params.get("status"), ["all", "active", "pending", "rejected", "disabled"], "all");
   const search = params.get("q") ?? "";
   const page = Math.max(1, Number(params.get("page")) || 1);
   const q = useAdminUsers({
@@ -46,6 +46,8 @@ export function AdminUsersPage() {
   const update = useUpdateUser();
   const [editing, setEditing] = useState<AdminUser | "new" | null>(null);
   const [toggling, setToggling] = useState<AdminUser | null>(null);
+  const reject = useRejectUser();
+  const [rejecting, setRejecting] = useState<AdminUser | null>(null);
 
   const setQuery = useCallback(
     (next: { role?: RoleFilter; status?: StatusFilter; q?: string; page?: number }) => {
@@ -83,6 +85,18 @@ export function AdminUsersPage() {
     );
   }
 
+  function confirmReject(note: string) {
+    if (!rejecting) return;
+    reject.mutate(
+      { id: rejecting.id, body: note ? { note } : {} },
+      {
+        onSuccess: () => toast({ tone: "success", title: t("admin.users.rejected") }),
+        onError: () => toast({ tone: "error", title: t("admin.users.error.generic") }),
+        onSettled: () => setRejecting(null),
+      },
+    );
+  }
+
   const columns: Column<AdminUser>[] = [
     {
       key: "user",
@@ -112,6 +126,10 @@ export function AdminUsersPage() {
         u.is_pending ? (
           <Badge tone="warn" testId="pending-badge">
             {t("admin.users.status.pending")}
+          </Badge>
+        ) : u.is_rejected ? (
+          <Badge tone="bad" testId="rejected-badge">
+            {t("admin.users.status.rejected")}
           </Badge>
         ) : (
           <Badge tone={u.is_active ? "good" : "bad"}>{t(u.is_active ? "admin.users.status.active" : "admin.users.status.disabled")}</Badge>
@@ -148,7 +166,18 @@ export function AdminUsersPage() {
             >
               <BadgeCheck aria-hidden className="size-4" />
             </button>
-          ) : u.id === me ? null : (
+          ) : null}
+          {u.is_pending ? (
+            <button
+              type="button"
+              onClick={() => setRejecting(u)}
+              aria-label={`${t("admin.users.reject")}: ${u.email}`}
+              data-testid="reject-user"
+              className="ap-press grid size-10 place-items-center rounded-full text-act-fg hover:bg-surface-2"
+            >
+              <Ban aria-hidden className="size-4" />
+            </button>
+          ) : u.id === me || u.is_rejected ? null : (
             <button
               type="button"
               onClick={() => setToggling(u)}
@@ -192,6 +221,7 @@ export function AdminUsersPage() {
             { value: "all", label: t("admin.common.all") },
             { value: "active", label: t("admin.users.status.active") },
             { value: "pending", label: t("admin.users.status.pending") },
+            { value: "rejected", label: t("admin.users.status.rejected") },
             { value: "disabled", label: t("admin.users.status.disabled") },
           ]}
         />
@@ -225,6 +255,16 @@ export function AdminUsersPage() {
         noteMinLength={toggling?.is_active ? 3 : undefined}
         pending={update.isPending}
         onConfirm={confirmToggle}
+      />
+      <ConfirmDialog
+        open={rejecting !== null}
+        onOpenChange={(open) => (open ? undefined : setRejecting(null))}
+        title={t("admin.users.rejectTitle", { email: rejecting?.email ?? "" })}
+        description={t("admin.users.rejectBody")}
+        confirmLabel={t("admin.users.reject")}
+        tone="danger"
+        pending={reject.isPending}
+        onConfirm={confirmReject}
       />
     </div>
   );

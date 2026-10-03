@@ -5,6 +5,7 @@ import type {
   AdminUserCreate,
   AdminUserPage,
   AdminUserQuery,
+  AdminUserReject,
   AdminUserUpdate,
   AssumptionsDoc,
   AuditPage,
@@ -35,6 +36,10 @@ export async function createAdminUser(body: AdminUserCreate): Promise<AdminUser>
 
 export async function updateAdminUser(id: string, body: AdminUserUpdate): Promise<AdminUser> {
   return (await api.patch<AdminUser>(`/admin/users/${id}`, body)).data;
+}
+
+export async function rejectAdminUser(id: string, body: AdminUserReject): Promise<AdminUser> {
+  return (await api.post<AdminUser>(`/admin/users/${id}/reject`, body)).data;
 }
 
 export async function getOrg(): Promise<OrgDirectory> {

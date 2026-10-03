@@ -69,8 +69,9 @@ class User(Base):
     __tablename__ = "users"
     __table_args__ = (
         CheckConstraint(
-            # A pending self-signup is an agent without a link until an admin approves it.
-            "(role = 'agent' AND (agent_id IS NOT NULL OR is_pending))"
+            # A pending self-signup is an agent without a link until an admin approves it;
+            # a rejected one keeps no link.
+            "(role = 'agent' AND (agent_id IS NOT NULL OR is_pending OR is_rejected))"
             " OR (role = 'distributor' AND distributor_id IS NOT NULL)"
             " OR role = 'admin'",
             name="ck_users_role_scope",
@@ -103,6 +104,8 @@ class User(Base):
     is_demo: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     # Self-signup awaiting admin approval (always inactive while true).
     is_pending: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
+    # An admin rejected the self-signup (kept for audit; always inactive, cannot sign in).
+    is_rejected: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     last_login_at: Mapped[datetime | None] = mapped_column(TsTz)
     created_at: Mapped[datetime] = created_at_col()
 

@@ -105,6 +105,41 @@ describe("admin users", () => {
     await waitFor(() => expect(toasts()).toContain("Sign-up approved"));
   });
 
+  it("rejects a pending sign-up after confirming", async () => {
+    const pending = adminUser({ email: "new.person@example.org", agent_id: null, agent_code: null, distributor_id: null, distributor_code: null, is_active: false, is_pending: true });
+    api.on("get", "/admin/users", () => ({ items: [pending], total: 1, page: 1, page_size: 25 }));
+    api.on("post", `/admin/users/${pending.id}/reject`, () => ({ ...pending, is_pending: false, is_rejected: true }));
+    renderAt("/admin/users", "/admin/users", <AdminUsersPage />);
+    fireEvent.click(await screen.findByTestId("reject-user"));
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByText("Reject sign-up from new.person@example.org?")).toBeInTheDocument();
+    expect(api.post).not.toHaveBeenCalled();
+    fireEvent.click(within(dialog).getByRole("button", { name: "Reject" }));
+    await waitFor(() => expect(api.post).toHaveBeenCalledWith(`/admin/users/${pending.id}/reject`, {}));
+    await waitFor(() => expect(toasts()).toContain("Sign-up rejected"));
+  });
+
+  it("cancelling the reject dialog sends nothing", async () => {
+    const pending = adminUser({ email: "new.person@example.org", agent_id: null, agent_code: null, is_active: false, is_pending: true });
+    api.on("get", "/admin/users", () => ({ items: [pending], total: 1, page: 1, page_size: 25 }));
+    renderAt("/admin/users", "/admin/users", <AdminUsersPage />);
+    fireEvent.click(await screen.findByTestId("reject-user"));
+    const dialog = await screen.findByRole("dialog");
+    fireEvent.click(within(dialog).getByRole("button", { name: "Cancel" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(api.post).not.toHaveBeenCalled();
+  });
+
+  it("a rejected account shows its status and has no enable, approve or reject action", async () => {
+    const rejected = adminUser({ email: "gone@example.org", agent_id: null, agent_code: null, is_active: false, is_rejected: true });
+    api.on("get", "/admin/users", () => ({ items: [rejected], total: 1, page: 1, page_size: 25 }));
+    renderAt("/admin/users", "/admin/users", <AdminUsersPage />);
+    expect(await screen.findByTestId("rejected-badge")).toHaveTextContent("Rejected");
+    expect(screen.queryByTestId("toggle-user")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("approve-user")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("reject-user")).not.toBeInTheDocument();
+  });
+
   it("keeps the role filter in the URL", async () => {
     renderAt("/admin/users", "/admin/users", <AdminUsersPage />);
     await screen.findByText("agent.mirpur@agentpulse.demo");

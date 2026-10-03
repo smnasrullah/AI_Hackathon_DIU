@@ -14,10 +14,11 @@ import {
   listAudit,
   listJobs,
   listLlmLogs,
+  rejectAdminUser,
   startJob,
   updateAdminUser,
 } from "../services/admin";
-import type { AdminUserCreate, AdminUserQuery, AdminUserUpdate, AuditQuery, JobKind, JobList, LlmLogQuery } from "../types";
+import type { AdminUserCreate, AdminUserQuery, AdminUserReject, AdminUserUpdate, AuditQuery, JobKind, JobList, LlmLogQuery } from "../types";
 
 /** How often a running job's progress is re-read. */
 export const JOB_POLL_MS = 1500;
@@ -46,6 +47,14 @@ export function useUpdateUser() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: ({ id, body }: { id: string; body: AdminUserUpdate }) => updateAdminUser(id, body),
+    onSettled: () => client.invalidateQueries({ queryKey: qk.admin.all }),
+  });
+}
+
+export function useRejectUser() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: AdminUserReject }) => rejectAdminUser(id, body),
     onSettled: () => client.invalidateQueries({ queryKey: qk.admin.all }),
   });
 }

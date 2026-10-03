@@ -12,8 +12,9 @@ from app.schemas.auth import PASSWORD_MIN, Email
 from app.schemas.jobs import JobOut
 
 FullName = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=120)]
-# pending: self-signup awaiting approval; disabled: switched off by an admin.
-UserStatus = Literal["active", "pending", "disabled"]
+# pending: self-signup awaiting approval; rejected: a signup an admin turned down;
+# disabled: switched off by an admin.
+UserStatus = Literal["active", "pending", "rejected", "disabled"]
 
 
 class AdminUser(BaseModel):
@@ -30,6 +31,7 @@ class AdminUser(BaseModel):
     is_active: bool
     is_demo: bool
     is_pending: bool
+    is_rejected: bool
     last_login_at: datetime | None
     created_at: datetime
 
@@ -65,6 +67,14 @@ class AdminUserUpdate(BaseModel):
     agent_id: DbId | None = None
     distributor_id: DbId | None = None
     is_active: bool | None = None
+    note: Annotated[str, StringConstraints(strip_whitespace=True, max_length=500)] | None = None
+
+
+class AdminUserReject(BaseModel):
+    """Reject a pending self-signup. The account is kept (inactive) for the audit trail."""
+
+    model_config = ConfigDict(extra="forbid")
+
     note: Annotated[str, StringConstraints(strip_whitespace=True, max_length=500)] | None = None
 
 

@@ -1,7 +1,9 @@
 """Admin user management: list, create, change role / link, disable / enable.
 
 Every change writes audit_log (user.create / user.update / user.disable / user.enable /
-user.approve). Approving a pending self-signup is `is_active: true` on that user.
+user.approve / user.reject). Approving a pending self-signup is `is_active: true` on that user;
+rejecting it keeps the row (inactive, `is_rejected`), so it can never sign in and a new signup
+with that e-mail gets the same reply as any taken e-mail.
 Disabling revokes the user's refresh tokens; the 15-minute access token then fails at the next
 request because get_current_user checks is_active.
 """
@@ -57,7 +59,8 @@ def _item(session: Session, u: User, codes: Codes | None = None) -> AdminUser:
     return AdminUser(id=u.id, email=u.email, full_name=u.full_name, role=u.role,
                      agent_id=u.agent_id, agent_code=agent_code, distributor_id=u.distributor_id,
                      distributor_code=dist_code, is_active=u.is_active, is_demo=u.is_demo,
-                     is_pending=u.is_pending, last_login_at=_utc(u.last_login_at),
+                     is_pending=u.is_pending, is_rejected=u.is_rejected,
+                     last_login_at=_utc(u.last_login_at),
                      created_at=created)
 
 
@@ -70,8 +73,11 @@ def user_page(session: Session, role: UserRole | None, status: UserStatus | None
         query = query.where(User.is_active.is_(True))
     elif status == "pending":
         query = query.where(User.is_pending.is_(True))
+    elif status == "rejected":
+        query = query.where(User.is_rejected.is_(True))
     elif status == "disabled":
-        query = query.where(User.is_active.is_(False), User.is_pending.is_(False))
+        query = query.where(User.is_active.is_(False), User.is_pending.is_(False),
+                            User.is_rejected.is_(False))
     if q:
         query = query.where(or_(User.email.icontains(q, autoescape=True),
                                 User.full_name.icontains(q, autoescape=True)))
@@ -165,6 +171,8 @@ def update_user(session: Session, actor: User, user_id: uuid.UUID,
     if u.id == actor.id and (("role" in sent and body.role != u.role)
                              or ("is_active" in sent and body.is_active is False)):
         raise UserAdminError("cannot_change_self")  # an admin cannot lock themselves out
+    if u.is_rejected and body.is_active:
+        raise UserAdminError("user_rejected")  # a rejected signup is never activated
     before = _snapshot(u)
     if body.full_name is not None:
         u.full_name = body.full_name
@@ -190,4 +198,20 @@ def update_user(session: Session, actor: User, user_id: uuid.UUID,
     if after != before:
         action = _change_action(before, after)
         _audit(session, actor, action, u, body.note, {"before": before, "after": after})
+    return _item(session, u)
+
+
+def reject(session: Session, actor: User, user_id: uuid.UUID, note: str | None) -> AdminUser:
+    """Reject a pending self-signup: inactive, no longer pending, kept for the audit trail."""
+    u = session.get(User, user_id)
+    if u is None:
+        raise UserAdminError("user_not_found")
+    if not u.is_pending:
+        raise UserAdminError("not_pending")
+    before = _snapshot(u)
+    u.is_pending, u.is_active, u.is_rejected = False, False, True
+    _revoke_sessions(session, u.id)  # none expected; a pending account never signed in
+    session.flush()
+    _audit(session, actor, "reject", u, note,
+           {"before": before, "after": _snapshot(u), "outcome": "rejected"})
     return _item(session, u)

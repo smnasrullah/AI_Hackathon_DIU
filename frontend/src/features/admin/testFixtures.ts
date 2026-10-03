@@ -15,6 +15,7 @@ export function adminUser(over: Partial<AdminUser> = {}): AdminUser {
     is_active: true,
     is_demo: false,
     is_pending: false,
+    is_rejected: false,
     last_login_at: null,
     created_at: NOW,
     ...over,

@@ -1485,7 +1485,8 @@
       "status": {
         "active": "Active",
         "disabled": "Disabled",
-        "pending": "Pending approval"
+        "pending": "Pending approval",
+        "rejected": "Rejected"
       },
       "col": {
         "user": "User",
@@ -1539,7 +1540,11 @@
       "approveTitle": "Approve sign-up",
       "approveBody": "Check who this is, choose the role and link, then approve. They can sign in afterwards.",
       "approveSubmit": "Approve and activate",
-      "approved": "Sign-up approved"
+      "approved": "Sign-up approved",
+      "reject": "Reject",
+      "rejectTitle": "Reject sign-up from {{email}}?",
+      "rejectBody": "The account is kept for the audit log but can never sign in. The person is not told why.",
+      "rejected": "Sign-up rejected"
     },
     "audit": {
       "title": "Audit log",

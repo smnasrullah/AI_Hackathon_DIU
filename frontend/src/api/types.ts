@@ -103,6 +103,7 @@ export type AdminUser = S["AdminUser"];
 export type AdminUserPage = S["AdminUserPage"];
 export type AdminUserCreate = S["AdminUserCreate"];
 export type AdminUserUpdate = S["AdminUserUpdate"];
+export type AdminUserReject = S["AdminUserReject"];
 export type OrgDirectory = S["OrgDirectory"];
 export type AuditItem = S["AuditItem"];
 export type AuditPage = S["AuditPage"];

@@ -447,6 +447,27 @@ export interface paths {
         patch: operations["update_user_api_v1_admin_users__user_id__patch"];
         trace?: never;
     };
+    "/api/v1/admin/users/{user_id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reject User
+         * @description Reject a pending self-signup (kept, never deleted; it can never sign in). 409 when the
+         *     account is not pending. audit_log user.reject.
+         */
+        post: operations["reject_user_api_v1_admin_users__user_id__reject_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/agents": {
         parameters: {
             query?: never;
@@ -1848,6 +1869,8 @@ export interface components {
             is_demo: boolean;
             /** Is Pending */
             is_pending: boolean;
+            /** Is Rejected */
+            is_rejected: boolean;
             /** Last Login At */
             last_login_at: string | null;
             role: components["schemas"]["UserRole"];
@@ -1879,6 +1902,14 @@ export interface components {
             page_size: number;
             /** Total */
             total: number;
+        };
+        /**
+         * AdminUserReject
+         * @description Reject a pending self-signup. The account is kept (inactive) for the audit trail.
+         */
+        AdminUserReject: {
+            /** Note */
+            note?: string | null;
         };
         /**
          * AdminUserUpdate
@@ -5161,7 +5192,7 @@ export interface operations {
         parameters: {
             query?: {
                 role?: components["schemas"]["UserRole"] | null;
-                status?: ("active" | "pending" | "disabled") | null;
+                status?: ("active" | "pending" | "rejected" | "disabled") | null;
                 q?: string | null;
                 page?: number;
                 page_size?: number;
@@ -5237,6 +5268,41 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["AdminUserUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUser"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reject_user_api_v1_admin_users__user_id__reject_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminUserReject"];
             };
         };
         responses: {

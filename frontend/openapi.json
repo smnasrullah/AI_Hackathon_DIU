@@ -201,6 +201,10 @@
       "title": "Is Pending",
       "type": "boolean"
      },
+     "is_rejected": {
+      "title": "Is Rejected",
+      "type": "boolean"
+     },
      "last_login_at": {
       "anyOf": [
        {
@@ -229,6 +233,7 @@
      "is_active",
      "is_demo",
      "is_pending",
+     "is_rejected",
      "last_login_at",
      "created_at"
     ],
@@ -326,6 +331,26 @@
      "page_size"
     ],
     "title": "AdminUserPage",
+    "type": "object"
+   },
+   "AdminUserReject": {
+    "additionalProperties": false,
+    "description": "Reject a pending self-signup. The account is kept (inactive) for the audit trail.",
+    "properties": {
+     "note": {
+      "anyOf": [
+       {
+        "maxLength": 500,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "title": "AdminUserReject",
     "type": "object"
    },
    "AdminUserUpdate": {
@@ -8923,6 +8948,7 @@
          "enum": [
           "active",
           "pending",
+          "rejected",
           "disabled"
          ],
          "type": "string"
@@ -9108,6 +9134,65 @@
      }
     ],
     "summary": "Update User",
+    "tags": [
+     "admin"
+    ]
+   }
+  },
+  "/api/v1/admin/users/{user_id}/reject": {
+   "post": {
+    "description": "Reject a pending self-signup (kept, never deleted; it can never sign in). 409 when the\naccount is not pending. audit_log user.reject.",
+    "operationId": "reject_user_api_v1_admin_users__user_id__reject_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "user_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "User Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AdminUserReject"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AdminUser"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Reject User",
     "tags": [
      "admin"
     ]
