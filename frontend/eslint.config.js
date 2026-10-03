@@ -18,4 +18,26 @@ export default defineConfig([
     languageOptions: { ecmaVersion: 2022, globals: globals.browser },
     rules: { "@typescript-eslint/no-explicit-any": "error" },
   },
+  {
+    // Bangla shaping: a vowel sign or hasanta rendered on its own shows a dotted circle (◌).
+    // Never split display text per character; use digitRuns() from src/lib/textRuns.ts.
+    files: ["src/**/*.tsx"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "CallExpression[callee.property.name='map'][callee.object.type='ArrayExpression'][callee.object.elements.length=1][callee.object.elements.0.type='SpreadElement']",
+          message: "Do not render text per character ([...text].map): it breaks Bangla glyph clusters. Use digitRuns() from lib/textRuns.",
+        },
+        {
+          selector: "CallExpression[callee.property.name='map'][callee.object.callee.object.name='Array'][callee.object.callee.property.name='from'][callee.object.arguments.length=1]",
+          message: "Do not render text per character (Array.from(text).map): it breaks Bangla glyph clusters. Use digitRuns() from lib/textRuns.",
+        },
+        {
+          selector: "CallExpression[callee.property.name='split'][arguments.length=1][arguments.0.value='']",
+          message: "Do not split text per character (.split('')): it breaks Bangla glyph clusters. Use digitRuns() from lib/textRuns.",
+        },
+      ],
+    },
+  },
 ]);

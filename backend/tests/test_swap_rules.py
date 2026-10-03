@@ -31,6 +31,18 @@ def test_assignment_minimises_total_distance() -> None:
     assert sum(m.distance_km for m in found) == pytest.approx(3, abs=0.01)
 
 
+def test_pinned_receiver_keeps_its_only_donor() -> None:
+    # Live-data shape: one donor, the demo receiver ~1 km away, a stranger 0.27 km away.
+    donor, demo, stranger = _d(1, 0), _r(10, 1), _r(11, 0.27)
+    (plain,) = match([donor], [demo, stranger], CFG)
+    assert plain.receiver.agent_id == 11  # distance alone hands the donor to the stranger
+    (pinned,) = match([donor], [demo, stranger], CFG, first=frozenset({10}))
+    assert (pinned.donor.agent_id, pinned.receiver.agent_id) == (1, 10)
+    # The stranger still gets the donor left over.
+    found = match([donor, _d(2, 0.5)], [demo, stranger], CFG, first=frozenset({10}))
+    assert {(m.donor.agent_id, m.receiver.agent_id) for m in found} == {(2, 10), (1, 11)}
+
+
 def test_infeasible_pairs_are_never_matched() -> None:
     assert match([_d(1, 6)], [_r(10, 0)], CFG) == []  # outside radius
     assert match([_d(1, 1, dist=2)], [_r(10, 0)], CFG) == []  # other distributor

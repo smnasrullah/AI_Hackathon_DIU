@@ -26,6 +26,8 @@ class SwapItem(BaseModel):
     van_trip_saved: bool  # swap covers the receiver's whole recommendation
     score: float  # coverage x closeness, 0..1
     status: SwapStatus
+    # When the receiver needs the money by (their recommendation's deadline); None if no longer due.
+    deadline_at: datetime | None
     decided_at: datetime | None
     note: str | None
     model_version: str | None

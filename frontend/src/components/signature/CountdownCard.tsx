@@ -7,33 +7,40 @@ import { cn } from "../../lib/cn";
 import { formatDuration } from "../../lib/format";
 import { useReducedMotionPref } from "../../lib/motionPrefs";
 import { useLocale } from "../../lib/prefs";
+import { digitRuns } from "../../lib/textRuns";
 import { DUR, tween } from "../../styles/motion";
 import { ConfidenceRing } from "../ui/ConfidenceRing";
 import { LiquidButton } from "../ui/LiquidButton";
 import { RISK_STYLE } from "../ui/risk";
 import { RiskPill } from "../ui/RiskPill";
 
-/** Each character flips in from above when it changes. */
+/** Each digit flips in from above when it changes; unit words stay whole (Bangla glyph clusters). */
 function FlipText({ text }: { text: string }) {
   const reduced = useReducedMotionPref();
   return (
-    <span aria-hidden className="inline-flex">
-      {[...text].map((ch, i) => (
-        <span key={i} className="relative inline-block overflow-hidden" style={{ minWidth: ch === " " ? "0.3em" : undefined }}>
-          <AnimatePresence mode="popLayout" initial={false}>
-            <motion.span
-              key={ch}
-              className="inline-block"
-              initial={reduced ? { opacity: 0 } : { y: "-100%", opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={reduced ? { opacity: 0 } : { y: "100%", opacity: 0 }}
-              transition={tween(reduced ? DUR.fast : DUR.slow)}
-            >
-              {ch}
-            </motion.span>
-          </AnimatePresence>
-        </span>
-      ))}
+    <span aria-hidden className="inline-flex items-baseline">
+      {digitRuns(text).map((run, i) =>
+        run.digit ? (
+          <span key={i} className="num relative inline-block overflow-hidden">
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.span
+                key={run.text}
+                className="inline-block"
+                initial={reduced ? { opacity: 0 } : { y: "-100%", opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={reduced ? { opacity: 0 } : { y: "100%", opacity: 0 }}
+                transition={tween(reduced ? DUR.fast : DUR.slow)}
+              >
+                {run.text}
+              </motion.span>
+            </AnimatePresence>
+          </span>
+        ) : (
+          <span key={i} data-run="text" className="whitespace-pre">
+            {run.text}
+          </span>
+        ),
+      )}
     </span>
   );
 }
@@ -83,7 +90,7 @@ export function CountdownCard({ floatType, hoursToStockout, confidence, level, a
               <p aria-hidden className="mt-3 text-small text-muted">
                 {t("countdown.lead", { float })}
               </p>
-              <p aria-hidden className="num mt-1 font-display text-display font-bold leading-none tracking-tight">
+              <p aria-hidden lang={lang} className="mt-1 font-display text-display font-bold leading-none">
                 <FlipText text={duration} />
                 {tail ? <span className="ml-2 text-h2 font-semibold text-muted">{tail}</span> : null}
               </p>

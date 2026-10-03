@@ -44,7 +44,8 @@
   --font-display: "Bricolage Grotesque", "Inter", "Hind Siliguri", system-ui, sans-serif;
   --font-sans: "Inter", "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif;
   --font-bangla: "Hind Siliguri", "Noto Sans Bengali", "Inter", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  /* Bangla fallback so unit words inside numeric (.num) blocks still shape with a full Bangla font. */
+  --font-mono: "JetBrains Mono", "Hind Siliguri", "Noto Sans Bengali", ui-monospace, monospace;
 
   --text-display-xl: 72px;
   --text-display-xl--line-height: 0.95;
@@ -88,9 +89,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* letter-spacing breaks Bangla conjuncts and vowel signs apart: no tracking-* on Bangla, ever
+   (unlayered, so it wins over Tailwind's layered tracking utilities). */
 :lang(bn) {
   font-family: var(--font-bangla);
   line-height: 1.6;
+  letter-spacing: normal;
 }
 
 :lang(bn) body,

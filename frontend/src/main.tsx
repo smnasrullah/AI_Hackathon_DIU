@@ -6,6 +6,7 @@ import "@fontsource/bricolage-grotesque/latin-700.css";
 import "@fontsource/hind-siliguri/bengali-400.css";
 import "@fontsource/hind-siliguri/bengali-500.css";
 import "@fontsource/hind-siliguri/bengali-600.css";
+import "@fontsource/hind-siliguri/bengali-700.css";
 import "@fontsource/hind-siliguri/latin-400.css";
 import "@fontsource/hind-siliguri/latin-600.css";
 import "@fontsource/jetbrains-mono/latin-400.css";

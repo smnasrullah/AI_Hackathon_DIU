@@ -48,6 +48,7 @@ export function swapItem(over: Partial<SwapItem>): SwapItem {
     score: 0.91,
     van_trip_saved: true,
     note: null,
+    deadline_at: null,
     decided_at: null,
     generated_at: AS_OF,
     model_version: MODEL,

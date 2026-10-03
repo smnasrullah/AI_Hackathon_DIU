@@ -3374,6 +3374,8 @@ export interface components {
         SwapItem: {
             /** Amount Bdt */
             amount_bdt: number;
+            /** Deadline At */
+            deadline_at: string | null;
             /** Decided At */
             decided_at: string | null;
             /** Distance Km */

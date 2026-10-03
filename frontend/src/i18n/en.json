@@ -173,6 +173,8 @@
     "searchHint": "Search pages and agents",
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
     "account": "Account menu",
     "logout": "Log out",
     "loggingOut": "Logging out…",
@@ -714,6 +716,20 @@
         "title": "No swap offers right now",
         "body": "When a nearby agent can balance your float, the offer shows here.",
         "action": "Check again"
+      },
+      "lead": "Nearby agents who can balance your float. You and the other agent answer; your distributor approves. No money moves on its own.",
+      "deadline": "Needed by {{time}}",
+      "incoming": "You receive",
+      "outgoing": "You give",
+      "groupEmpty": "Nothing here right now.",
+      "waiting": "Waiting for your distributor to decide",
+      "decided": {
+        "approved": "Approved by your distributor · arrange the hand-over together",
+        "rejected": "Rejected by your distributor"
+      },
+      "closed": {
+        "already_decided": "Your distributor already decided this swap.",
+        "forbidden": "This swap is not yours to answer."
       }
     }
   },

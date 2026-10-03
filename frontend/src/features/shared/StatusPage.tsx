@@ -8,6 +8,7 @@ import { Illustration, type IllustrationKind } from "../../components/ui/Illustr
 import { LiquidButton } from "../../components/ui/LiquidButton";
 import { cn } from "../../lib/cn";
 import { useLoopActive, useReducedMotionPref } from "../../lib/motionPrefs";
+import { digitRuns } from "../../lib/textRuns";
 import { usePageTitle } from "../../lib/usePageTitle";
 import { listStagger, REDUCED, revealVariants, SPRING, STAGGER } from "../../styles/motion";
 
@@ -67,7 +68,7 @@ export function StatusPage({ code, illustration, title, body, pageTitle, actions
     >
       <Aurora className="-z-10" />
       <p aria-hidden className="flex justify-center gap-1 font-mono text-display-xl font-medium text-muted">
-        {Array.from(code).map((d, i) => (
+        {digitRuns(code).map(({ text: d }, i) => (
           <motion.span
             key={i}
             initial={reduced ? { opacity: 0 } : { opacity: 0, y: -28 }}

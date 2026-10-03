@@ -39,6 +39,7 @@ const agentRebalance = page(() => import("../features/agent/rebalance/RebalanceP
 const agentWhatIf = page(() => import("../features/agent/whatif/WhatIfPage").then((m) => m.WhatIfPage));
 const agentExplain = page(() => import("../features/agent/explain/ExplainPage").then((m) => m.ExplainPage));
 const agentCopilot = page(() => import("../features/agent/copilot/CopilotPage").then((m) => m.CopilotPage));
+const agentSwap = page(() => import("../features/agent/swap/AgentSwapPage").then((m) => m.AgentSwapPage));
 
 const controlRoom = page(() => import("../features/distributor/controlRoom/ControlRoomPage").then((m) => m.ControlRoomPage));
 const agentsTable = page(() => import("../features/distributor/agents/AgentsPage").then((m) => m.AgentsPage));
@@ -65,6 +66,8 @@ const AGENT_BUILT: Record<string, Lazy> = {
   rebalance: agentRebalance,
   "what-if": agentWhatIf,
   explain: agentExplain,
+  // Was missing: the bottom-nav "Swap" tab and "See swap offers" rendered the placeholder page.
+  swap: agentSwap,
   copilot: agentCopilot,
   settings,
 };

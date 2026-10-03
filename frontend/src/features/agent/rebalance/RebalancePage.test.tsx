@@ -74,6 +74,7 @@ const SWAP: SwapItem = {
   status: "pending",
   van_trip_saved: true,
   note: null,
+  deadline_at: "2026-03-10T08:00:00Z",
   decided_at: null,
   generated_at: AS_OF,
   model_version: "swap-1",

@@ -38,10 +38,12 @@ from app.rules.risk_rules import HEADLINE_HORIZON, SEVERITY
 from app.rules.swap_rules import Donor, Match, Receiver, SwapConfig, haversine_km, match
 from app.services import forecast, notify, risk
 from app.services.model_registry import active_model
+from app.services.seed import DEMO_AGENTS
 from ml.registry import FORECAST_MODEL
 
 log = logging.getLogger(__name__)
 CACHE_KEY = "rebalance_cache"
+DEMO_CODES = frozenset(s.code for s in DEMO_AGENTS)
 KIND = {FloatType.cash: RecommendationKind.add_cash,
         FloatType.emoney: RecommendationKind.add_emoney}
 CHANNEL_KIND = {RecommendationChannel.swap: RecommendationKind.swap,
@@ -210,11 +212,14 @@ def precompute(session: Session, rcfg: RebalanceConfig, scfg: SwapConfig,
     agents, plans, surplus = _plans(session, mv.id, now, rcfg)
     receivers = _receivers(plans)
     busy, swaps = _approved(session, mv.id)
+    # Demo logins first: otherwise a closer stranger takes the donor pinned for their story.
+    demo = frozenset(a.id for a in agents.values() if a.code in DEMO_CODES)
     matches = match(
         [Donor(a.id, a.distributor_id, a.lat, a.lng, surplus.get(a.id, {}))
          for a in agents.values() if a.id not in receivers and a.id not in busy],
         [Receiver(p.agent.id, p.agent.distributor_id, p.agent.lat, p.agent.lng, p.float_type,
-                  p.advice.amount) for p in receivers.values() if p.agent.id not in busy], scfg)
+                  p.advice.amount) for p in receivers.values() if p.agent.id not in busy], scfg,
+        first=demo)
     requested = select(RecommendationRequest.recommendation_id)
     session.execute(update(Recommendation).where(
         Recommendation.status == RecommendationStatus.open, Recommendation.id.in_(requested))

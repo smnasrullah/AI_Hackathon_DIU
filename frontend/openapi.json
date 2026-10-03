@@ -5567,6 +5567,18 @@
       "title": "Amount Bdt",
       "type": "number"
      },
+     "deadline_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Deadline At"
+     },
      "decided_at": {
       "anyOf": [
        {
@@ -5645,6 +5657,7 @@
      "van_trip_saved",
      "score",
      "status",
+     "deadline_at",
      "decided_at",
      "note",
      "model_version",

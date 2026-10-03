@@ -5,7 +5,8 @@ receivers and hold surplus in that float above their own pessimistic need + buff
 A pair is feasible when both share a distributor, sit within the radius (haversine) and the
 amount min(need, donor surplus), rounded down to ROUND_BDT, reaches the minimum. Among
 feasible pairs, linear_sum_assignment minimises total distance, so each agent is in at most
-one swap. A swap that covers the receiver's whole need saves one van trip.
+one swap. A swap that covers the receiver's whole need saves one van trip. Pinned receivers
+(the demo cast) are assigned first, then everyone else over the remaining donors.
 """
 
 import math
@@ -86,14 +87,26 @@ def _pair(donor: Donor, receiver: Receiver, cfg: SwapConfig) -> Match | None:
                  score=round(coverage * (1.0 - distance / cfg.radius_km), 4))
 
 
-def match(donors: Sequence[Donor], receivers: Sequence[Receiver], cfg: SwapConfig
-          ) -> list[Match]:
-    """Distance-minimising one-to-one assignment over feasible pairs only."""
+def _assign(donors: Sequence[Donor], receivers: Sequence[Receiver], cfg: SwapConfig
+            ) -> list[Match]:
     if not donors or not receivers:
         return []
     pairs = [[_pair(d, r, cfg) for r in receivers] for d in donors]
     cost = np.array([[_INFEASIBLE if p is None else p.distance_km for p in row] for row in pairs])
     rows, cols = linear_sum_assignment(cost)
     found = [pairs[i][j] for i, j in zip(rows.tolist(), cols.tolist(), strict=True)]
-    return sorted((m for m in found if m is not None),
-                  key=lambda m: (m.receiver.agent_id, m.donor.agent_id))
+    return [m for m in found if m is not None]
+
+
+def match(donors: Sequence[Donor], receivers: Sequence[Receiver], cfg: SwapConfig,
+          first: frozenset[int] = frozenset()) -> list[Match]:
+    """Distance-minimising one-to-one assignment over feasible pairs only.
+
+    Receivers in `first` (the pinned demo cast) are assigned before the rest, so a closer
+    stranger cannot take the one donor the demo story depends on. Same rules either way.
+    """
+    head = _assign(donors, [r for r in receivers if r.agent_id in first], cfg)
+    used = {m.donor.agent_id for m in head}
+    tail = _assign([d for d in donors if d.agent_id not in used],
+                   [r for r in receivers if r.agent_id not in first], cfg)
+    return sorted(head + tail, key=lambda m: (m.receiver.agent_id, m.donor.agent_id))

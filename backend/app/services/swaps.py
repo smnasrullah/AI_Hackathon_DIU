@@ -3,14 +3,29 @@
 Nothing here moves money: approving only records that the distributor agreed to the swap.
 """
 
+from collections.abc import Sequence
 from datetime import UTC, datetime
 from typing import Literal
 
 from sqlalchemy import Select, case, func, or_, select
 from sqlalchemy.orm import Session, aliased
 
-from app.models import Agent, AuditLog, ModelVersion, SwapSuggestion, SystemMeta, User
-from app.models.enums import SwapResponse, SwapStatus, UserRole
+from app.models import (
+    Agent,
+    AuditLog,
+    ModelVersion,
+    Recommendation,
+    SwapSuggestion,
+    SystemMeta,
+    User,
+)
+from app.models.enums import (
+    FloatType,
+    RecommendationStatus,
+    SwapResponse,
+    SwapStatus,
+    UserRole,
+)
 from app.schemas.swap import SwapItem, SwapPage, SwapParty
 from app.services import notify, rebalance
 from app.services.forecast import _utc
@@ -49,15 +64,39 @@ def _party(agent: Agent, response: SwapResponse | None) -> SwapParty:
                      response=response)
 
 
-def _item(s: SwapSuggestion, donor: Agent, receiver: Agent, version: str | None) -> SwapItem:
+Row = tuple[SwapSuggestion, Agent, Agent, str | None]
+Deadlines = dict[tuple[int, FloatType], datetime]
+
+
+def _deadlines(session: Session, rows: Sequence[Row]) -> Deadlines:
+    """(receiver, float) -> deadline of the receiver's latest live recommendation."""
+    keys = {(s.receiver_agent_id, s.float_type) for s, *_ in rows}
+    if not keys:
+        return {}
+    found = session.execute(
+        select(Recommendation.agent_id, Recommendation.float_type, Recommendation.deadline_at)
+        .where(Recommendation.agent_id.in_({a for a, _ in keys}),
+               Recommendation.status != RecommendationStatus.expired)
+        .order_by(Recommendation.created_at, Recommendation.id)).tuples().all()
+    return {(a, ft): _utc(d) for a, ft, d in found if (a, ft) in keys}  # latest wins
+
+
+def _item(row: Row, deadlines: Deadlines) -> SwapItem:
+    s, donor, receiver, version = row
     return SwapItem(
         id=s.id, donor=_party(donor, s.donor_response),
         receiver=_party(receiver, s.receiver_response), float_type=s.float_type,
         amount_bdt=float(s.amount_bdt), distance_km=float(s.distance_km),
         van_trip_saved=s.van_trip_saved, score=float(s.score), status=s.status,
+        deadline_at=deadlines.get((s.receiver_agent_id, s.float_type)),
         decided_at=_utc(s.decided_at) if s.decided_at else None, note=s.note,
         model_version=version, generated_at=_utc(s.created_at),
     )
+
+
+def _items(session: Session, rows: Sequence[Row]) -> list[SwapItem]:
+    deadlines = _deadlines(session, rows)
+    return [_item(r, deadlines) for r in rows]
 
 
 def is_ready(session: Session) -> bool:
@@ -76,7 +115,7 @@ def swap_page(session: Session, user: User, status: SwapStatus | None, page: int
         SwapSuggestion.status != SwapStatus.rejected)) or 0
     page_q = query.order_by(*_ORDER).offset((page - 1) * page_size).limit(page_size)
     rows = session.execute(page_q).tuples().all()
-    return SwapPage(items=[_item(*r) for r in rows], total=total, page=page,
+    return SwapPage(items=_items(session, rows), total=total, page=page,
                     page_size=page_size, van_trips_avoided=vans)
 
 
@@ -85,11 +124,10 @@ def all_items(session: Session, user: User, status: SwapStatus | None) -> list[S
     query = _scoped(user)
     if status is not None:
         query = query.where(SwapSuggestion.status == status)
-    return [_item(*r) for r in session.execute(query.order_by(*_ORDER)).tuples()]
+    return _items(session, session.execute(query.order_by(*_ORDER)).tuples().all())
 
 
-def _load(session: Session, user: User, swap_id: int
-          ) -> tuple[SwapSuggestion, Agent, Agent, str | None]:
+def _load(session: Session, user: User, swap_id: int) -> Row:
     """Unknown and out-of-scope ids both raise forbidden, so ids cannot be probed."""
     # Row lock (Postgres) so two concurrent decisions cannot both pass the pending check.
     query = _scoped(user).where(SwapSuggestion.id == swap_id).with_for_update(of=SwapSuggestion)
@@ -111,7 +149,8 @@ def _audit(session: Session, user: User, action: str, s: SwapSuggestion, note: s
 
 def decide(session: Session, user: User, swap_id: int, decision: Literal["approve", "reject"],
            note: str) -> SwapItem:
-    s, donor, receiver, version = _load(session, user, swap_id)
+    row = _load(session, user, swap_id)
+    s = row[0]
     if s.status != SwapStatus.pending:
         raise SwapError("already_decided")
     declined = SwapResponse.declined in (s.donor_response, s.receiver_response)
@@ -122,12 +161,13 @@ def decide(session: Session, user: User, swap_id: int, decision: Literal["approv
     _audit(session, user, f"swap.{decision}", s, note, status=s.status.value)
     session.flush()
     notify.swap_decided(session, s)
-    return _item(s, donor, receiver, version)
+    return _items(session, [row])[0]
 
 
 def respond(session: Session, user: User, swap_id: int, response: Literal["accept", "decline"],
             note: str | None) -> SwapItem:
-    s, donor, receiver, version = _load(session, user, swap_id)
+    row = _load(session, user, swap_id)
+    s = row[0]
     if s.status != SwapStatus.pending:
         raise SwapError("already_decided")
     answer = SwapResponse.accepted if response == "accept" else SwapResponse.declined
@@ -138,4 +178,4 @@ def respond(session: Session, user: User, swap_id: int, response: Literal["accep
         s.receiver_response = answer
     _audit(session, user, f"swap.{response}", s, note, side=side)
     session.flush()
-    return _item(s, donor, receiver, version)
+    return _items(session, [row])[0]

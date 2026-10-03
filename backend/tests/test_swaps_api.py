@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -144,6 +145,57 @@ def test_agent_response_is_audited_and_decline_blocks_approval(client: TestClien
     late = client.post(url, json={"response": "accept"}, headers=mirpur)
     assert late.status_code == 409
     assert _page(client, ADMIN)["van_trips_avoided"] == 0
+
+
+def test_agent_accept_then_distributor_approve_full_flow(client: TestClient,
+                                                         market: Path) -> None:
+    mirpur = bearer(client, AGENT_MIRPUR)
+    (mine,) = _page(client, AGENT_MIRPUR)["items"]
+    # Everything the agent card shows: partner name, distance, amount, deadline.
+    assert mine["donor"]["name"] and mine["distance_km"] > 0 and mine["amount_bdt"] == 58_500
+    rec = client.get(f"{API}/agents/{agent_id('AGT-0001')}/recommendation", headers=mirpur).json()
+    cash = next(i for i in rec["items"] if i["float_type"] == "cash")
+    due = datetime.fromisoformat(cash["deadline_at"])
+    assert mine["deadline_at"] is not None and datetime.fromisoformat(mine["deadline_at"]) == due
+    swap_id = mine["id"]
+    accepted = client.post(f"{API}/swaps/{swap_id}/respond", json={"response": "accept"},
+                           headers=mirpur)
+    assert accepted.status_code == 200, accepted.text
+    assert (accepted.json()["receiver"]["response"], accepted.json()["status"]) == ("accepted",
+                                                                                 "pending")
+    # The distributor sees the agent's answer before deciding.
+    (queued,) = _page(client, DIST_DHAKA, status="pending")["items"]
+    assert queued["receiver"]["response"] == "accepted"
+    approved = client.post(f"{API}/swaps/{swap_id}/decision",
+                           json={"decision": "approve", "note": "Both agreed"},
+                           headers=bearer(client, DIST_DHAKA))
+    assert approved.status_code == 200 and approved.json()["status"] == "approved"
+    # Decided swaps stay visible to the agent (all statuses) and are closed to new answers.
+    (after,) = _page(client, AGENT_MIRPUR)["items"]
+    assert after["status"] == "approved" and after["decided_at"]
+    late = client.post(f"{API}/swaps/{swap_id}/respond", json={"response": "decline"},
+                       headers=mirpur)
+    assert late.status_code == 409 and late.json()["detail"] == "already_decided"
+    rows = _audit(swap_id)
+    assert [(r.action, r.user_id) for r in rows] == [
+        ("swap.accept", _user_id(AGENT_MIRPUR)), ("swap.approve", _user_id(DIST_DHAKA))]
+    assert rows[1].note == "Both agreed"
+
+
+def test_agent_cannot_see_or_answer_other_agents_swaps(client: TestClient, market: Path) -> None:
+    swap_id = _swap_id(client)
+    patiya = bearer(client, AGENT_PATIYA)
+    assert _page(client, AGENT_PATIYA)["items"] == []
+    for answer in ("accept", "decline"):
+        res = client.post(f"{API}/swaps/{swap_id}/respond", json={"response": answer},
+                          headers=patiya)
+        assert res.status_code == 403 and res.json()["detail"] == "forbidden"
+    unknown = client.post(f"{API}/swaps/999999/respond", json={"response": "accept"},
+                          headers=bearer(client, AGENT_MIRPUR))
+    assert unknown.status_code == 403
+    assert client.post(f"{API}/swaps/{swap_id}/respond", json={"response": "accept"}
+                       ).status_code == 401
+    assert _audit(swap_id) == []
 
 
 def test_rebuild_keeps_decided_swaps(client: TestClient, market: Path) -> None:
