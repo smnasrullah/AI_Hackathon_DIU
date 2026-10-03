@@ -3,16 +3,27 @@
 AgentPulse AI: smart agent liquidity predictor for MFS agents (synthetic data only, advisory:
 a human approves anything that moves money).
 
-## Run
+## Quick start
 
-Needs only Docker Desktop. `run.bat` (Windows) or `./run.sh` (Linux/Mac), then open
-http://localhost:5173. Fresh database: `run.bat --reset`. More commands: [docs/COMMANDS.md](docs/COMMANDS.md).
+1. Install Docker Desktop and start it.
+2. Double-click `run.bat` (Windows) or run `./run.sh` (Linux/Mac) in the project folder.
+3. Open http://localhost:5173 when the script says the app is ready.
+4. Sign in with a demo account (one click on `/login`, see "Demo logins" below).
 
-The **first** run needs internet (pulls Docker base images and installs packages), takes a few
-minutes, and also trains/verifies the committed ML artifacts. After that first build, everything
-works fully offline except an optional live LLM key (below) — no other service is called.
-`run.bat`/`run.sh` wait up to 5 minutes for `GET /api/v1/system/status` to report `ready: true`;
-if it times out they print the container logs.
+The **first** start needs internet (Docker base images and packages) and takes several minutes:
+building the images (download time depends on your connection), then about 3.5 minutes to
+create and seed a fresh database (measured: 203 s from `docker compose up` to `ready` with the
+images already built). Later starts take well under a minute and work fully offline, except an
+optional live LLM key (below); no other service is called. `run.bat`/`run.sh` wait up to 5
+minutes for `GET /api/v1/system/status` to report `ready: true`; if it times out they print the
+container logs. Fresh database: `run.bat --reset` (deletes the local data). More commands:
+[docs/COMMANDS.md](docs/COMMANDS.md).
+
+**`DEMO_MODE`** (in `.env`, created from `.env.example` on first start):
+- `DEMO_MODE=true` (default) for local and judge runs: one-click demo logins, the help-request
+  demo tools (simulate shortage, reset demo state) and demo defaults for the help-request waves.
+- `DEMO_MODE=false` for any public hosting: no one-click logins, no demo tools, the real
+  help-request rules only. Also set your own `JWT_SECRET` and demo passwords.
 
 ## 3-minute demo
 
@@ -102,7 +113,11 @@ cannot choose the role (unknown fields are rejected). Sign-up is rate-limited pe
 (`SIGNUP_PER_HOUR`, default 5) and audited (`auth.signup`); a taken email gets a generic refusal.
 A pending account cannot sign in until an admin opens **Admin > Users**, filters by *Pending
 approval*, picks the agent (or another role and link) and presses **Approve and activate**
-(`PATCH /api/v1/admin/users/{id}` with `is_active: true`, audited as `user.approve`).
+(`PATCH /api/v1/admin/users/{id}` with `is_active: true`, audited as `user.approve`), or presses
+**Reject** and confirms (`POST /api/v1/admin/users/{id}/reject`, audited as `user.reject`). A
+rejected account is kept (never deleted) but can never sign in: it gets the same "email or
+password is incorrect" answer as a wrong password, and signing up again with that email gets the
+same refusal as any taken email, so the status is never revealed.
 
 ### Forgot / reset password (development mailer)
 

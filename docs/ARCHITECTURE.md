@@ -36,58 +36,145 @@ All prediction responses include `model_version` + `generated_at`. All LLM respo
 
 | Module | Method | Route | Purpose | Role |
 |---|---|---|---|---|
-| auth | POST | `/auth/login` | Access JWT in body, refresh in httpOnly cookie (path /api/v1/auth); lockout 5 fails per email+IP / 15 min | P |
-| auth | POST | `/auth/demo-login` | DEMO_MODE only (else 404): `{role}` signs in as that role's seeded demo account, same tokens as login | P |
-| auth | POST | `/auth/signup` | `{full_name,email,password}` (no role) -> pending inactive agent, 202; per-IP limit; taken email 400 `signup_rejected`; audited | P |
-| auth | POST | `/auth/forgot-password` | Always 202; active account gets a hashed single-use 30 min link via the mailer (dev: server log); per-IP + per-account limits; audited | P |
-| auth | POST | `/auth/reset-password` | `{token,new_password}`; unknown/used/expired 400 `invalid_reset_token`; revokes all sessions; audited | P |
-| auth | POST | `/auth/refresh` | Rotate refresh cookie; reuse of a rotated token revokes its family | P (refresh cookie) |
-| auth | POST | `/auth/logout` | Revoke refresh token + clear cookie | P (refresh cookie) |
-| auth | POST | `/auth/change-password` | Verify old, min 8 chars, revoke other sessions | A, D, Ad |
-| auth | GET | `/auth/me` | Current user, role, lang, theme, agent_id/distributor_id, last_login_at | A, D, Ad |
-| agents | GET | `/agents` | List agents (filters: risk, district, q) | D, Ad |
-| agents | GET | `/agents/{id}` | Agent profile + current floats | A(self), D, Ad |
-| forecast | GET | `/agents/{id}/forecast` | Dual-float hourly q10/q50/q90 demand (cash <- cash_out, emoney <- cash_in), `?horizon_hours=24` (1..72), read from the bootstrap cache; 503 `forecast_not_ready` before precompute (F1) | A(self), D, Ad |
-| risk | GET | `/agents/risk` | Scoped risk list at one horizon: `?horizon=6\|24\|72&level=&sort=risk\|stockout\|code\|name&page=&page_size=&q=`; paginated `{items,total,page,page_size}` (F3, F10) | A(self), D, Ad |
-| risk | GET | `/agents/{id}/summary` | Profile, balances, time-to-stockout, risk per float and horizon, agent level (worst float) | A(self), D, Ad |
-| risk | GET | `/agents/{id}/stockout` | Most likely time-to-stockout + confidence per float, no-refill projection; 503 `risk_not_ready` before precompute (F2) | A(self), D, Ad |
-| risk | GET | `/agents/{id}/risk` | Stockout probability + green/amber/red at 6/24/72h per float (F3) | A(self), D, Ad |
-| whatif | POST | `/agents/{id}/whatif` | `{float_type, delta_amount}`: re-project the cached quantile paths with balance + delta (same seeded paths as the risk cache, so `before` = cache); before/after stockout, risk 6/24/72 h and hourly balance p10/p50/p90 series (runway ghost); 422 `delta_out_of_bounds` outside 0..capacity; <300 ms (F8) | A(self), D |
-| explanations | GET | `/agents/{id}/explanations` | `?target=cash\|emoney&lang=bn\|en` (lang defaults to the user's): top TreeSHAP drivers of the next 24 h demand -> `reasons[]` (factor, impact BDT, direction, share, template sentence) + `evidence` pack; `generated_by: template`; 503 `explanations_not_ready` before precompute (F7) | A(self), D, Ad |
-| explanations | POST | `/explanations/narrate` | LLM rewrite of template sentence (F7, LLM) | A(self), D |
-| events | GET | `/events` | Salary/Eid/hat-bazar/weather/holiday overlapping `?from&to`, `&type&district` (district keeps nationwide), paginated (F6) | A, D, Ad |
-| events | POST/PUT/DELETE | `/events`, `/events/{id}` | Admin create (201) / replace / delete (204) -> audit_log; 422 `unknown_district`; applied at next precompute (F6) | Ad |
-| recommendations | GET | `/agents/{id}/recommendation` | Rebalance recommendation per float: amount, deadline, rationale (F4) | A(self), D, Ad |
-| recommendations | POST | `/recommendations/{id}/request` | Agent asks distributor to act (no money moves); idempotent: 201 new, 200 existing | A(self) |
-| recommendations | GET | `/recommendation-requests` | Requests `?status=&page=&page_size=` (A own, D own agents) | A, D, Ad |
-| recommendations | POST | `/recommendation-requests/{id}/decision` | `approve`/`decline` + required note -> audit_log | D |
-| recommendations | POST | `/recommendation-requests/{id}/fulfil` | Approved -> fulfilled (+ note) -> audit_log | D |
-| recommendations | POST | `/recommendation-requests/{id}/cancel` | Requested -> cancelled -> audit_log | A(self) |
-| swaps | GET | `/swaps` | Swap suggestions `?status=&page=&page_size=`, est. van trips avoided (A sees own) (F5) | A, D, Ad |
-| swaps | POST | `/swaps/{id}/decision` | `approve`/`reject` + required note -> audit_log | D |
-| swaps | POST | `/swaps/{id}/respond` | Donor/receiver agent `accept`/`decline` (+ note) -> audit_log; a decline blocks approval | A |
-| anomalies | GET | `/anomalies` | Isolation Forest flags (F9) | D, Ad |
-| anomalies | GET | `/anomalies/{id}` | Evidence (features, scores) | D, Ad |
-| anomalies | POST | `/anomalies/{id}/review` | confirmed/dismissed + note -> audit_log | D, Ad |
-| anomalies | GET | `/anomalies/{id}/narrative` | LLM investigation narrative (LLM) | D, Ad |
-| map | GET | `/map/agents` | `?at_hour=0..72`: scoped agents' lat/lng + level/probability at that hour (cached P(stockout by h), cut-offs interpolated between 6/24/72) + pending/approved swaps with coordinates and `relevant` (receiver amber/red) for the TimeScrubber (F10) | D, Ad |
-| distributor | GET | `/distributor/overview` | Map points, risk counts, open swaps (F10) | D |
-| impact | GET | `/impact/summary` | AI vs fixed-threshold baseline over the 14 held-out days: stockout h, BDT saved, fee, van trips + cost, actions by channel, threshold sweep (equal service / equal van budget), assumptions; `?van_cost`; distributor = own agents; 503 `impact_not_ready` (F11) | D, Ad |
-| impact | GET | `/impact/comparison` | Same per local day + range totals; `?from&to` (YYYY-MM-DD, inclusive, clipped to the holdout; 422 `from_after_to`) `&van_cost` (F11) | D, Ad |
-| responsible-ai | GET | `/responsible-ai/fairness` | `?groupBy=urban_rural\|tier\|region`: held-out forecast MAE / nMAE / skill and stockout recall / precision per group + gap; 503 `fairness_not_ready` (F12) | A, D, Ad |
-| responsible-ai | GET | `/responsible-ai/model-card` | `?lang=bn\|en`: active models + held-out metrics, data, intended use, out of scope, limitations, human oversight, `advisory_only`, fairness gaps; 503 `model_not_ready` (F12) | A, D, Ad |
-| copilot | POST | `/copilot/chat` | SSE stream; body `{message, lang}`; grounded + allow-listed tools | A |
-| copilot | GET | `/copilot/history` | Own recent messages | A |
-| briefing | GET | `/agents/{id}/briefing` | Agent morning summary (LLM) | A(self), D |
-| briefing | GET | `/distributor/briefing` | Daily distributor briefing (LLM) | D |
-| llm | GET | `/llm/status` | provider, mode, model, last error | A, D, Ad |
-| llm | GET | `/admin/llm/logs` | llm_call_log page `?intent&generated_by` | Ad |
-| admin | GET/POST | `/admin/users` | List / create users | Ad |
-| admin | GET | `/admin/audit` | audit_log page | Ad |
-| admin | GET | `/admin/models` | model_runs + metrics | Ad |
-| admin | POST | `/admin/knowledge/reindex` | Reload playbook docs + TF-IDF index | Ad |
-| system | GET | `/system/health` | Liveness (process up) | P |
-| system | GET | `/system/status` | Readiness: db, migration head, seed/data_version, artifacts ok, model_version, llm mode, `ready` | P |
+| admin | GET | `/admin/audit-log` | Human decisions and admin changes, newest first, with the action / entity facets. | Ad |
+| admin | GET | `/admin/audit-log/export.csv` | Every human decision (swap, anomaly, request, admin change), newest first; same filters as the list. | Ad |
+| admin | GET | `/admin/data` | Seed, data version, period (holdout, SIM_NOW) and row counts of the synthetic dataset. | Ad |
+| admin | GET | `/admin/data/assumptions` | docs/SYNTHETIC_ASSUMPTIONS.md as Markdown text. | Ad |
+| admin | GET | `/admin/drift` | Forecast-error drift: cached forecast vs logged demand, against the holdout MAE. | Ad |
+| admin | GET | `/admin/jobs` | The 20 most recent jobs and the one running, if any. | Ad |
+| admin | POST | `/admin/jobs` | Start generate_data, retrain_forecast, retrain_anomaly or help_trigger (one tick of the liquidity help trigger, same as the background loop) in the background; poll GET /admin/jobs/{id} for progress. One job at a time (409 job_running). Retrained models are recorded inactive; serving keeps the committed model. | Ad |
+| admin | GET | `/admin/jobs/{job_id}` | get_job | Ad |
+| admin | GET | `/admin/llm/logs` | llm_call_log newest first: tokens, latency, generated_by, cache hit, guard result. | Ad |
+| admin | GET | `/admin/llm/usage` | Calls per UTC day by outcome, tokens, latency, cache hit rate and today's cap usage. | Ad |
+| admin | GET | `/admin/models` | Every registered model version (active first) with its stored holdout metrics. | Ad |
+| admin | GET | `/admin/org` | Distributors and agents (id, code, name) for linking users. | Ad |
+| admin | GET | `/admin/overview` | Counts by role, open work queues, active models, LLM calls vs cap, latest job, audit. | Ad |
+| admin | GET | `/admin/users` | Users by role then e-mail; `q` matches e-mail or name. | Ad |
+| admin | POST | `/admin/users` | Create a user linked to an agent (agent) or distributor (distributor). audit_log. | Ad |
+| admin | PATCH | `/admin/users/{user_id}` | Name, role + link, or active flag. Disabling revokes every session. audit_log. | Ad |
+| admin | POST | `/admin/users/{user_id}/reject` | Reject a pending self-signup (kept, never deleted; it can never sign in). 409 when the account is not pending. audit_log user.reject. | Ad |
+| agents | GET | `/agents` | list_agents | D, Ad |
+| agents | GET | `/agents/{agent_id}` | get_agent | A, D, Ad |
+| anomalies | GET | `/anomalies` | Isolation Forest flags in scope (distributor: own agents; admin: all), open first. | D, Ad |
+| anomalies | GET | `/anomalies/{anomaly_id}` | One flag with its peer-group distribution per feature and the top reasons. | D, Ad |
+| anomalies | POST | `/anomalies/{anomaly_id}/review` | Human review: confirmed or dismissed with a note (audit_log). Nothing else happens. | D, Ad |
+| auth | POST | `/auth/change-password` | change_password | A, D, Ad |
+| auth | POST | `/auth/demo-login` | One-click sign-in as a seeded is_demo account (DEMO_MODE only, rate-limited per IP, audited). Never enable DEMO_MODE on a public deployment. | P |
+| auth | POST | `/auth/forgot-password` | Same 202 whether or not the e-mail has an account. A single-use link (30 min) goes out through the mailer; the development mailer writes it to the server log. Audited. | P |
+| auth | POST | `/auth/login` | login | P |
+| auth | POST | `/auth/logout` | Works with an expired access token: the cookie alone identifies the session. | P |
+| auth | GET | `/auth/me` | me | A, D, Ad |
+| auth | POST | `/auth/refresh` | refresh | P |
+| auth | POST | `/auth/reset-password` | Spend a reset token: new password, every session of the user signed out. Unknown, used and expired tokens all get 400 `invalid_reset_token`. Audited. | P |
+| auth | POST | `/auth/signup` | Self-signup. Always a pending agent account with no agent link (the role is not taken from the client); it cannot sign in until an admin approves it. Rate-limited per IP, audited (auth.signup). A taken e-mail gets the generic 400 `signup_rejected`. | P |
+| copilot | POST | `/copilot/chat` | Agent Copilot (bn/en): grounded, role-scoped, advisory. Off-topic and injection attempts are refused without an LLM call; every answer is labelled generated_by llm\|replay\|template. | A, D, Ad |
+| copilot | GET | `/copilot/suggestions` | Suggested questions for `lang` (bn \| en). Missing or unsupported `lang` falls back to the user's language. Replay matches exact question text, so these are the prompts that show recorded LLM wording without a key. | A, D, Ad |
+| events | GET | `/events` | Events overlapping [from, to), by start time; `district` keeps nationwide events too. | A, D, Ad |
+| events | POST | `/events` | Add an event (audit_log). Forecasts use it from the next precompute. | Ad |
+| events | DELETE | `/events/{event_id}` | Delete an event (audit_log keeps the deleted row). | Ad |
+| events | PUT | `/events/{event_id}` | Replace an event (audit_log keeps before/after). | Ad |
+| explanations | GET | `/agents/{agent_id}/explanations` | Top SHAP drivers of the next 24 h demand on one float, as bn/en template sentences. | A, D, Ad |
+| forecast | GET | `/agents/{agent_id}/forecast` | Hourly low/expected/high (q10/q50/q90) demand per float, from the bootstrap cache. | A, D, Ad |
+| impact | GET | `/impact/comparison` | Day-by-day AI vs baseline inside [from, to] (clipped to the holdout) + range totals. | D, Ad |
+| impact | GET | `/impact/summary` | AI vs fixed-threshold baseline over the 14 held-out days (own agents for a distributor). | D, Ad |
+| liquidity-requests | GET | `/admin/liquidity-requests` | Every help request, newest first. | Ad |
+| liquidity-requests | GET | `/admin/liquidity-requests/demo` | What DEMO_MODE changes for help requests: demo defaults in force, the automatic-request cap, the fresh-bootstrap start delay and the last demo reset. Read-only. | Ad |
+| liquidity-requests | POST | `/admin/liquidity-requests/demo-reset` | DEMO_MODE only. Cancels the demo agents' open or claimed requests (kept and audited, nobody notified), ends a simulated shortage and restarts their cooldown, daily cap and demo auto cap from now. Audit logged (help_demo.reset). | Ad |
+| liquidity-requests | POST | `/admin/liquidity-requests/dry-run` | Shows which agents WOULD get a request and who WOULD be asked. Writes nothing, sends nothing, whatever the kill switch and dry-run settings say. | Ad |
+| liquidity-requests | POST | `/admin/liquidity-requests/run-trigger` | One tick now, the same as the background scheduler: sweep timeouts, advance waves, run the trigger. Under dry run or the kill switch nothing is created or sent and the response lists what WOULD have been. | Ad |
+| liquidity-requests | GET | `/admin/liquidity-requests/settings` | Kill switch, dry run, claim timeout, cooldown, daily cap, recipients per wave. | Ad |
+| liquidity-requests | PUT | `/admin/liquidity-requests/settings` | Change any subset of the switches (audit_log keeps old and new values). | Ad |
+| liquidity-requests | POST | `/admin/liquidity-requests/simulate-shortage` | DEMO_MODE only. Forces one agent into a shortage for 30 minutes and runs the trigger for that agent now. Audit logged; every request it makes is marked simulated. Under dry run or the kill switch nothing is sent and would_create says what would have been. | Ad |
+| liquidity-requests | POST | `/admin/liquidity-requests/sweep` | Reopen timed-out claims and expire overdue requests now. Safe to repeat. | Ad |
+| liquidity-requests | GET | `/admin/liquidity-requests/trigger-settings` | Horizon, buffer, minimum shortfall, cap, lead margin, radius, waves, timeout, deadline floor, urgent wave multiplier. | Ad |
+| liquidity-requests | PUT | `/admin/liquidity-requests/trigger-settings` | Change any subset (audit_log keeps old and new values). Bounds checked by the schema. | Ad |
+| liquidity-requests | GET | `/liquidity-requests/inbox` | Requests the caller was asked to help with (amount, area and deadline; no balances). | A, D |
+| liquidity-requests | GET | `/liquidity-requests/mine` | As requester: an agent's own requests; a distributor's agents' requests. Newest first. | A, D |
+| liquidity-requests | GET | `/liquidity-requests/opt-out` | The caller's own choice. opted_out: true = never asked to help others. | A |
+| liquidity-requests | POST | `/liquidity-requests/opt-out` | Same as PUT /opt-out (kept for older clients). (deprecated) | A |
+| liquidity-requests | PUT | `/liquidity-requests/opt-out` | Change the caller's own choice (only their own agent; audited). Opted-out agents are never ranked as helpers. | A |
+| liquidity-requests | GET | `/liquidity-requests/{request_id}` | One request. Unknown ids and ids outside the caller's reach are both 403. | A, D, Ad |
+| liquidity-requests | POST | `/liquidity-requests/{request_id}/cancel` | The requester agent, their own distributor or an admin cancels an open or claimed request. Anyone else is 403. Audited (actor, old and new status). | A, D, Ad |
+| liquidity-requests | POST | `/liquidity-requests/{request_id}/claim` | A listed recipient accepts. Exactly one wins; the others get 409 already_taken. | A, D |
+| liquidity-requests | POST | `/liquidity-requests/{request_id}/confirm` | The requester agent or their distributor confirms receipt. | A, D |
+| liquidity-requests | POST | `/liquidity-requests/{request_id}/confirm-late` | The requester agent or their distributor confirms that the helper whose claim timed out delivered after all. Only on a reopened request that had such a claim (409 no_lapsed_claim otherwise). | A, D |
+| liquidity-requests | POST | `/liquidity-requests/{request_id}/decline` | A listed recipient says no; nobody else is affected. | A, D |
+| liquidity-requests | POST | `/liquidity-requests/{request_id}/withdraw` | The helper who claimed it backs out before confirmation; the request reopens. | A, D |
+| llm | GET | `/agents/{agent_id}/briefing` | Morning briefing for one agent: risk, main reason, suggested action (advisory). | A, D, Ad |
+| llm | GET | `/anomalies/{anomaly_id}/narrative` | Neutral investigation note for one flag, from its peer evidence only. | D, Ad |
+| llm | GET | `/distributor/briefing` | Daily briefing over the caller's agents (distributor: own; admin: all). | D, Ad |
+| llm | POST | `/explanations/narrate` | SHAP template reasons for one float, reworded by the LLM (template on any failure). | A, D, Ad |
+| llm | GET | `/llm/status` | Configured and effective provider, today's live calls vs the cap, last error code. | A, D, Ad |
+| map | GET | `/map/agents` | Scoped agents' lat/lng + risk level at `at_hour` (0..72) + current swaps (time scrubber). | D, Ad |
+| notifications | GET | `/notifications` | The caller's own notifications, newest first, with the unread count for the bell. `entity_type=liquidity_request&unread=true&page_size=1` is the cheap help-badge poll. | A, D, Ad |
+| notifications | POST | `/notifications/read-all` | read_all | A, D, Ad |
+| notifications | POST | `/notifications/{notification_id}/read` | read_one | A, D, Ad |
+| recommendation-requests | GET | `/recommendation-requests` | Requests in scope (agent: own; distributor: own agents; admin: all), newest first. | A, D, Ad |
+| recommendation-requests | POST | `/recommendation-requests/{request_id}/cancel` | Agent withdraws own request while it is still awaiting a decision (audit_log). | A |
+| recommendation-requests | POST | `/recommendation-requests/{request_id}/decision` | Distributor approves or declines a requested item with a note (audit_log). | D |
+| recommendation-requests | POST | `/recommendation-requests/{request_id}/fulfil` | Distributor records that an approved request was delivered (audit_log). | D |
+| recommendation-requests | POST | `/recommendations/{recommendation_id}/request` | Agent asks the distributor to act on own recommendation. A repeat call returns the existing request (200). | A |
+| recommendations | GET | `/agents/{agent_id}/recommendation` | Top-up amount and deadline per float that will not cover the next hours (advisory). | A, D, Ad |
+| responsible-ai | GET | `/responsible-ai/fairness` | Held-out forecast MAE and stockout recall per agent group, with the gap between groups. | A, D, Ad |
+| responsible-ai | GET | `/responsible-ai/model-card` | Active models, held-out metrics, data, intended use, limits; advisory only. | A, D, Ad |
+| risk | GET | `/agents/risk` | Risk of the caller's agents at one horizon (agent: self; distributor: own agents). | A, D, Ad |
+| risk | GET | `/agents/risk/export.csv` | The risk list (same filters, all pages) as CSV; scoped like GET /agents/risk. | A, D, Ad |
+| risk | GET | `/agents/{agent_id}/risk` | Stockout probability and green/amber/red level at 6 / 24 / 72 h per float. | A, D, Ad |
+| risk | GET | `/agents/{agent_id}/stockout` | Time-to-stockout + confidence per float (no refills assumed). | A, D, Ad |
+| risk | GET | `/agents/{agent_id}/summary` | Profile, balances, time-to-stockout and risk levels in one call. | A, D, Ad |
+| search | GET | `/search` | Command palette: agents in the caller's scope (code / name / region) + role pages, max 8. | A, D, Ad |
+| swaps | GET | `/swaps` | Swap suggestions in scope (agent: own as donor or receiver; distributor: own agents). | A, D, Ad |
+| swaps | GET | `/swaps/export.csv` | The swap queue in scope as CSV (notes are user text: formula-escaped). | A, D, Ad |
+| swaps | POST | `/swaps/{swap_id}/decision` | Distributor approves or rejects with a note (audit_log). Advisory: no money moves. | D |
+| swaps | POST | `/swaps/{swap_id}/respond` | Donor or receiver agent accepts or declines (audit_log); the distributor still decides. | A |
+| system | GET | `/health` | health | P |
+| system | GET | `/system/freshness` | Last forecast time, active model version, synthetic data period and LLM mode. | A, D, Ad |
+| system | GET | `/system/health` | health | P |
+| system | GET | `/system/status` | system_status | P |
+| users | PATCH | `/users/me/preferences` | Language, theme, digits, in-app notifications, onboarding tour; only sent fields change. | A, D, Ad |
+| users | GET | `/users/me/profile` | get_profile | A, D, Ad |
+| users | PATCH | `/users/me/profile` | Display name (no e-mail / phone numbers) and avatar colour token. | A, D, Ad |
+| whatif | POST | `/agents/{agent_id}/whatif` | Stockout + risk if `delta_amount` BDT were added to one float now (advisory, no money moves). | A, D |
+
+Generated from the live OpenAPI app (`app.main.app`): purpose = first docstring paragraph, role =
+the route's `require_roles` (A, D, Ad; "A, D, Ad" = any signed-in user; P = public). Roles are
+checked server-side on every call; scoping (own agent / own agents) is in the services.
+
+### Swap lifecycle (F5)
+
+1. **Proposed**: the nightly precompute's matcher (rules in `app/rules/swap_rules.py` + scipy
+   assignment) pairs a donor with surplus and a receiver short of the same float, same
+   distributor, within `SWAP_RADIUS_KM`. Status `pending`.
+2. **Agents answer** (`POST /swaps/{id}/respond`, accept / decline + note): each side may change
+   its answer while the swap is `pending`. Audited (`swap.accept` / `swap.decline`).
+3. **Distributor decides** (`POST /swaps/{id}/decision`, approve / reject + required note):
+   `approved` or `rejected`, then locked (409 `already_decided`). Approval is refused while an
+   agent has declined (409 `swap_declined`). Audited with user id and note; both agents notified.
+4. Nothing moves money: an approved swap is a recorded agreement the two agents carry out.
+
+### Help-request lifecycle (liquidity help)
+
+States `open -> claimed -> fulfilled`; `claimed -> open` (helper withdraws, or the claim times
+out: reopened); `open -> expired` (deadline passed or every wave failed); `open | claimed ->
+cancelled`; `open | expired -> fulfilled` (late confirm by the requester side after a timed-out
+claim, within the grace window). All moves are compare-and-set (`app/rules/help_request_rules.py`
+TRANSITIONS); anything else is 409.
+
+1. **Created** by the background trigger (forecast: projected balance below the agent's buffer,
+   risk red) or, in DEMO_MODE, by the admin's **simulate shortage** (marked simulated). Limits:
+   one active request per agent and float, cooldown, rolling daily cap, at most N new per tick;
+   in DEMO_MODE at most one automatic request per agent and float per day.
+2. **Wave 1**: the requester's distributor plus the best-ranked nearby agents (same distributor,
+   within radius, enough surplus, not opted out, fairness rotation); urgent requests ask more.
+   Each later wave goes out after `wave_timeout_min` without a claim; after the last wave the
+   request expires and the distributor and admins are told.
+3. **Claim**: the first helper to accept wins (`/claim`); everyone else is told it is covered.
+   The winner may withdraw; an unfinished claim reopens after `claim_timeout_min`.
+4. **Confirm**: the requester (or their distributor) confirms the money arrived (`/confirm`, or
+   `/confirm-late`), or calls it off (`/cancel`, confirm dialog; distributor only for its own
+   agents). Every step is audited and notified; helpers only see a coarse reason category.
+5. The scheduler runs this every minute in one leader process (Postgres advisory lock); admins
+   see its status, can run one check now, use dry run, and in DEMO_MODE reset the demo state.
 
 ## 3. Database tables (PostgreSQL 16)
 

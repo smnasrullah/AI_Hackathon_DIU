@@ -8,7 +8,7 @@
 | 3 Frontend follow-up | done | owner-only cancel, Urgent/last-wave flags (list, detail, map), Help tab + badge, opt-out toggle, scheduler card, dry-run list, Load more, 12 s/60 s polls, a11y + e2e green |
 | 4 npm audit | done | 3 findings (maplibre-gl critical, react-router moderate x2), all need major upgrades: not applied, decision needed; not exploitable as used |
 | 5 Full verification | done | fast tier, -Up -E2E twice without reset (help story), -Slow all green; fresh DB on agentpulse-verify ready in 203 s (cached images), start delay held only on fresh bootstrap |
-| 6 Docs | todo | |
+| 6 Docs | done | README quick start + DEMO_MODE + reject; DEMO_SCRIPT uses demo defaults + reset; ARCHITECTURE endpoints regenerated from live app + swap/help lifecycles; METHODS safeguards |
 
 ## Open problems
 - Old commit 73ec93d still holds the local .db / logs in history (no secrets found in them; synthetic data only).

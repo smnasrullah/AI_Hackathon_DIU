@@ -154,8 +154,25 @@ services `help_trigger.py`, `help_trigger_run.py`, `help_waves.py`, `liquidity_r
   stock-out first (then larger amount, then agent id); the others are reported `tick_cap` and are
   re-evaluated on the next ticks, where dedupe, cooldown and the daily cap still apply. A fresh
   start of the shipped data finds about 20 short agents, so they arrive over several minutes
-  instead of all at once. In `DEMO_MODE` the first tick of each app start also waits
+  instead of all at once. In `DEMO_MODE`, after a fresh bootstrap only (the database was just
+  seeded; a plain restart does not wait), the first tick waits
   `HELP_SCHEDULER_DEMO_START_DELAY_S` (120 s) after bootstrap is ready.
+- **DEMO_MODE only** (`DEMO_MODE=false` keeps exactly the rules above): demo defaults for the
+  wave story (`HELP_DEMO_DEFAULTS`: 1 helper agent per wave, 2-minute waves, 3 waves, largest
+  request 100 000, recent-ask window 0; an admin's saved value wins); at most
+  `HELP_DEMO_AUTO_PER_DAY` (1) automatic request per agent and float per rolling 24 h; the
+  admin's simulate shortage skips the cooldown, daily cap and recent-ask window (the scheduler
+  does not); **reset demo state** cancels the demo agents' active requests and restarts their
+  limits and the helper rotation from that moment.
+- **Leader guard**: the scheduler acts only in the process holding the leader lock (above), so
+  several workers or instances never tick twice; each tick is idempotent as a second guard.
+- **Rate limiting**: login, demo login, sign-up and password-reset limits use an in-process
+  sliding-window limiter (`app/core/rate_limit.py`); lockouts and LLM daily caps live in the
+  database. With several instances the in-process counters are per instance (see
+  docs/PATH_TO_PRODUCTION.md for moving them to a shared store).
+- **Access tokens after a password reset**: a reset revokes every refresh token at once, but an
+  access token already issued stays valid until it expires (at most `JWT_ACCESS_TTL_MIN`,
+  15 minutes).
 
 ## 4. LLM usage (language only; matches docs/LLM_SPEC.md)
 

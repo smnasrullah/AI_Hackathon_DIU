@@ -22,21 +22,33 @@ Demo accounts (seeded, `DEMO_MODE=true` one-click chips on `/login`):
 
 ## Optional beat: liquidity help request in waves (about 2 minutes)
 
-Synthetic shops only; nothing moves money. Before the demo, on `/admin/help-settings` set
-**Helpers asked per wave = 1**, **Largest request = 100000**, **Minutes per wave = 2** and
-**Do not ask again within (hours) = 0** (the defaults ask every capable helper at once, so a
-second wave would have nobody left). Then **Simulate shortage** for AGT-0001, cash:
+Synthetic shops only; nothing moves money. No settings to change: with `DEMO_MODE=true` the
+app uses demo defaults for this story (1 helper agent per wave, urgent twice that, 2-minute
+waves, 3 waves, largest request 100000, no recent-ask window); `/admin/help-settings` shows them
+in the read-only **Demo mode** panel. A value you save yourself still wins.
 
-| Wave | Asked (seed 42, these settings) | Sign in as |
+1. Sign in as `admin@`, open `/admin/help-settings`, press **Reset demo help-request state** and
+   confirm. This cancels the demo shops' open requests (they stay in the history, nobody is
+   messaged), ends any simulated shortage and restarts their cooldowns, daily limits and the
+   helper rotation, so every run looks the same. Audited as `help_demo.reset`.
+2. **Simulate shortage** for AGT-0001, cash. It is never blocked by the daily cap, the cooldown
+   or the recent-ask window; if it still cannot make a request it says why (for example
+   "Already has an open request for that float").
+
+| Wave | Asked (seed 42, demo defaults, after a reset) | Sign in as |
 |---|---|---|
 | 1 (urgent, so twice the wave size) | distributor DST-DHK, AGT-0004, AGT-0072 | `agent.mirpur11@`, `agent.mirpur.chowdhury@agentpulse.demo` |
 | 2 (after 2 min unanswered) | AGT-0064 | `agent.mirpur.sarkar@agentpulse.demo` |
 | 3 | AGT-0106, then escalation to the distributor and admins | `agent.mohammadpur@agentpulse.demo` |
 
 One helper accepts on `/agent/help`; the others see it covered; `agent.mirpur@` confirms the money
-arrived; `dist.dhaka@` sees the full timeline on `/distributor/help-requests`. The first
-automatic requests appear about 2 minutes after the app is ready (DEMO_MODE start delay), at most
-3 per minute. If a request for AGT-0001 cash is already open, open that one instead.
+arrived; `dist.dhaka@` sees the full timeline on `/distributor/help-requests` (Help requests
+in the side menu). Helpers find it under the **Help** tab, with an unread badge.
+
+Automatic requests: after a fresh database (first start or `--reset`) the first one appears about
+2 minutes after the app is ready; a plain restart does not wait. At most 3 new ones per minute,
+and in DEMO_MODE at most one automatic request per shop and float per day, so AGT-0001 does not
+get a new automatic request every 30 minutes.
 
 ## Notes for the presenter
 - If the laptop has no internet or no LLM key, every answer above still appears — pre-recorded
