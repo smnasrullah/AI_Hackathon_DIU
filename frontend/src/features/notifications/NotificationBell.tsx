@@ -15,6 +15,7 @@ import { useLocale } from "../../lib/prefs";
 import { DUR, SPRING } from "../../styles/motion";
 import { InboxEmpty } from "./InboxEmpty";
 import { NotificationList } from "./NotificationList";
+import { notificationText } from "./notificationModel";
 
 const PANEL_SIZE = 20;
 const SHAKE = { rotate: [0, -14, 12, -8, 6, 0], transition: { duration: DUR.reveal } };
@@ -22,13 +23,15 @@ const SHAKE = { rotate: [0, -14, 12, -8, 6, 0], transition: { duration: DUR.reve
 /** Bell with unread badge: shakes once when new ones arrive; the panel slides in. */
 export function NotificationBell() {
   const { t } = useTranslation();
-  const { digits } = useLocale();
+  const { lang, digits } = useLocale();
   const reduced = useReducedMotionPref();
   const [open, setOpen] = useState(false);
   const q = useNotifications({ page_size: PANEL_SIZE });
   const markAll = useMarkAllNotificationsRead();
   const controls = useAnimationControls();
   const seen = useRef<number | null>(null);
+  // Help request ids already announced; the first load only records them, so old ones stay quiet.
+  const announced = useRef<Set<number> | null>(null);
   const unread = q.data?.unread_count ?? 0;
 
   useEffect(() => {
@@ -36,6 +39,20 @@ export function NotificationBell() {
     if (seen.current !== null && unread > seen.current && !reduced) void controls.start(SHAKE);
     seen.current = unread;
   }, [q.data, unread, reduced, controls]);
+
+  useEffect(() => {
+    if (q.data === undefined) return;
+    const help = q.data.items.filter((item) => item.entity_type === "liquidity_request");
+    if (announced.current === null) {
+      announced.current = new Set(help.map((item) => item.id));
+      return;
+    }
+    for (const item of help) {
+      if (announced.current.has(item.id)) continue;
+      announced.current.add(item.id);
+      toast({ tone: "info", title: notificationText(item, lang, digits), duration: 8000 });
+    }
+  }, [q.data, lang, digits]);
 
   function readAll(): void {
     markAll.mutate(undefined, {

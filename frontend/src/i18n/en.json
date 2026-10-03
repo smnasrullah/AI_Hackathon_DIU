@@ -1647,5 +1647,212 @@
         "body": "Calls appear when someone opens an explanation, a briefing or the copilot."
       }
     }
+  },
+  "liquidity": {
+    "agent": {
+      "title": "Help requests",
+      "lead": "Nearby shops that run short can ask for help. The first helper who says yes is the one who helps.",
+      "needed": {
+        "title": "Help needed near you",
+        "empty": {
+          "title": "Nobody needs help from you right now",
+          "body": "If a nearby shop runs short, the request shows up here and in your notifications."
+        },
+        "check": "Check again"
+      },
+      "card": {
+        "from": "{{name}} · {{area}}",
+        "needs": "Needs {{amount}} {{float}}",
+        "by": "Needed by {{time}}",
+        "left": "{{time}} left",
+        "overdue": "Time is up",
+        "distance": "{{km}} km away",
+        "reason": "Why: {{reason}}",
+        "canHelp": "I can help",
+        "cantHelp": "I can't help",
+        "withdraw": "Withdraw",
+        "next": "Next step: send {{amount}} {{float}} to {{name}}, then wait for their confirmation.",
+        "waiting": "You said yes. The requester will confirm when the money arrives.",
+        "taken": "Someone else already accepted this one. The list is up to date.",
+        "withdrawn": "You stepped back. The request is open for other helpers again.",
+        "declined": "Thank you. We will not ask you about this one again.",
+        "failed": "Something went wrong. Please try again."
+      },
+      "mine": {
+        "title": "My help request",
+        "empty": {
+          "title": "You have no open request",
+          "body": "When the system finds a shortage for your shop, nearby helpers are asked and your request appears here."
+        },
+        "asked": "{{n}} nearby helpers were asked",
+        "left": "{{time}} left",
+        "received": "I received the money",
+        "receivedHint": "Press this only after the money is in your account.",
+        "receivedDone": "Thank you. The request is marked as received.",
+        "cancel": "Cancel request",
+        "cancelTitle": "Cancel this request?",
+        "cancelBody": "Nearby helpers will be told it is no longer needed.",
+        "keep": "Keep request",
+        "cancelled": "The request is cancelled.",
+        "check": "Check again"
+      }
+    },
+    "status": {
+      "open": "Waiting for a helper",
+      "claimed": "A helper said yes",
+      "fulfilled": "Money received",
+      "expired": "Nobody could help in time",
+      "cancelled": "Cancelled"
+    },
+    "timeline": {
+      "label": "Progress",
+      "sent": "Request sent",
+      "accepted": "Someone accepted",
+      "received": "Money received"
+    },
+    "response": {
+      "none": "No answer yet",
+      "accepted": "Said yes",
+      "declined": "Said no",
+      "expired": "No answer in time",
+      "superseded": "Someone else covered it"
+    },
+    "attention": {
+      "lastWave": "Reached the last wave",
+      "expired": "Expired unfilled"
+    },
+    "dist": {
+      "title": "Help requests",
+      "lead": "Shortage requests from your agents: who has claimed them and how each one ended.",
+      "filter": "Filter by status",
+      "all": "All",
+      "empty": {
+        "title": "No help requests in this view",
+        "body": "When one of your agents runs short, the request shows up here."
+      },
+      "claimedBy": "Claimed by {{code}}",
+      "nobody": "Nobody yet",
+      "deadline": "Needed by {{time}}",
+      "back": "All help requests",
+      "missing": "This request could not be found.",
+      "recipients": "Who was asked",
+      "wave": "Wave {{n}}",
+      "noRecipients": "Nobody was asked yet.",
+      "confirm": "Confirm money received",
+      "confirmTitle": "Confirm the money arrived?",
+      "confirmBody": "Confirm only after the money has reached the requester.",
+      "cancel": "Cancel request",
+      "cancelTitle": "Cancel this request?",
+      "cancelBody": "Nearby helpers will be told it is no longer needed.",
+      "done": "The request is updated."
+    },
+    "map": {
+      "open": "Help {{amount}}",
+      "label": "Open help request from {{name}}: {{amount}} {{float}}"
+    },
+    "admin": {
+      "title": "Help request settings",
+      "lead": "Safety switches and limits for the automatic helper search. Nothing here moves money.",
+      "save": "Save settings",
+      "saved": "Settings saved.",
+      "saveFailed": "Settings were not saved. Check the highlighted fields and try again.",
+      "sections": {
+        "switches": "Safety switches",
+        "timing": "Timing and limits",
+        "trigger": "When to ask for help",
+        "waves": "Waves and search"
+      },
+      "fields": {
+        "enabled": {
+          "label": "Automatic help is on",
+          "help": "When off, no new help requests are created."
+        },
+        "dryRun": {
+          "label": "Dry run (preview only)",
+          "help": "The system only records what it would do. Nobody is messaged."
+        },
+        "claimTimeout": {
+          "label": "Minutes before a claim reopens",
+          "help": "If a helper says yes and does not finish in this time, the request reopens for others."
+        },
+        "cooldown": {
+          "label": "Cooldown (minutes)",
+          "help": "Wait before asking the same shop again."
+        },
+        "dailyCap": {
+          "label": "Requests per shop per day",
+          "help": "Stops one shop from being asked too often."
+        },
+        "perWave": {
+          "label": "Helpers asked per wave",
+          "help": "How many helpers each wave contacts at once."
+        },
+        "horizon": {
+          "label": "Look-ahead (hours)",
+          "help": "How far ahead to check for a shortage."
+        },
+        "buffer": {
+          "label": "Safety buffer (%)",
+          "help": "Extra money added on top of the shortfall."
+        },
+        "minShortfall": {
+          "label": "Smallest shortfall (৳)",
+          "help": "Smaller gaps are not worth a request."
+        },
+        "maxRequest": {
+          "label": "Largest request (৳)",
+          "help": "Caps the amount of one request."
+        },
+        "leadMargin": {
+          "label": "Lead time (hours)",
+          "help": "Ask at least this long before the shortage hits."
+        },
+        "radius": {
+          "label": "Search radius (km)",
+          "help": "Helpers must be within this distance."
+        },
+        "maxWaves": {
+          "label": "Number of waves",
+          "help": "How many rounds of helpers are asked before the distributor is told."
+        },
+        "waveTimeout": {
+          "label": "Minutes per wave",
+          "help": "How long a wave has to answer before the next one starts."
+        },
+        "recentAsk": {
+          "label": "Do not ask again within (hours)",
+          "help": "Stops repeated asks for the same shop."
+        }
+      },
+      "range": "Enter a whole number from {{min}} to {{max}}.",
+      "number": "Enter a whole number.",
+      "preview": {
+        "title": "Dry-run preview",
+        "lead": "Shows who would get a request right now. Sends nothing.",
+        "run": "Run preview",
+        "empty": "Nothing would be requested right now.",
+        "failed": "The preview could not run. Try again.",
+        "cols": {
+          "agent": "Shop",
+          "float": "Float",
+          "amount": "Amount",
+          "result": "Result",
+          "asks": "Would ask"
+        },
+        "fires": "Would create a request",
+        "holds": "Not this time",
+        "summary": "{{creates}} requests, {{asks}} helper asks"
+      },
+      "demo": {
+        "title": "Simulate a shortage",
+        "lead": "Demo only. Forces one shop short for 30 minutes and runs the helper search now. Results are marked as simulated.",
+        "agent": "Shop",
+        "float": "Float",
+        "run": "Simulate shortage",
+        "done": "{{agent}}: {{n}} request(s) created (simulated).",
+        "none": "No request was created for that shop.",
+        "failed": "The simulation could not run."
+      }
+    }
   }
 }

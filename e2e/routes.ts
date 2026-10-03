@@ -82,4 +82,10 @@ export const ROUTES: E2ERoute[] = [
   { path: "/admin/events", as: "admin" },
   { path: "/admin/data", as: "admin" },
   { path: "/admin/audit-log", as: "admin" },
+
+  // Liquidity help requests (agent /agent/help, distributor list and detail, admin settings)
+  { path: "/agent/help", as: "agent" },
+  { path: "/distributor/help-requests", as: "distributor" },
+  { path: "/distributor/help-requests/1", as: "distributor" },
+  { path: "/admin/help-settings", as: "admin" },
 ];

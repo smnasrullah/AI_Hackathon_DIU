@@ -9,9 +9,12 @@ import {
   type Marker,
 } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import type { MapAgent, MapSwap } from "../../../api/types";
 import { formatMoney, formatNumber } from "../../../lib/format";
+import { syncHelpMarkers, type HelpMarkerText } from "../../liquidity/helpMapMarkers";
+import type { HelpMapPoint } from "../../liquidity/helpModel";
 import { useLoopActive, useReducedMotionPref } from "../../../lib/motionPrefs";
 import { useLocale } from "../../../lib/prefs";
 import { MS } from "../../../styles/motion";
@@ -31,20 +34,26 @@ export interface RiskMapProps {
   onFail: () => void;
   /** Text summary for screen readers. */
   label: string;
+  /** Open help requests, drawn as pulsing markers at the requesting shop. */
+  helpPoints?: HelpMapPoint[];
 }
+
+const NO_POINTS: HelpMapPoint[] = [];
 
 const CLICKABLE = [LAYER.dot, LAYER.glow, LAYER.cluster] as const;
 
 const boundaryHref = () => new URL(BOUNDARY_URL, window.location.origin).href;
 
 /** MapLibre risk map: clustered risk dots, selected ring, SwapFlow droplets. Colours follow the theme tokens. Loaded lazily. */
-export default function RiskMap({ agents, swaps, selectedId, onSelect, onlineTiles, onFail, label }: RiskMapProps) {
+export default function RiskMap({ agents, swaps, selectedId, onSelect, onlineTiles, onFail, label, helpPoints = NO_POINTS }: RiskMapProps) {
+  const { t } = useTranslation();
   const { lang, digits } = useLocale();
   const reduced = useReducedMotionPref();
   const ref = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<MlMap | null>(null);
   const clusters = useRef(new Map<number, Marker>());
   const chips = useRef(new Map<number, Marker>());
+  const helpMarks = useRef(new Map<number, Marker>());
   const active = useLoopActive(ref);
   const start = useRef({ online: onlineTiles, onSelect, onFail });
   const online = useRef(onlineTiles);
@@ -128,11 +137,13 @@ export default function RiskMap({ agents, swaps, selectedId, onSelect, onlineTil
     resize.observe(el);
     const labels = clusters.current;
     const chipMap = chips.current;
+    const helpMap = helpMarks.current;
     return () => {
       themeWatch.disconnect();
       resize.disconnect();
       clearMarkers(labels);
       clearMarkers(chipMap);
+      clearMarkers(helpMap);
       m.remove();
     };
   }, []);
@@ -162,6 +173,18 @@ export default function RiskMap({ agents, swaps, selectedId, onSelect, onlineTil
     map.getSource<GeoJSONSource>(SRC.swaps)?.setData(swapLines(swaps));
     syncSwapChips(map, chips.current, swaps, (s) => formatMoney(s.amount_bdt, digits, { compact: true, lang }));
   }, [map, swaps, digits, lang]);
+
+  useEffect(() => {
+    if (!map) return;
+    const text = (p: HelpMapPoint): HelpMarkerText => {
+      const amount = formatMoney(p.amount, digits, { compact: true, lang });
+      return {
+        text: t("liquidity.map.open", { amount }),
+        label: t("liquidity.map.label", { name: p.name, amount, float: t(`float.${p.floatType}`) }),
+      };
+    };
+    syncHelpMarkers(map, helpMarks.current, helpPoints, text);
+  }, [map, helpPoints, digits, lang, t]);
 
   useMapMotion(map, swaps, chips, active);
 

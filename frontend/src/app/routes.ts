@@ -15,6 +15,7 @@ export const agentPages: PageDef[] = [
   { path: "what-if", title: "What if", summary: "Add or remove float and watch the runway react.", features: "F8" },
   { path: "explain", title: "Why?", summary: "Reasons behind the forecast, model and AI wording kept apart.", features: "F7, LLM" },
   { path: "swap", title: "Swap offers", summary: "Nearby agent swap offers and recommendation status. Your distributor approves.", features: "F4, F5" },
+  { path: "help", title: "Help requests", summary: "Nearby shops that need your answer, and your own open request.", features: "Help" },
   { path: "copilot", title: "Ask", summary: "Bangla/English chat and voice, grounded in your own data.", features: "LLM" },
   { path: "settings", title: "Settings", summary: "Language, digits and theme.", features: "—" },
 ];
@@ -27,6 +28,8 @@ export const distributorPages: PageDef[] = [
   { path: "anomalies", title: "Anomalies", summary: "Isolation Forest flags for human review.", features: "F9" },
   { path: "anomalies/:id", title: "Investigation", summary: "Evidence, AI-written narrative and your review.", features: "F9, LLM" },
   { path: "impact", title: "Impact", summary: "Model versus fixed-threshold baseline: stockout hours, BDT saved, van trips.", features: "F11" },
+  { path: "help-requests", title: "Help requests", summary: "Shortage requests from your agents: who claimed them, status and attention flags.", features: "Help" },
+  { path: "help-requests/:id", title: "Help request", summary: "One request: timeline, who was asked and their answers.", features: "Help" },
   { path: "briefing", title: "Daily briefing", summary: "Briefing written from today's evidence pack.", features: "LLM" },
 ];
 
@@ -39,6 +42,7 @@ export const adminPages: PageDef[] = [
   { path: "audit-log", title: "Audit log", summary: "Every human decision with user and note; filters and CSV export.", features: "—" },
   // Older link to the audit log; same page.
   { path: "audit", title: "Audit log", summary: "Every human decision with user and note; filters and CSV export.", features: "—" },
+  { path: "help-settings", title: "Help request settings", summary: "Safety switches, thresholds, dry-run preview and the demo shortage simulator.", features: "Help" },
   { path: "llm", title: "LLM layer", summary: "Provider status, call log, daily cap usage and forecast-error drift.", features: "LLM" },
 ];
 

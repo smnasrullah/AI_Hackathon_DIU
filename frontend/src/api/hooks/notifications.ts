@@ -4,7 +4,8 @@ import { qk } from "../keys";
 import { listNotifications, markAllNotificationsRead, markNotificationRead } from "../services/notifications";
 import type { NotificationListQuery } from "../types";
 
-const POLL_MS = 60_000;
+// Help requests need a fast answer; TanStack pauses this poll while the tab is hidden.
+const POLL_MS = 12_000;
 
 export function useNotifications(q: NotificationListQuery = {}) {
   return useQuery({ queryKey: qk.notifications.list(q), queryFn: () => listNotifications(q), refetchInterval: POLL_MS });

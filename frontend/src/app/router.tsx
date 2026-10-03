@@ -68,6 +68,10 @@ const adminModels = page(() => import("../features/admin/models/AdminModelsPage"
 const adminUsers = page(() => import("../features/admin/users/AdminUsersPage").then((m) => m.AdminUsersPage));
 const adminAudit = page(() => import("../features/admin/audit/AuditLogPage").then((m) => m.AuditLogPage));
 const adminLlm = page(() => import("../features/admin/llm/AdminLlmPage").then((m) => m.AdminLlmPage));
+const agentHelp = page(() => import("../features/liquidity/AgentHelpPage").then((m) => m.AgentHelpPage));
+const distributorHelp = page(() => import("../features/liquidity/distributor/DistributorHelpPage").then((m) => m.DistributorHelpPage));
+const adminHelpSettings = page(() => import("../features/liquidity/admin/AdminHelpSettingsPage").then((m) => m.AdminHelpSettingsPage));
+
 const responsibleAi = page(() => import("../features/responsibleAi/ResponsibleAiPage").then((m) => m.ResponsibleAiPage));
 
 /** Pages built so far, keyed by role-relative path; the rest render a placeholder. */
@@ -82,6 +86,7 @@ const AGENT_BUILT: Record<string, Lazy> = {
   // Was missing: the bottom-nav "Swap" tab and "See swap offers" rendered the placeholder page.
   swap: agentSwap,
   copilot: agentCopilot,
+  help: agentHelp,
   settings,
 };
 const DISTRIBUTOR_BUILT: Record<string, Lazy> = {
@@ -93,6 +98,8 @@ const DISTRIBUTOR_BUILT: Record<string, Lazy> = {
   "anomalies/:id": anomalies,
   impact,
   briefing,
+  "help-requests": distributorHelp,
+  "help-requests/:id": distributorHelp,
 };
 
 const ADMIN_BUILT: Record<string, Lazy> = {
@@ -104,6 +111,7 @@ const ADMIN_BUILT: Record<string, Lazy> = {
   "audit-log": adminAudit,
   audit: adminAudit,
   llm: adminLlm,
+  "help-settings": adminHelpSettings,
 };
 
 function children(pages: PageDef[], built: Record<string, Lazy> = BUILT): RouteObject[] {

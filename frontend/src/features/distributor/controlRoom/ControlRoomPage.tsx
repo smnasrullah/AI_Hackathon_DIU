@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import { qk } from "../../../api/keys";
 import { MAP_POLL_MS, useMapAgents } from "../../../api/hooks/map";
+import { useMyHelpRequests } from "../../../api/hooks/helpRequests";
 import { TimeScrubber } from "../../../components/signature/TimeScrubber";
 import { localizeDigits } from "../../../lib/format";
 import { useLocale } from "../../../lib/prefs";
@@ -17,6 +18,7 @@ import { FreshnessStripe } from "./FreshnessStripe";
 import { Inspector } from "./Inspector";
 import { KpiRow } from "./KpiRow";
 import { MapPane } from "./MapPane";
+import { helpMapPoints } from "../../liquidity/helpModel";
 import { useControlRoomPalette } from "./useControlRoomPalette";
 
 /** Three panes from this width (DESIGN.md §4); below it the page is list + inspector. */
@@ -45,11 +47,14 @@ export function ControlRoomPage() {
   // Dragging settles before fetching; playback steps are already spaced out.
   const fetchHour = useDebounced(hour, playing ? 0 : 150);
   const q = useMapAgents(fetchHour);
+  // Open help requests of my agents, drawn as pulsing markers at their shops.
+  const help = useMyHelpRequests({ status: "open", page_size: 50 });
   usePolling();
 
   const all = useMemo(() => q.data?.agents ?? [], [q.data]);
   const shown = useMemo(() => filterAgents(all, { levels, query, district, float }), [all, levels, query, district, float]);
   const swaps = useMemo(() => visibleSwaps(q.data?.swaps ?? [], shown), [q.data, shown]);
+  const helpPoints = useMemo(() => helpMapPoints(help.data?.items ?? [], all), [help.data, all]);
   const selected = all.find((a) => a.agent_id === selectedId) ?? null;
   const riskiest = shown[0] ?? null;
   const dataHour = q.data?.at_hour ?? hour;
@@ -93,7 +98,7 @@ export function ControlRoomPage() {
           <aside aria-label={t("controlRoom.list.title")} className={`${PANE} flex flex-col gap-3`}>
             {list}
           </aside>
-          <MapPane agents={shown} swaps={swaps} status={status} onRetry={retry} retrying={q.isFetching} summary={summary} scrubber={scrubber} />
+          <MapPane agents={shown} swaps={swaps} status={status} onRetry={retry} retrying={q.isFetching} summary={summary} scrubber={scrubber} helpPoints={helpPoints} />
           <aside aria-label={t("controlRoom.inspector.title")} className={`${PANE} overflow-y-auto`}>
             {inspector}
           </aside>

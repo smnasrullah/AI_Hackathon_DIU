@@ -43,6 +43,9 @@ export function notificationLink(item: NotificationItem, role: Role): string | n
     case "swap":
       if (role === "agent") return "/agent/swap";
       return role === "distributor" ? "/distributor/swaps" : null;
+    case "liquidity_request":
+      if (role === "agent") return "/agent/help";
+      return role === "distributor" && id ? `/distributor/help-requests/${id}` : null;
     case "anomaly":
       if (role !== "distributor") return null;
       return id ? `/distributor/anomalies/${id}` : "/distributor/anomalies";

@@ -8,6 +8,7 @@ import { EmptyState, ErrorState } from "../../../components/ui/StatePanel";
 import { RISK_STYLE } from "../../../components/ui/risk";
 import { cn } from "../../../lib/cn";
 import { ALL_LEVELS, useControlRoomStore } from "./controlRoomStore";
+import type { HelpMapPoint } from "../../liquidity/helpModel";
 import type { RiskMapProps } from "./RiskMap";
 
 /** If the map chunk cannot load (offline after a deploy), report it like a WebGL failure. */
@@ -46,6 +47,7 @@ interface MapPaneProps {
   summary: string;
   scrubber: ReactNode;
   className?: string;
+  helpPoints?: HelpMapPoint[];
 }
 
 function Legend() {
@@ -79,7 +81,7 @@ function Legend() {
 }
 
 /** Centre pane: lazily loaded MapLibre map with legend, online-tiles toggle and the time scrubber. */
-export function MapPane({ agents, swaps, status, onRetry, retrying, summary, scrubber, className }: MapPaneProps) {
+export function MapPane({ agents, swaps, status, onRetry, retrying, summary, scrubber, className, helpPoints }: MapPaneProps) {
   const { t } = useTranslation();
   const selectedId = useControlRoomStore((s) => s.selectedId);
   const select = useControlRoomStore((s) => s.select);
@@ -121,6 +123,7 @@ export function MapPane({ agents, swaps, status, onRetry, retrying, summary, scr
             onlineTiles={onlineTiles}
             onFail={onFail}
             label={summary}
+            helpPoints={helpPoints}
           />
         </Suspense>
       )}
