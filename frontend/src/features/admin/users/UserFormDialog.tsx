@@ -81,7 +81,8 @@ function UserFormBody({ user, onClose }: { user: AdminUser | null; onClose: () =
       });
       return;
     }
-    const body = updateBody(user, values);
+    // A pending sign-up is approved by switching it on together with its role and link.
+    const body = user.is_pending ? { ...updateBody(user, values), is_active: true } : updateBody(user, values);
     if (Object.keys(body).length === 0) {
       onClose();
       return;
@@ -90,7 +91,7 @@ function UserFormBody({ user, onClose }: { user: AdminUser | null; onClose: () =
       { id: user.id, body },
       {
         onSuccess: () => {
-          toast({ tone: "success", title: t("admin.users.saved") });
+          toast({ tone: "success", title: t(user.is_pending ? "admin.users.approved" : "admin.users.saved") });
           onClose();
         },
         onError: fail,
@@ -186,7 +187,7 @@ function UserFormBody({ user, onClose }: { user: AdminUser | null; onClose: () =
           </LiquidButton>
         </Dialog.Close>
         <LiquidButton type="submit" loading={create.isPending || update.isPending}>
-          {t(user ? "admin.users.form.save" : "admin.users.form.create")}
+          {t(user?.is_pending ? "admin.users.approveSubmit" : user ? "admin.users.form.save" : "admin.users.form.create")}
         </LiquidButton>
       </div>
     </form>
@@ -202,12 +203,14 @@ export function UserFormDialog({ target, onClose }: { target: AdminUser | "new" 
         <Dialog.Overlay className="ap-overlay fixed inset-0 z-50 bg-ink-950/50" />
         <Dialog.Content className="ap-dialog fixed left-1/2 top-1/2 z-50 max-h-[92vh] w-[min(94vw,36rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[var(--radius-card)] border border-line bg-surface p-6 text-fg shadow-lift">
           <div className="flex items-start justify-between gap-4">
-            <Dialog.Title className="font-display text-h2 font-bold">{t(user ? "admin.users.form.titleEdit" : "admin.users.form.titleNew")}</Dialog.Title>
+            <Dialog.Title className="font-display text-h2 font-bold">
+              {t(user?.is_pending ? "admin.users.approveTitle" : user ? "admin.users.form.titleEdit" : "admin.users.form.titleNew")}
+            </Dialog.Title>
             <Dialog.Close aria-label={t("common.close")} className="-m-2 grid size-10 place-items-center rounded-full text-muted hover:bg-surface-2 hover:text-fg">
               <X aria-hidden className="size-4" />
             </Dialog.Close>
           </div>
-          <Dialog.Description className="mt-1 text-small text-muted">{t("admin.users.lead")}</Dialog.Description>
+          <Dialog.Description className="mt-1 text-small text-muted">{t(user?.is_pending ? "admin.users.approveBody" : "admin.users.lead")}</Dialog.Description>
           {target !== null ? <UserFormBody key={user?.id ?? "new"} user={user} onClose={onClose} /> : null}
         </Dialog.Content>
       </Dialog.Portal>

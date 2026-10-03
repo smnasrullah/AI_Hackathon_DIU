@@ -10,7 +10,17 @@ import { PlaceholderPage } from "../features/shared/PlaceholderPage";
 import { RootErrorPage } from "../features/shared/RootErrorPage";
 import { ForbiddenPage, NotFoundPage, ServerErrorPage } from "../features/shared/StatusPages";
 import { PublicLayout } from "./layouts/PublicLayout";
-import { adminPages, agentPages, distributorPages, loginPage, responsibleAiPage, type PageDef } from "./routes";
+import {
+  adminPages,
+  agentPages,
+  distributorPages,
+  forgotPasswordPage,
+  loginPage,
+  resetPasswordPage,
+  responsibleAiPage,
+  signupPage,
+  type PageDef,
+} from "./routes";
 
 /** Design kit: dev server always; production bundle only when built with VITE_DEV_KIT=true (e2e). */
 const DEV_KIT = import.meta.env.DEV || import.meta.env.VITE_DEV_KIT === "true";
@@ -26,6 +36,9 @@ function page(load: () => Promise<ComponentType>): Lazy {
 // The signed-in shell (nav, command palette, menus, tour) is its own chunk: not on landing or login.
 const shell = page(() => import("./shell/AppShell").then((m) => m.AppShell));
 const login = page(() => import("../features/auth/LoginPage").then((m) => m.LoginPage));
+const signup = page(() => import("../features/auth/SignupPage").then((m) => m.SignupPage));
+const forgotPassword = page(() => import("../features/auth/ForgotPasswordPage").then((m) => m.ForgotPasswordPage));
+const resetPassword = page(() => import("../features/auth/ResetPasswordPage").then((m) => m.ResetPasswordPage));
 const settings = page(() => import("../features/account/SettingsPage").then((m) => m.SettingsPage));
 const profile = page(() => import("../features/account/ProfilePage").then((m) => m.ProfilePage));
 const help = page(() => import("../features/help/HelpPage").then((m) => m.HelpPage));
@@ -115,6 +128,9 @@ const appRoutes: RouteObject[] = [
       { path: "/403", element: <ForbiddenPage /> },
       { path: "/404", element: <NotFoundPage /> },
       { path: "/500", element: <ServerErrorPage /> },
+      { path: signupPage.path, lazy: signup },
+      { path: forgotPasswordPage.path, lazy: forgotPassword },
+      { path: resetPasswordPage.path, lazy: resetPassword },
     ],
   },
   {

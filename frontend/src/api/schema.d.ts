@@ -647,6 +647,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/forgot-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Forgot Password
+         * @description Same 202 whether or not the e-mail has an account. A single-use link (30 min) goes out
+         *     through the mailer; the development mailer writes it to the server log. Audited.
+         */
+        post: operations["forgot_password_api_v1_auth_forgot_password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/login": {
         parameters: {
             query?: never;
@@ -712,6 +733,49 @@ export interface paths {
         put?: never;
         /** Refresh */
         post: operations["refresh_api_v1_auth_refresh_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/reset-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reset Password
+         * @description Spend a reset token: new password, every session of the user signed out. Unknown, used
+         *     and expired tokens all get 400 `invalid_reset_token`. Audited.
+         */
+        post: operations["reset_password_api_v1_auth_reset_password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/signup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Signup
+         * @description Self-signup. Always a pending agent account with no agent link (the role is not taken
+         *     from the client); it cannot sign in until an admin approves it. Rate-limited per IP,
+         *     audited (auth.signup). A taken e-mail gets the generic 400 `signup_rejected`.
+         */
+        post: operations["create_signup_api_v1_auth_signup_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1413,6 +1477,8 @@ export interface components {
             is_active: boolean;
             /** Is Demo */
             is_demo: boolean;
+            /** Is Pending */
+            is_pending: boolean;
             /** Last Login At */
             last_login_at: string | null;
             role: components["schemas"]["UserRole"];
@@ -1448,6 +1514,7 @@ export interface components {
         /**
          * AdminUserUpdate
          * @description Only sent fields change. Changing role re-checks the agent / distributor link.
+         *     `is_active: true` on a pending signup approves it (an agent needs `agent_id` by then).
          */
         AdminUserUpdate: {
             /** Agent Id */
@@ -2346,6 +2413,23 @@ export interface components {
              * Format: date-time
              */
             ts: string;
+        };
+        /** ForgotPasswordRequest */
+        ForgotPasswordRequest: {
+            /** Email */
+            email: string;
+        };
+        /**
+         * ForgotPasswordResponse
+         * @description Same body whether or not the account exists.
+         */
+        ForgotPasswordResponse: {
+            /**
+             * Status
+             * @default reset_requested
+             * @constant
+             */
+            status: "reset_requested";
         };
         /** Freshness */
         Freshness: {
@@ -3283,6 +3367,22 @@ export interface components {
          * @enum {string}
          */
         RequestStatus: "requested" | "approved" | "declined" | "fulfilled" | "cancelled";
+        /** ResetPasswordRequest */
+        ResetPasswordRequest: {
+            /** New Password */
+            new_password: string;
+            /** Token */
+            token: string;
+        };
+        /** ResetPasswordResponse */
+        ResetPasswordResponse: {
+            /**
+             * Status
+             * @default password_reset
+             * @constant
+             */
+            status: "password_reset";
+        };
         /**
          * RiskLevelCode
          * @enum {string}
@@ -3346,6 +3446,27 @@ export interface components {
             items: components["schemas"]["SearchHit"][];
             /** Q */
             q: string;
+        };
+        /**
+         * SignupRequest
+         * @description No role field: self-signup always creates a pending agent. Extra fields are rejected.
+         */
+        SignupRequest: {
+            /** Email */
+            email: string;
+            /** Full Name */
+            full_name: string;
+            /** Password */
+            password: string;
+        };
+        /** SignupResponse */
+        SignupResponse: {
+            /**
+             * Status
+             * @default pending_approval
+             * @constant
+             */
+            status: "pending_approval";
         };
         /** StockoutFairness */
         StockoutFairness: {
@@ -3477,6 +3598,8 @@ export interface components {
             db: boolean;
             /** Demo Mode */
             demo_mode: boolean;
+            /** Dev Mailer */
+            dev_mailer: boolean;
             /**
              * Generated At
              * Format: date-time
@@ -3990,7 +4113,7 @@ export interface operations {
         parameters: {
             query?: {
                 role?: components["schemas"]["UserRole"] | null;
-                status?: ("active" | "disabled") | null;
+                status?: ("active" | "pending" | "disabled") | null;
                 q?: string | null;
                 page?: number;
                 page_size?: number;
@@ -4675,6 +4798,39 @@ export interface operations {
             };
         };
     };
+    forgot_password_api_v1_auth_forgot_password_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForgotPasswordRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForgotPasswordResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     login_api_v1_auth_login_post: {
         parameters: {
             query?: never;
@@ -4775,6 +4931,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TokenResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reset_password_api_v1_auth_reset_password_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetPasswordRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResetPasswordResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_signup_api_v1_auth_signup_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SignupRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SignupResponse"];
                 };
             };
             /** @description Validation Error */

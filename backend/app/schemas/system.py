@@ -33,6 +33,8 @@ class SystemStatus(BaseModel):
     model_version: str | None
     llm_mode: LlmMode
     demo_mode: bool
+    # Reset links go to the server log (no email server). Development only.
+    dev_mailer: bool
     generated_at: datetime
 
 

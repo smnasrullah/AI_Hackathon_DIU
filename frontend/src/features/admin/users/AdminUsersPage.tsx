@@ -1,4 +1,4 @@
-import { Pencil, UserCheck, UserPlus, UserX } from "lucide-react";
+import { BadgeCheck, Pencil, UserCheck, UserPlus, UserX } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
@@ -20,19 +20,20 @@ import { ROLES } from "./userForm";
 
 const PAGE_SIZE = 25;
 type RoleFilter = UserRole | "all";
-type StatusFilter = "active" | "disabled" | "all";
+type StatusFilter = "active" | "pending" | "disabled" | "all";
 
 function pick<T extends string>(raw: string | null, allowed: readonly T[], fallback: T): T {
   return allowed.find((a) => a === raw) ?? fallback;
 }
 
-/** /admin/users: list with role / status / search in the URL; create, edit, disable / enable. */
+/** /admin/users: list with role / status / search in the URL; create, edit, approve sign-ups,
+ * disable / enable. */
 export function AdminUsersPage() {
   const { t } = useTranslation();
   const me = useAuthStore((s) => s.user?.id);
   const [params, setParams] = useSearchParams();
   const role = pick<RoleFilter>(params.get("role"), ["all", ...ROLES], "all");
-  const status = pick<StatusFilter>(params.get("status"), ["all", "active", "disabled"], "all");
+  const status = pick<StatusFilter>(params.get("status"), ["all", "active", "pending", "disabled"], "all");
   const search = params.get("q") ?? "";
   const page = Math.max(1, Number(params.get("page")) || 1);
   const q = useAdminUsers({
@@ -107,8 +108,15 @@ export function AdminUsersPage() {
     {
       key: "status",
       header: t("admin.users.col.status"),
-      cell: (u) => <Badge tone={u.is_active ? "good" : "bad"}>{t(u.is_active ? "admin.users.status.active" : "admin.users.status.disabled")}</Badge>,
-      sortValue: (u) => (u.is_active ? 1 : 0),
+      cell: (u) =>
+        u.is_pending ? (
+          <Badge tone="warn" testId="pending-badge">
+            {t("admin.users.status.pending")}
+          </Badge>
+        ) : (
+          <Badge tone={u.is_active ? "good" : "bad"}>{t(u.is_active ? "admin.users.status.active" : "admin.users.status.disabled")}</Badge>
+        ),
+      sortValue: (u) => (u.is_active ? 2 : u.is_pending ? 1 : 0),
     },
     {
       key: "lastLogin",
@@ -130,7 +138,17 @@ export function AdminUsersPage() {
           >
             <Pencil aria-hidden className="size-4" />
           </button>
-          {u.id === me ? null : (
+          {u.is_pending ? (
+            <button
+              type="button"
+              onClick={() => setEditing(u)}
+              aria-label={`${t("admin.users.approve")}: ${u.email}`}
+              data-testid="approve-user"
+              className="ap-press grid size-10 place-items-center rounded-full text-pulse-fg hover:bg-surface-2"
+            >
+              <BadgeCheck aria-hidden className="size-4" />
+            </button>
+          ) : u.id === me ? null : (
             <button
               type="button"
               onClick={() => setToggling(u)}
@@ -173,6 +191,7 @@ export function AdminUsersPage() {
           options={[
             { value: "all", label: t("admin.common.all") },
             { value: "active", label: t("admin.users.status.active") },
+            { value: "pending", label: t("admin.users.status.pending") },
             { value: "disabled", label: t("admin.users.status.disabled") },
           ]}
         />

@@ -22,6 +22,7 @@ const base: SystemStatus = {
   model_version: null,
   llm_mode: "template",
   demo_mode: true,
+  dev_mailer: true,
   generated_at: "2026-10-01T00:00:00Z",
 };
 

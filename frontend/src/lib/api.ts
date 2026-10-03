@@ -11,7 +11,15 @@ export const api = axios.create({ baseURL: BASE_URL, timeout: TIMEOUT_MS });
 /** No interceptors: used for refresh/logout so a 401 there cannot loop. */
 export const authClient = axios.create({ baseURL: BASE_URL, timeout: TIMEOUT_MS });
 
-const NO_REFRESH_PATHS = ["/auth/login", "/auth/demo-login", "/auth/refresh", "/auth/logout"];
+const NO_REFRESH_PATHS = [
+  "/auth/login",
+  "/auth/demo-login",
+  "/auth/refresh",
+  "/auth/logout",
+  "/auth/signup",
+  "/auth/forgot-password",
+  "/auth/reset-password",
+];
 
 interface RetriableConfig extends InternalAxiosRequestConfig {
   _retried?: boolean;

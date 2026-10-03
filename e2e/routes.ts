@@ -13,6 +13,9 @@ export const ROUTES: E2ERoute[] = [
   // Public
   { path: "/", as: "public" },
   { path: "/login", as: "public" },
+  { path: "/signup", as: "public" },
+  { path: "/forgot-password", as: "public" },
+  { path: "/reset-password", as: "public" },
   { path: "/403", as: "public" },
 
   // Shared (any signed-in role)

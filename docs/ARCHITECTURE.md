@@ -7,7 +7,10 @@ Role codes: **A** agent, **D** distributor, **Ad** admin, **P** public. Scoping:
 
 | Route | Role | Page | Main components / features |
 |---|---|---|---|
-| `/login` | P | Sign in + demo-account chips | - |
+| `/login` | P | Email + password sign in; Judge demo chips only when DEMO_MODE | - |
+| `/signup` | P | Self-signup (name, email, password); account waits for admin approval | - |
+| `/forgot-password` | P | Request a single-use reset link (same answer for any email) | - |
+| `/reset-password` | P | New password from `#token=...` link | - |
 | `/agent` | A | Home (story view) | PulseLine, CountdownCard, 2 VesselGauge, Why, primary action (F1-F4, F7) |
 | `/agent/forecast` | A | 72h forecast + what-if | RunwayStrip, event ribbons, what-if slider (F1, F2, F6, F8) |
 | `/agent/swap` | A | Swap offers + recommendation status | SwapFlow card (read-only, D approves) (F4, F5) |
@@ -35,6 +38,9 @@ All prediction responses include `model_version` + `generated_at`. All LLM respo
 |---|---|---|---|---|
 | auth | POST | `/auth/login` | Access JWT in body, refresh in httpOnly cookie (path /api/v1/auth); lockout 5 fails per email+IP / 15 min | P |
 | auth | POST | `/auth/demo-login` | DEMO_MODE only (else 404): `{role}` signs in as that role's seeded demo account, same tokens as login | P |
+| auth | POST | `/auth/signup` | `{full_name,email,password}` (no role) -> pending inactive agent, 202; per-IP limit; taken email 400 `signup_rejected`; audited | P |
+| auth | POST | `/auth/forgot-password` | Always 202; active account gets a hashed single-use 30 min link via the mailer (dev: server log); per-IP + per-account limits; audited | P |
+| auth | POST | `/auth/reset-password` | `{token,new_password}`; unknown/used/expired 400 `invalid_reset_token`; revokes all sessions; audited | P |
 | auth | POST | `/auth/refresh` | Rotate refresh cookie; reuse of a rotated token revokes its family | P (refresh cookie) |
 | auth | POST | `/auth/logout` | Revoke refresh token + clear cookie | P (refresh cookie) |
 | auth | POST | `/auth/change-password` | Verify old, min 8 chars, revoke other sessions | A, D, Ad |

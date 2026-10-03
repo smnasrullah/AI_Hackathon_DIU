@@ -3,7 +3,14 @@ from app.models.base import Base
 from app.models.jobs import AdminJob
 from app.models.llm import CopilotMessage, KnowledgeDoc, LlmCache, LlmCallLog
 from app.models.notifications import Notification
-from app.models.org import Agent, Distributor, LoginFailure, RefreshToken, User
+from app.models.org import (
+    Agent,
+    Distributor,
+    LoginFailure,
+    PasswordResetToken,
+    RefreshToken,
+    User,
+)
 from app.models.predictions import (
     Anomaly,
     Forecast,
@@ -35,6 +42,7 @@ __all__ = [
     "LoginFailure",
     "ModelVersion",
     "Notification",
+    "PasswordResetToken",
     "Recommendation",
     "RecommendationRequest",
     "RefreshToken",

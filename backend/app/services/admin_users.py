@@ -1,6 +1,7 @@
 """Admin user management: list, create, change role / link, disable / enable.
 
-Every change writes audit_log (user.create / user.update / user.disable / user.enable).
+Every change writes audit_log (user.create / user.update / user.disable / user.enable /
+user.approve). Approving a pending self-signup is `is_active: true` on that user.
 Disabling revokes the user's refresh tokens; the 15-minute access token then fails at the next
 request because get_current_user checks is_active.
 """
@@ -56,7 +57,8 @@ def _item(session: Session, u: User, codes: Codes | None = None) -> AdminUser:
     return AdminUser(id=u.id, email=u.email, full_name=u.full_name, role=u.role,
                      agent_id=u.agent_id, agent_code=agent_code, distributor_id=u.distributor_id,
                      distributor_code=dist_code, is_active=u.is_active, is_demo=u.is_demo,
-                     last_login_at=_utc(u.last_login_at), created_at=created)
+                     is_pending=u.is_pending, last_login_at=_utc(u.last_login_at),
+                     created_at=created)
 
 
 def user_page(session: Session, role: UserRole | None, status: UserStatus | None, q: str | None,
@@ -64,8 +66,12 @@ def user_page(session: Session, role: UserRole | None, status: UserStatus | None
     query = select(User)
     if role is not None:
         query = query.where(User.role == role)
-    if status is not None:
-        query = query.where(User.is_active.is_(status == "active"))
+    if status == "active":
+        query = query.where(User.is_active.is_(True))
+    elif status == "pending":
+        query = query.where(User.is_pending.is_(True))
+    elif status == "disabled":
+        query = query.where(User.is_active.is_(False), User.is_pending.is_(False))
     if q:
         query = query.where(or_(User.email.icontains(q, autoescape=True),
                                 User.full_name.icontains(q, autoescape=True)))
@@ -113,7 +119,8 @@ def _links(session: Session, role: UserRole, agent_id: int | None,
 
 def _snapshot(u: User) -> dict[str, Any]:
     return {"email": u.email, "full_name": u.full_name, "role": u.role.value,
-            "agent_id": u.agent_id, "distributor_id": u.distributor_id, "is_active": u.is_active}
+            "agent_id": u.agent_id, "distributor_id": u.distributor_id, "is_active": u.is_active,
+            "is_pending": u.is_pending}
 
 
 def _audit(session: Session, actor: User, action: str, target: User, note: str | None,
@@ -141,6 +148,14 @@ def _revoke_sessions(session: Session, user_id: uuid.UUID) -> None:
         .values(revoked_at=datetime.now(UTC)))
 
 
+def _change_action(before: dict[str, Any], after: dict[str, Any]) -> str:
+    if before["is_pending"] and not after["is_pending"]:
+        return "approve"
+    if before["is_active"] != after["is_active"]:
+        return "enable" if after["is_active"] else "disable"
+    return "update"
+
+
 def update_user(session: Session, actor: User, user_id: uuid.UUID,
                 body: AdminUserUpdate) -> AdminUser:
     u = session.get(User, user_id)
@@ -164,12 +179,15 @@ def update_user(session: Session, actor: User, user_id: uuid.UUID,
         u.agent_id, u.distributor_id = _links(session, role, agent_id, dist_id)
     if body.is_active is not None and body.is_active != u.is_active:
         u.is_active = body.is_active
-        if not u.is_active:
+        if u.is_active:
+            u.is_pending = False  # activation is the approval of a pending signup
+        else:
             _revoke_sessions(session, u.id)
+    if u.role == UserRole.agent and u.agent_id is None and not u.is_pending:
+        raise UserAdminError("agent_required")  # approve with the agent this account runs
     session.flush()
     after = _snapshot(u)
     if after != before:
-        action = ("disable" if not u.is_active else "enable") \
-            if before["is_active"] != after["is_active"] else "update"
+        action = _change_action(before, after)
         _audit(session, actor, action, u, body.note, {"before": before, "after": after})
     return _item(session, u)

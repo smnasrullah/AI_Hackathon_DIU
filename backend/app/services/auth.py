@@ -28,7 +28,8 @@ FAMILY_WALK_LIMIT = 10_000
 
 class AuthError(Exception):
     """`code`: invalid_credentials, too_many_attempts, invalid_refresh_token,
-    wrong_password, same_password, demo_mode_off or demo_account_missing."""
+    wrong_password, same_password, demo_mode_off, demo_account_missing, signup_rejected or
+    invalid_reset_token."""
 
     def __init__(self, code: str) -> None:
         super().__init__(code)

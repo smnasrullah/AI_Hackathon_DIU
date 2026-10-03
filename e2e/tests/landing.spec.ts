@@ -18,8 +18,8 @@ for (const vp of VIEWPORTS) {
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       await expect(page.getByTestId("hero-runway")).toBeVisible();
       await expect(page.locator("#how")).toBeAttached();
-      await expect(page.getByTestId("demo-login-agent")).toBeVisible();
-      await expect(page.getByTestId("demo-login-distributor")).toBeVisible();
+      await expect(page.getByTestId("role-card-agent")).toHaveAttribute("href", "/login");
+      await expect(page.getByTestId("role-card-distributor")).toHaveAttribute("href", "/login");
       await expect(page.locator("footer")).toContainText(/Synthetic data only|শুধু কৃত্রিম ডেটা/);
       expect(await hasHorizontalScroll(page)).toBe(false);
       expect(problems, problems.join("\n")).toEqual([]);
@@ -31,6 +31,7 @@ for (const vp of VIEWPORTS) {
       await expect(page.locator("#email")).toBeVisible();
       await expect(page.locator("#password")).toBeVisible();
       await expect(page.getByTestId("login-submit")).toBeEnabled();
+      await expect(page.getByTestId("judge-demo")).toBeVisible();
       await expect(page.getByTestId("demo-chip-agent")).toBeVisible();
       expect(await hasHorizontalScroll(page)).toBe(false);
       expect(problems, problems.join("\n")).toEqual([]);
@@ -56,9 +57,14 @@ test("empty login shows inline errors and does not navigate", async ({ page }) =
   expect(pathOf(page)).toBe("/login");
 });
 
-test("demo login from a landing role card lands on the agent home", async ({ page }) => {
+test("opening the app signs no one in; a role card leads to the sign-in page", async ({ page }) => {
   await page.goto("/");
-  await page.getByTestId("demo-login-agent").click();
+  await expect(page.getByTestId("landing")).toBeVisible();
+  await expect(page.getByTestId("avatar-menu")).toHaveCount(0);
+  await page.getByTestId("role-card-agent").click();
+  await expect(page).toHaveURL((url) => url.pathname === "/login");
+  await expect(page.getByTestId("avatar-menu")).toHaveCount(0);
+  await page.getByTestId("demo-chip-agent").click();
   await expect(page).toHaveURL((url) => url.pathname === "/agent");
   await dismissTour(page);
   await expect(page.getByTestId("avatar-menu")).toBeVisible();
@@ -72,8 +78,8 @@ test("demo chip on the login page signs in as distributor", async ({ page }) => 
 });
 
 test("signed-in visitors skip the landing", async ({ page }) => {
-  await page.goto("/");
-  await page.getByTestId("demo-login-admin").click();
+  await page.goto("/login");
+  await page.getByTestId("demo-chip-admin").click();
   await expect(page).toHaveURL((url) => url.pathname === "/admin");
   await dismissTour(page);
   await page.goto("/");

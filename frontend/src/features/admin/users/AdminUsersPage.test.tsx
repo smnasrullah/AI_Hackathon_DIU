@@ -87,6 +87,24 @@ describe("admin users", () => {
     await waitFor(() => expect(toasts()).toContain("User disabled"));
   });
 
+  it("approves a pending sign-up by linking it to an agent", async () => {
+    const pending = adminUser({ email: "new.person@example.org", agent_id: null, agent_code: null, distributor_id: null, distributor_code: null, is_active: false, is_pending: true });
+    api.on("get", "/admin/users", () => ({ items: [pending], total: 1, page: 1, page_size: 25 }));
+    api.on("patch", `/admin/users/${pending.id}`, () => ({ ...pending, agent_id: 1, is_active: true, is_pending: false }));
+    renderAt("/admin/users", "/admin/users", <AdminUsersPage />);
+    expect(await screen.findByTestId("pending-badge")).toHaveTextContent("Pending approval");
+    expect(screen.queryByTestId("toggle-user")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("approve-user"));
+    const form = await screen.findByTestId("user-form");
+    fireEvent.click(within(form).getByRole("button", { name: "Approve and activate" }));
+    expect(await within(form).findByText("Choose the agent this user works for.")).toBeInTheDocument();
+    await waitFor(() => expect(within(form).getByRole("option", { name: "AGT-0001 · Mirpur Store" })).toBeInTheDocument());
+    fireEvent.change(within(form).getByLabelText("Agent"), { target: { value: "1" } });
+    fireEvent.click(within(form).getByRole("button", { name: "Approve and activate" }));
+    await waitFor(() => expect(api.patch).toHaveBeenCalledWith(`/admin/users/${pending.id}`, { role: "agent", agent_id: 1, is_active: true }));
+    await waitFor(() => expect(toasts()).toContain("Sign-up approved"));
+  });
+
   it("keeps the role filter in the URL", async () => {
     renderAt("/admin/users", "/admin/users", <AdminUsersPage />);
     await screen.findByText("agent.mirpur@agentpulse.demo");

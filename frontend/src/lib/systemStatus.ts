@@ -22,8 +22,10 @@ export interface SystemStatus {
   artifacts_ok: boolean;
   model_version: string | null;
   llm_mode: "anthropic" | "openai_compatible" | "replay" | "template";
-  /** One-click demo logins (landing role cards, login chips). */
+  /** One-click demo logins (Judge demo section on the sign-in page). */
   demo_mode: boolean;
+  /** Reset links are written to the backend log instead of e-mailed (development only). */
+  dev_mailer: boolean;
   generated_at: string;
 }
 

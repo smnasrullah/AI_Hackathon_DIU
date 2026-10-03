@@ -8,13 +8,12 @@ from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 from app.core.params import DbId
 from app.models.enums import UserRole
-from app.schemas.auth import PASSWORD_MIN
+from app.schemas.auth import PASSWORD_MIN, Email
 from app.schemas.jobs import JobOut
 
-Email = Annotated[str, StringConstraints(strip_whitespace=True, to_lower=True, min_length=3,
-                                         max_length=254, pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")]
 FullName = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=120)]
-UserStatus = Literal["active", "disabled"]
+# pending: self-signup awaiting approval; disabled: switched off by an admin.
+UserStatus = Literal["active", "pending", "disabled"]
 
 
 class AdminUser(BaseModel):
@@ -30,6 +29,7 @@ class AdminUser(BaseModel):
     distributor_code: str | None
     is_active: bool
     is_demo: bool
+    is_pending: bool
     last_login_at: datetime | None
     created_at: datetime
 
@@ -55,7 +55,8 @@ class AdminUserCreate(BaseModel):
 
 
 class AdminUserUpdate(BaseModel):
-    """Only sent fields change. Changing role re-checks the agent / distributor link."""
+    """Only sent fields change. Changing role re-checks the agent / distributor link.
+    `is_active: true` on a pending signup approves it (an agent needs `agent_id` by then)."""
 
     model_config = ConfigDict(extra="forbid")
 

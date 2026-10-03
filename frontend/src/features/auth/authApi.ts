@@ -12,6 +12,20 @@ export async function demoLogin(role: Role): Promise<TokenResponse> {
   return res.data;
 }
 
+/** Self-signup: the body never carries a role; the account waits for admin approval. */
+export async function signup(fullName: string, email: string, password: string): Promise<void> {
+  await api.post("/auth/signup", { full_name: fullName, email, password });
+}
+
+/** Same answer whether or not the account exists. */
+export async function forgotPassword(email: string): Promise<void> {
+  await api.post("/auth/forgot-password", { email });
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
+  await api.post("/auth/reset-password", { token, new_password: newPassword });
+}
+
 export async function fetchMe(): Promise<AuthUser> {
   const res = await api.get<AuthUser>("/auth/me");
   return res.data;

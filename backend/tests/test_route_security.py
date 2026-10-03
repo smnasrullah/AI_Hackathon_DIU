@@ -21,6 +21,9 @@ PUBLIC = {
     ("POST", "/api/v1/auth/refresh"),
     ("POST", "/api/v1/auth/logout"),
     ("POST", "/api/v1/auth/demo-login"),
+    ("POST", "/api/v1/auth/signup"),
+    ("POST", "/api/v1/auth/forgot-password"),
+    ("POST", "/api/v1/auth/reset-password"),
 }
 ACCOUNTS = {UserRole.agent: AGENT_MIRPUR, UserRole.distributor: DIST_DHAKA, UserRole.admin: ADMIN}
 OTHER_AGENT = "AGT-0002"  # Patiya, DST-CTG: outside both the Mirpur agent and the Dhaka distributor

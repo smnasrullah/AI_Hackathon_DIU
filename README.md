@@ -72,13 +72,49 @@ wording differs. Full call log, provider status and today's usage: `/admin/llm` 
 
 ## Demo mode and public hosting
 
-`.env.example` ships with `DEMO_MODE=true` so local and judge runs get one-click role sign-in
+Opening the app never signs anyone in: `/login` is a normal email + password form (show/hide
+password, generic "Email or password is incorrect", lockout after 5 failures per email + IP).
+
+`.env.example` ships with `DEMO_MODE=true` so local and judge runs also get a **Judge demo**
+section on `/login` with one-click agent / distributor / admin accounts
 (`POST /api/v1/auth/demo-login`: seeded `is_demo` accounts only, rate-limited per IP, every attempt
-(success, denied, rate-limited) in `audit_log`). The backend logs a startup warning while it is on.
+(success, denied, rate-limited) in `audit_log`). The section is shown only while the public
+`GET /api/v1/system/status` reports `demo_mode: true`, and the backend logs a startup warning while
+it is on.
 
 **For any public hosting set `DEMO_MODE=false` in `.env`.** The demo-login endpoint is then not
-registered at all and every sign-in needs a password. Also set your own `JWT_SECRET` and demo
-passwords.
+registered at all, the Judge demo section disappears and every sign-in needs a password. Also set
+your own `JWT_SECRET` and demo passwords.
+
+### Sign-up and approval
+
+`/signup` (name, email, password >= 8 characters, confirm) creates an account that is **pending**:
+always the least-privileged role (agent), inactive, not linked to any agent counter. The client
+cannot choose the role (unknown fields are rejected). Sign-up is rate-limited per IP
+(`SIGNUP_PER_HOUR`, default 5) and audited (`auth.signup`); a taken email gets a generic refusal.
+A pending account cannot sign in until an admin opens **Admin > Users**, filters by *Pending
+approval*, picks the agent (or another role and link) and presses **Approve and activate**
+(`PATCH /api/v1/admin/users/{id}` with `is_active: true`, audited as `user.approve`).
+
+### Forgot / reset password (development mailer)
+
+`/forgot-password` always answers the same, whether or not the email has an account. For an active
+account it issues a single-use reset link valid for 30 minutes (`RESET_TOKEN_TTL_MIN`); only a
+SHA-256 hash of the token is stored, a newer link cancels older ones, and requests are
+rate-limited per IP (`RESET_REQUEST_PER_HOUR`) and per account (`RESET_PER_ACCOUNT_PER_HOUR`).
+Resetting signs the user out everywhere (all refresh tokens revoked). Requests and resets are
+audited (`auth.password_reset_request`, `auth.password_reset`); passwords are never logged.
+
+There is no email server. `MAILER=dev_log` (the only mailer today) is **for development only**: it
+writes the reset link to the backend log, marked `[DEV ONLY MAILER - no email sent]`:
+
+```
+docker compose logs backend | findstr "DEV ONLY MAILER"     (Linux/Mac: grep "DEV ONLY MAILER")
+```
+
+The link points at `PUBLIC_BASE_URL` (default `http://localhost:5173`) and carries the token in the
+URL fragment (`/reset-password#token=...`), so it never reaches a server access log. To send real
+email, add an SMTP class next to `DevLogMailer` in `backend/app/services/mailer.py`.
 
 ## More for judges / reviewers
 

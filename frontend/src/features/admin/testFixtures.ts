@@ -14,6 +14,7 @@ export function adminUser(over: Partial<AdminUser> = {}): AdminUser {
     distributor_code: "DST-DHK",
     is_active: true,
     is_demo: false,
+    is_pending: false,
     last_login_at: null,
     created_at: NOW,
     ...over,

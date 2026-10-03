@@ -48,6 +48,17 @@ class Settings(BaseSettings):
     demo_mode: bool = True
     demo_login_per_min: int = 10  # per client IP
 
+    # Self-signup (POST /auth/signup): pending agent accounts an admin approves. Per client IP.
+    signup_per_hour: int = 5
+    # Password reset: requests per client IP and per account per hour; link lifetime.
+    reset_request_per_hour: int = 5
+    reset_per_account_per_hour: int = 3
+    reset_token_ttl_min: int = 30
+    # "dev_log" writes reset links to the server log (development only; no email is sent).
+    mailer: Literal["dev_log"] = "dev_log"
+    # Origin the browser uses for the app; reset links point here.
+    public_base_url: str = "http://localhost:5173"
+
     # Browser origins allowed to call the API cross-site. Empty (default): same-origin only,
     # which is how nginx serves the app; no CORS headers are sent at all.
     cors_origins: list[str] = []

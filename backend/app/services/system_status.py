@@ -74,5 +74,6 @@ def build_status(settings: Settings, engine: Engine) -> SystemStatus:
         model_version=model_version,
         llm_mode=resolve_mode(settings),
         demo_mode=settings.demo_mode,
+        dev_mailer=settings.mailer == "dev_log",
         generated_at=datetime.now(UTC),
     )

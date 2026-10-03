@@ -50,3 +50,45 @@ test("wrong-role route shows 403", async ({ page }) => {
     await expect(page.getByRole("heading", { name: /This page is not for your role|এই পেজ আপনার ভূমিকার জন্য নয়/ })).toBeVisible();
   }
 });
+
+test("opening the app does not sign anyone in", async ({ page }) => {
+  for (const path of ["/", "/login", "/agent"]) {
+    await page.goto(path);
+    await expect(page).toHaveURL(path === "/agent" ? /\/login$/ : new RegExp(`${path}$`));
+    await expect(page.getByTestId("avatar-menu")).toHaveCount(0);
+  }
+});
+
+test("sign-up creates a pending account that cannot sign in yet", async ({ page }) => {
+  const email = `e2e.signup.${Date.now()}@example.org`;
+  const password = "e2e-signup-pass-1";
+  await page.goto("/signup");
+  await page.locator("#fullName").fill("E2E Signup");
+  await page.locator("#email").fill(email);
+  await page.locator("#password").fill(password);
+  await page.locator("#confirm").fill(password);
+  const answer = page.waitForResponse((res) => res.url().endsWith("/auth/signup"));
+  await page.getByTestId("signup-submit").click();
+  // The per-IP sign-up limit is in backend memory; reruns within the hour can hit it.
+  test.skip((await answer).status() === 429, "sign-up rate limit reached for this IP (restart the backend)");
+  await expect(page.getByTestId("signup-pending")).toBeVisible();
+
+  await fillLogin(page, email, password);
+  await expect(page.getByRole("alert")).toContainText(/Email or password is incorrect\.|ইমেইল বা পাসওয়ার্ড ভুল।/);
+  await expect(page).toHaveURL(/\/login$/);
+});
+
+test("forgot password answers the same for unknown e-mail; reset needs a token", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByRole("link", { name: /Forgot password\?|পাসওয়ার্ড ভুলে গেছেন\?/ }).click();
+  await expect(page).toHaveURL(/\/forgot-password$/);
+  await page.locator("#email").fill("nobody.e2e@example.org");
+  const answer = page.waitForResponse((res) => res.url().endsWith("/auth/forgot-password"));
+  await page.getByTestId("forgot-submit").click();
+  test.skip((await answer).status() === 429, "reset request limit reached for this IP (restart the backend)");
+  await expect(page.getByTestId("forgot-sent")).toBeVisible();
+
+  await page.goto("/reset-password");
+  await expect(page.getByTestId("reset-submit")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: /Request a new link|নতুন লিংক চান/ })).toBeVisible();
+});

@@ -186,6 +186,10 @@
       "title": "Is Demo",
       "type": "boolean"
      },
+     "is_pending": {
+      "title": "Is Pending",
+      "type": "boolean"
+     },
      "last_login_at": {
       "anyOf": [
        {
@@ -213,6 +217,7 @@
      "distributor_code",
      "is_active",
      "is_demo",
+     "is_pending",
      "last_login_at",
      "created_at"
     ],
@@ -314,7 +319,7 @@
    },
    "AdminUserUpdate": {
     "additionalProperties": false,
-    "description": "Only sent fields change. Changing role re-checks the agent / distributor link.",
+    "description": "Only sent fields change. Changing role re-checks the agent / distributor link.\n`is_active: true` on a pending signup approves it (an agent needs `agent_id` by then).",
     "properties": {
      "agent_id": {
       "anyOf": [
@@ -2740,6 +2745,35 @@
      "high"
     ],
     "title": "ForecastPoint",
+    "type": "object"
+   },
+   "ForgotPasswordRequest": {
+    "additionalProperties": false,
+    "properties": {
+     "email": {
+      "maxLength": 254,
+      "minLength": 3,
+      "title": "Email",
+      "type": "string"
+     }
+    },
+    "required": [
+     "email"
+    ],
+    "title": "ForgotPasswordRequest",
+    "type": "object"
+   },
+   "ForgotPasswordResponse": {
+    "description": "Same body whether or not the account exists.",
+    "properties": {
+     "status": {
+      "const": "reset_requested",
+      "default": "reset_requested",
+      "title": "Status",
+      "type": "string"
+     }
+    },
+    "title": "ForgotPasswordResponse",
     "type": "object"
    },
    "Freshness": {
@@ -5301,6 +5335,41 @@
     "title": "RequestStatus",
     "type": "string"
    },
+   "ResetPasswordRequest": {
+    "additionalProperties": false,
+    "properties": {
+     "new_password": {
+      "maxLength": 128,
+      "minLength": 8,
+      "title": "New Password",
+      "type": "string"
+     },
+     "token": {
+      "maxLength": 128,
+      "minLength": 16,
+      "title": "Token",
+      "type": "string"
+     }
+    },
+    "required": [
+     "token",
+     "new_password"
+    ],
+    "title": "ResetPasswordRequest",
+    "type": "object"
+   },
+   "ResetPasswordResponse": {
+    "properties": {
+     "status": {
+      "const": "password_reset",
+      "default": "password_reset",
+      "title": "Status",
+      "type": "string"
+     }
+    },
+    "title": "ResetPasswordResponse",
+    "type": "object"
+   },
    "RiskLevelCode": {
     "enum": [
      "green",
@@ -5488,6 +5557,50 @@
      "items"
     ],
     "title": "SearchResponse",
+    "type": "object"
+   },
+   "SignupRequest": {
+    "additionalProperties": false,
+    "description": "No role field: self-signup always creates a pending agent. Extra fields are rejected.",
+    "properties": {
+     "email": {
+      "maxLength": 254,
+      "minLength": 3,
+      "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
+      "title": "Email",
+      "type": "string"
+     },
+     "full_name": {
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Full Name",
+      "type": "string"
+     },
+     "password": {
+      "maxLength": 128,
+      "minLength": 8,
+      "title": "Password",
+      "type": "string"
+     }
+    },
+    "required": [
+     "full_name",
+     "email",
+     "password"
+    ],
+    "title": "SignupRequest",
+    "type": "object"
+   },
+   "SignupResponse": {
+    "properties": {
+     "status": {
+      "const": "pending_approval",
+      "default": "pending_approval",
+      "title": "Status",
+      "type": "string"
+     }
+    },
+    "title": "SignupResponse",
     "type": "object"
    },
    "StockoutFairness": {
@@ -5869,6 +5982,10 @@
       "title": "Demo Mode",
       "type": "boolean"
      },
+     "dev_mailer": {
+      "title": "Dev Mailer",
+      "type": "boolean"
+     },
      "generated_at": {
       "format": "date-time",
       "title": "Generated At",
@@ -5945,6 +6062,7 @@
      "model_version",
      "llm_mode",
      "demo_mode",
+     "dev_mailer",
      "generated_at"
     ],
     "title": "SystemStatus",
@@ -7085,6 +7203,7 @@
         {
          "enum": [
           "active",
+          "pending",
           "disabled"
          ],
          "type": "string"
@@ -8411,6 +8530,48 @@
     ]
    }
   },
+  "/api/v1/auth/forgot-password": {
+   "post": {
+    "description": "Same 202 whether or not the e-mail has an account. A single-use link (30 min) goes out\nthrough the mailer; the development mailer writes it to the server log. Audited.",
+    "operationId": "forgot_password_api_v1_auth_forgot_password_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ForgotPasswordRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "202": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ForgotPasswordResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Forgot Password",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
   "/api/v1/auth/login": {
    "post": {
     "operationId": "login_api_v1_auth_login_post",
@@ -8567,6 +8728,90 @@
      }
     },
     "summary": "Refresh",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/api/v1/auth/reset-password": {
+   "post": {
+    "description": "Spend a reset token: new password, every session of the user signed out. Unknown, used\nand expired tokens all get 400 `invalid_reset_token`. Audited.",
+    "operationId": "reset_password_api_v1_auth_reset_password_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ResetPasswordRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ResetPasswordResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Reset Password",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/api/v1/auth/signup": {
+   "post": {
+    "description": "Self-signup. Always a pending agent account with no agent link (the role is not taken\nfrom the client); it cannot sign in until an admin approves it. Rate-limited per IP,\naudited (auth.signup). A taken e-mail gets the generic 400 `signup_rejected`.",
+    "operationId": "create_signup_api_v1_auth_signup_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SignupRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "202": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SignupResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Create Signup",
     "tags": [
      "auth"
     ]

@@ -1,10 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CircleAlert, Eye, EyeOff, Info, KeyRound, LogIn } from "lucide-react";
+import { CircleAlert, Eye, EyeOff, FlaskConical, Info, KeyRound, LogIn } from "lucide-react";
 import { useAnimate } from "motion/react";
 import { useEffect, useState, type FormEvent, type KeyboardEvent } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 import { LiquidButton } from "../../components/ui/LiquidButton";
@@ -126,34 +126,6 @@ export function LoginForm() {
         </p>
       ) : null}
 
-      {demoMode ? (
-        <div className="mt-6">
-          <p className="text-small font-semibold">{t("login.demoTitle")}</p>
-          <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label={t("login.demoTitle")}>
-            {ALL_ROLES.map((role) => (
-              <LiquidButton
-                key={role}
-                variant="secondary"
-                size="sm"
-                loading={demo.pending === role}
-                disabled={demo.pending !== null && demo.pending !== role}
-                onClick={() => void demo.signIn(role)}
-                data-testid={`demo-chip-${role}`}
-                className="min-h-11 rounded-full px-4"
-              >
-                {t(`role.${role}`)}
-              </LiquidButton>
-            ))}
-          </div>
-          <p className="mt-2 text-xs text-muted">{t("login.demoHint")}</p>
-          {demo.failed ? (
-            <p role="alert" className="mt-2 text-small text-act-fg">
-              {t("login.err.demo")}
-            </p>
-          ) : null}
-        </div>
-      ) : null}
-
       <form className="mt-6 space-y-4" onSubmit={onSubmit} noValidate>
         <FloatingField
           id="email"
@@ -217,7 +189,48 @@ export function LoginForm() {
           {isSubmitting ? t("login.submitting") : t("login.submit")}
         </LiquidButton>
       </form>
-      <p className="mt-4 text-xs text-muted">{t("login.passwordHint")}</p>
+      <p className="mt-4 flex flex-wrap items-center justify-between gap-2 text-small">
+        <Link to="/forgot-password" className="inline-flex min-h-11 items-center font-semibold text-pulse-fg underline-offset-4 hover:underline">
+          {t("login.forgot")}
+        </Link>
+        <span className="text-muted">
+          {t("login.noAccount")}{" "}
+          <Link to="/signup" className="font-semibold text-pulse-fg underline-offset-4 hover:underline">
+            {t("login.signupLink")}
+          </Link>
+        </span>
+      </p>
+      {demoMode ? (
+        <section aria-labelledby="judge-demo-title" className="mt-6 border-t border-line pt-5" data-testid="judge-demo">
+          <h2 id="judge-demo-title" className="flex items-center gap-2 text-small font-semibold">
+            <FlaskConical aria-hidden className="size-4 text-pulse-fg" />
+            {t("login.demoTitle")}
+          </h2>
+          <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label={t("login.demoTitle")}>
+            {ALL_ROLES.map((role) => (
+              <LiquidButton
+                key={role}
+                variant="secondary"
+                size="sm"
+                loading={demo.pending === role}
+                disabled={demo.pending !== null && demo.pending !== role}
+                onClick={() => void demo.signIn(role)}
+                data-testid={`demo-chip-${role}`}
+                className="min-h-11 rounded-full px-4"
+              >
+                {t(`role.${role}`)}
+              </LiquidButton>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-muted">{t("login.demoHint")}</p>
+          <p className="mt-1 text-xs text-muted">{t("login.passwordHint")}</p>
+          {demo.failed ? (
+            <p role="alert" className="mt-2 text-small text-act-fg">
+              {t("login.err.demo")}
+            </p>
+          ) : null}
+        </section>
+      ) : null}
     </div>
   );
 }

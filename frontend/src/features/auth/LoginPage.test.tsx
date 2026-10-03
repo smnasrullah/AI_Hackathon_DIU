@@ -24,6 +24,7 @@ const STATUS: SystemStatus = {
   model_version: "1.0.0",
   llm_mode: "template",
   demo_mode: true,
+  dev_mailer: true,
   generated_at: "2026-10-01T00:00:00Z",
 };
 
@@ -154,6 +155,32 @@ describe("LoginPage", () => {
 
   it("hides demo chips when DEMO_MODE is off", () => {
     renderLogin({ demoMode: false });
+    expect(screen.queryByTestId("judge-demo")).not.toBeInTheDocument();
     expect(screen.queryByTestId("demo-chip-agent")).not.toBeInTheDocument();
+  });
+
+  it("never signs anyone in on load, even in DEMO_MODE", async () => {
+    renderLogin();
+    expect(await screen.findByRole("heading", { name: "Judge demo" })).toBeInTheDocument();
+    expect(login).not.toHaveBeenCalled();
+    expect(demoLogin).not.toHaveBeenCalled();
+    expect(useAuthStore.getState().user).toBeNull();
+  });
+
+  it("submits with the Enter key", async () => {
+    vi.mocked(login).mockResolvedValue(tokensFor("agent"));
+    const router = renderLogin();
+    fireEvent.change(screen.getByLabelText("Email"), { target: { value: "agent@agentpulse.demo" } });
+    const password = screen.getByLabelText("Password");
+    fireEvent.change(password, { target: { value: "pw" } });
+    fireEvent.submit(password.closest("form") as HTMLFormElement);
+    await waitFor(() => expect(router.state.location.pathname).toBe("/agent"));
+    expect(login).toHaveBeenCalledWith("agent@agentpulse.demo", "pw");
+  });
+
+  it("links to sign-up and forgot password", () => {
+    renderLogin({ demoMode: false });
+    expect(screen.getByRole("link", { name: "Create an account" })).toHaveAttribute("href", "/signup");
+    expect(screen.getByRole("link", { name: "Forgot password?" })).toHaveAttribute("href", "/forgot-password");
   });
 });

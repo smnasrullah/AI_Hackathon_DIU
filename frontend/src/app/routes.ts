@@ -59,6 +59,27 @@ export const settingsPage: PageDef = {
 export const loginPage: PageDef = {
   path: "/login",
   title: "Sign in",
-  summary: "Sign in with a demo account: agent, distributor or admin.",
+  summary: "Email and password; Judge demo accounts only when the server runs with DEMO_MODE.",
+  features: "—",
+};
+
+export const signupPage: PageDef = {
+  path: "/signup",
+  title: "Create an account",
+  summary: "Self-signup; the account waits for admin approval.",
+  features: "—",
+};
+
+export const forgotPasswordPage: PageDef = {
+  path: "/forgot-password",
+  title: "Forgot password",
+  summary: "Request a single-use reset link.",
+  features: "—",
+};
+
+export const resetPasswordPage: PageDef = {
+  path: "/reset-password",
+  title: "Reset password",
+  summary: "Set a new password from a reset link.",
   features: "—",
 };

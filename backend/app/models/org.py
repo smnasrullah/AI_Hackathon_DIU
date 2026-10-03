@@ -67,7 +67,8 @@ class User(Base):
     __tablename__ = "users"
     __table_args__ = (
         CheckConstraint(
-            "(role = 'agent' AND agent_id IS NOT NULL)"
+            # A pending self-signup is an agent without a link until an admin approves it.
+            "(role = 'agent' AND (agent_id IS NOT NULL OR is_pending))"
             " OR (role = 'distributor' AND distributor_id IS NOT NULL)"
             " OR role = 'admin'",
             name="ck_users_role_scope",
@@ -98,6 +99,8 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
     # Only flagged accounts can be signed into via POST /auth/demo-login (DEMO_MODE only).
     is_demo: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
+    # Self-signup awaiting admin approval (always inactive while true).
+    is_pending: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     last_login_at: Mapped[datetime | None] = mapped_column(TsTz)
     created_at: Mapped[datetime] = created_at_col()
 
@@ -118,6 +121,21 @@ class RefreshToken(Base):
         ForeignKey("refresh_tokens.id", ondelete="SET NULL")
     )
     user_agent: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = created_at_col()
+
+
+class PasswordResetToken(Base):
+    """Single-use reset link; only the SHA-256 of the token is stored."""
+
+    __tablename__ = "password_reset_tokens"
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True
+    )
+    token_hash: Mapped[str] = mapped_column(Text, unique=True)
+    expires_at: Mapped[datetime] = mapped_column(TsTz)
+    used_at: Mapped[datetime | None] = mapped_column(TsTz)
     created_at: Mapped[datetime] = created_at_col()
 
 

@@ -492,14 +492,12 @@
     },
     "roles": {
       "title": "Try it as",
-      "demoNote": "Demo accounts with synthetic data. One click, no password.",
-      "loginNote": "Sign in with a demo account to look around.",
+      "demoNote": "Judges: one-click demo accounts are in the Judge demo section of the sign-in page.",
+      "loginNote": "Sign in with your account to look around.",
       "agentBody": "Your countdown, reasons and swap offers on a phone-sized screen.",
       "distributorBody": "Control room map, swap approvals and anomaly reviews.",
       "adminBody": "System status, models and the LLM call log.",
-      "try": "Try as {{role}}",
-      "signIn": "Sign in as {{role}}",
-      "error": "Demo sign-in failed. Try again, or sign in with a password."
+      "signIn": "Sign in as {{role}}"
     },
     "rai": {
       "title": "Responsible by design",
@@ -524,8 +522,8 @@
     "capsLock": "Caps Lock is on",
     "submit": "Sign in",
     "submitting": "Signing in…",
-    "demoTitle": "Demo accounts",
-    "demoHint": "One click signs you in with synthetic data.",
+    "demoTitle": "Judge demo",
+    "demoHint": "One click signs in to a seeded demo account with synthetic data. Shown only while the server runs with DEMO_MODE=true.",
     "passwordHint": "Demo passwords are in .env (DEMO_*_PASSWORD; defaults in .env.example).",
     "panelTitle": "Know when the cash runs dry — before it does.",
     "panelBody": "Forecasts, reasons and swaps for every agent counter.",
@@ -542,6 +540,79 @@
     "notice": {
       "session_expired": "Your session expired. Sign in again to continue.",
       "idle_logout": "You were signed out after a period of inactivity."
+    },
+    "forgot": "Forgot password?",
+    "noAccount": "New here?",
+    "signupLink": "Create an account"
+  },
+  "signup": {
+    "eyebrow": "New account",
+    "title": "Create an account",
+    "subtitle": "An admin reviews every new account before it can sign in.",
+    "fullName": "Full name",
+    "email": "Email",
+    "password": "Password",
+    "confirm": "Confirm password",
+    "submit": "Create account",
+    "submitting": "Creating account…",
+    "haveAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "strength": {
+      "label": "Password strength: {{level}}",
+      "weak": "weak",
+      "fair": "fair",
+      "good": "good",
+      "strong": "strong",
+      "hint": "At least 8 characters. Longer, with numbers and symbols, is stronger."
+    },
+    "err": {
+      "nameRequired": "Enter your name",
+      "emailRequired": "Enter your email",
+      "emailInvalid": "Enter a valid email",
+      "passwordShort": "Use at least 8 characters",
+      "mismatch": "The passwords do not match",
+      "rejected": "We could not create an account with these details. If you already have one, sign in or reset your password.",
+      "limited": "Too many sign-up attempts from this network. Try again later.",
+      "network": "Can't reach the server right now. Try again."
+    },
+    "pendingTitle": "Waiting for approval",
+    "pendingBody": "Your account was created. An admin must approve it and link it to your agent counter before you can sign in.",
+    "pendingBack": "Back to sign in"
+  },
+  "forgot": {
+    "eyebrow": "Password help",
+    "title": "Reset your password",
+    "subtitle": "Enter your account email. If it matches an active account, we send a single-use reset link valid for 30 minutes.",
+    "email": "Email",
+    "submit": "Send reset link",
+    "submitting": "Sending…",
+    "sentTitle": "Check your email",
+    "sentBody": "If an active account uses that email, a reset link is on its way. The link works once and expires in 30 minutes.",
+    "devNote": "Development build: no email server is configured, so the link is written to the backend log (docker compose logs backend).",
+    "back": "Back to sign in",
+    "err": {
+      "limited": "Too many requests from this network. Try again later.",
+      "network": "Can't reach the server right now. Try again."
+    }
+  },
+  "reset": {
+    "eyebrow": "Password help",
+    "title": "Choose a new password",
+    "subtitle": "This signs you out on every device.",
+    "password": "New password",
+    "confirm": "Confirm new password",
+    "submit": "Set new password",
+    "submitting": "Saving…",
+    "doneTitle": "Password changed",
+    "doneBody": "Sign in with your new password.",
+    "signIn": "Sign in",
+    "missingTitle": "This reset link is incomplete",
+    "missingBody": "Open the full link from the message, or request a new one.",
+    "requestNew": "Request a new link",
+    "err": {
+      "invalid": "This reset link is invalid, already used or expired. Request a new one.",
+      "limited": "Too many attempts from this network. Try again later.",
+      "network": "Can't reach the server right now. Try again."
     }
   },
   "agent": {
@@ -1397,7 +1468,8 @@
       "filterStatus": "Status",
       "status": {
         "active": "Active",
-        "disabled": "Disabled"
+        "disabled": "Disabled",
+        "pending": "Pending approval"
       },
       "col": {
         "user": "User",
@@ -1446,7 +1518,12 @@
       "empty": {
         "title": "No users match",
         "body": "Clear the filters to see everyone."
-      }
+      },
+      "approve": "Approve",
+      "approveTitle": "Approve sign-up",
+      "approveBody": "Check who this is, choose the role and link, then approve. They can sign in afterwards.",
+      "approveSubmit": "Approve and activate",
+      "approved": "Sign-up approved"
     },
     "audit": {
       "title": "Audit log",

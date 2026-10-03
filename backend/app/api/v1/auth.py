@@ -9,17 +9,27 @@ from app.schemas.auth import (
     ChangePasswordRequest,
     ChangePasswordResponse,
     DemoLoginRequest,
+    ForgotPasswordRequest,
+    ForgotPasswordResponse,
     LoginRequest,
+    ResetPasswordRequest,
+    ResetPasswordResponse,
+    SignupRequest,
+    SignupResponse,
     TokenResponse,
     UserOut,
 )
 from app.services import auth as auth_service
+from app.services import mailer, password_reset, signup
 from app.services.auth import AuthError, IssuedTokens
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 # Mounted by create_app only when DEMO_MODE=true: with it off the route does not exist.
 demo_router = APIRouter(prefix="/auth", tags=["auth"])
 demo_limiter = RateLimiter()
+# Hourly windows, per client IP.
+signup_limiter = RateLimiter(window_s=3600)
+reset_limiter = RateLimiter(window_s=3600)
 
 REFRESH_COOKIE = "ap_refresh"
 # Scoped so the browser only sends the refresh token to the auth endpoints.
@@ -110,6 +120,56 @@ def demo_login(
         raise HTTPException(code, detail=exc.code) from exc
     _set_refresh_cookie(response, tokens, settings)
     return _token_response(tokens)
+
+
+def _too_many() -> HTTPException:
+    return HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, detail="too_many_attempts",
+                         headers={"Retry-After": "3600"})
+
+
+@router.post("/signup", response_model=SignupResponse, status_code=status.HTTP_202_ACCEPTED)
+def create_signup(body: SignupRequest, request: Request, session: SessionDep) -> SignupResponse:
+    """Self-signup. Always a pending agent account with no agent link (the role is not taken
+    from the client); it cannot sign in until an admin approves it. Rate-limited per IP,
+    audited (auth.signup). A taken e-mail gets the generic 400 `signup_rejected`."""
+    ip = client_ip(request)
+    if not signup_limiter.allow(ip, get_settings().signup_per_hour):
+        raise _too_many()
+    try:
+        signup.signup(session, body.full_name, body.email, body.password, ip)
+    except AuthError as exc:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=exc.code) from exc
+    return SignupResponse()
+
+
+@router.post("/forgot-password", response_model=ForgotPasswordResponse,
+             status_code=status.HTTP_202_ACCEPTED)
+def forgot_password(body: ForgotPasswordRequest, request: Request,
+                    session: SessionDep) -> ForgotPasswordResponse:
+    """Same 202 whether or not the e-mail has an account. A single-use link (30 min) goes out
+    through the mailer; the development mailer writes it to the server log. Audited."""
+    settings = get_settings()
+    ip = client_ip(request)
+    if not reset_limiter.allow(ip, settings.reset_request_per_hour):
+        raise _too_many()
+    password_reset.request_reset(session, body.email, ip, settings,
+                                 mailer.get_mailer(settings))
+    return ForgotPasswordResponse()
+
+
+@router.post("/reset-password", response_model=ResetPasswordResponse)
+def reset_password(body: ResetPasswordRequest, request: Request,
+                   session: SessionDep) -> ResetPasswordResponse:
+    """Spend a reset token: new password, every session of the user signed out. Unknown, used
+    and expired tokens all get 400 `invalid_reset_token`. Audited."""
+    ip = client_ip(request)
+    if not reset_limiter.allow(("reset", ip), get_settings().reset_request_per_hour * 2):
+        raise _too_many()
+    try:
+        password_reset.reset_password(session, body.token, body.new_password, ip)
+    except AuthError as exc:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=exc.code) from exc
+    return ResetPasswordResponse()
 
 
 @router.post("/refresh", response_model=TokenResponse)
