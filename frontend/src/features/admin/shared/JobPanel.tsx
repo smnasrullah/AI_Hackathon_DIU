@@ -12,7 +12,7 @@ import { TimeText } from "../../../components/ui/TimeText";
 import { toast } from "../../../components/ui/toastStore";
 import { formatPercent } from "../../../lib/format";
 import { useLocale } from "../../../lib/prefs";
-import { errorCode } from "./apiError";
+import { errorCode } from "../../../lib/apiError";
 import { stepParts } from "./jobModel";
 import { Badge, type Tone } from "./ui";
 

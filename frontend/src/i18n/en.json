@@ -723,6 +723,8 @@
       "outgoing": "You give",
       "groupEmpty": "Nothing here right now.",
       "waiting": "Waiting for your distributor to decide",
+      "canChange": "You can change your answer until your distributor decides.",
+      "locked": "Your distributor has decided, so this swap is locked. Answers can no longer change.",
       "decided": {
         "approved": "Approved by your distributor · arrange the hand-over together",
         "rejected": "Rejected by your distributor"

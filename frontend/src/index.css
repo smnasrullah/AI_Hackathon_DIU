@@ -93,7 +93,7 @@ body {
    (unlayered, so it wins over Tailwind's layered tracking utilities). */
 :lang(bn) {
   font-family: var(--font-bangla);
-  line-height: 1.6;
+  line-height: 1.7;
   letter-spacing: normal;
 }
 

@@ -6,7 +6,7 @@ import { useMediaQuery } from "../../lib/useMediaQuery";
 import type { NavItem } from "./nav";
 import { SidebarDrawer } from "./SidebarDrawer";
 import { SideNavList, Tip } from "./SideNavList";
-import { useShellStore } from "./shellStore";
+import { PHONE_QUERY, useShellStore } from "./shellStore";
 
 /** Distributor/admin navigation: collapsible to icons, with tooltips when collapsed; phones open a drawer. */
 export function Sidebar({ items, area }: { items: NavItem[]; area: string }) {
@@ -14,7 +14,7 @@ export function Sidebar({ items, area }: { items: NavItem[]; area: string }) {
   const stored = useShellStore((s) => s.sidebarCollapsed);
   const toggle = useShellStore((s) => s.toggleSidebar);
   // Phones get the icon rail; the menu button opens the full list as an overlay.
-  const narrow = useMediaQuery("(max-width: 767px)");
+  const narrow = useMediaQuery(PHONE_QUERY);
   const collapsed = stored || narrow;
   const ToggleIcon = collapsed ? PanelLeftOpen : PanelLeftClose;
   const toggleLabel = collapsed ? t("shell.expand") : t("shell.collapse");

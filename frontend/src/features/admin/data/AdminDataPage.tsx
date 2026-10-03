@@ -11,7 +11,7 @@ import { ErrorState } from "../../../components/ui/StatePanel";
 import { TimeText } from "../../../components/ui/TimeText";
 import { formatNumber } from "../../../lib/format";
 import { useLocale } from "../../../lib/prefs";
-import { errorCode } from "../shared/apiError";
+import { errorCode } from "../../../lib/apiError";
 import { JobPanel } from "../shared/JobPanel";
 import { AdminHeader, Badge, Facts, Panel } from "../shared/ui";
 import { MarkdownDoc } from "./MarkdownDoc";

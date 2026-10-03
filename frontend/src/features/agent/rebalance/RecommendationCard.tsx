@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useRequestRecommendation } from "../../../api/hooks/agents";
 import type { RecommendationItem, RequestItem, RequestStatus } from "../../../api/types";
 import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
+import { LangText } from "../../../components/ui/LangText";
 import { LiquidButton } from "../../../components/ui/LiquidButton";
 import { RiskPill } from "../../../components/ui/RiskPill";
 import { toast } from "../../../components/ui/toastStore";
@@ -124,7 +125,7 @@ function RequestStatusLine({ request }: { request: RequestItem }) {
         <Icon aria-hidden className="size-4 shrink-0" />
         {t(`rebalance.status.${request.status}`)}
       </p>
-      {request.note ? <p className="mt-1 text-fg">{t("rebalance.note", { note: request.note })}</p> : null}
+      {request.note ? <p className="mt-1 text-fg"><LangText text={t("rebalance.note", { note: request.note })} /></p> : null}
     </div>
   );
 }

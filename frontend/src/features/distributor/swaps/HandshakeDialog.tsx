@@ -17,7 +17,8 @@ import { formatNumber, localizeDigits } from "../../../lib/format";
 import { useReducedMotionPref } from "../../../lib/motionPrefs";
 import { useLocale } from "../../../lib/prefs";
 import { DUR, tween } from "../../../styles/motion";
-import { errorCode, NOTE_MAX, NOTE_MIN } from "../decisionNote";
+import { errorCode } from "../../../lib/apiError";
+import { NOTE_MAX, NOTE_MIN } from "../decisionNote";
 
 const RESPONSE_TONE = { accepted: "font-semibold text-safe-fg", declined: "font-semibold text-act-fg", none: "text-muted" } as const;
 

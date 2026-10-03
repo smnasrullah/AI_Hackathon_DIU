@@ -1,5 +1,7 @@
+import { LangText } from "../../components/ui/LangText";
 import { cn } from "../../lib/cn";
-import { AVATAR_COLORS, initials, isAvatarColor } from "./avatarColors";
+import { getInitials } from "../../lib/initials";
+import { AVATAR_COLORS, isAvatarColor } from "./avatarColors";
 
 /** Initials on the chosen colour token (no photos: no real PII). */
 export function Avatar({
@@ -24,7 +26,7 @@ export function Avatar({
         className,
       )}
     >
-      {initials(name)}
+      <LangText text={getInitials(name)} />
     </span>
   );
 }

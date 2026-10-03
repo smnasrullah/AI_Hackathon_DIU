@@ -198,6 +198,44 @@ def test_agent_cannot_see_or_answer_other_agents_swaps(client: TestClient, marke
     assert _audit(swap_id) == []
 
 
+def test_agent_may_change_answer_until_decided_and_each_change_is_audited(
+        client: TestClient, market: Path) -> None:
+    swap_id = _swap_id(client)
+    url = f"{API}/swaps/{swap_id}/respond"
+    mirpur = bearer(client, AGENT_MIRPUR)
+    for answer, expected in (("accept", "accepted"), ("decline", "declined"),
+                             ("accept", "accepted")):
+        res = client.post(url, json={"response": answer}, headers=mirpur)
+        assert res.status_code == 200 and res.json()["receiver"]["response"] == expected
+    rows = _audit(swap_id)
+    assert [(r.payload["previous"], r.payload["response"]) for r in rows] == [
+        (None, "accepted"), ("accepted", "declined"), ("declined", "accepted")]
+    assert {r.user_id for r in rows} == {_user_id(AGENT_MIRPUR)}
+    assert all(r.created_at is not None and r.payload["side"] == "receiver" for r in rows)
+
+
+@pytest.mark.parametrize("decision", ["approve", "reject"])
+def test_decided_swap_is_locked_for_agents(client: TestClient, market: Path,
+                                           decision: str) -> None:
+    swap_id = _swap_id(client)
+    url = f"{API}/swaps/{swap_id}/respond"
+    mirpur = bearer(client, AGENT_MIRPUR)
+    assert client.post(url, json={"response": "accept"}, headers=mirpur).status_code == 200
+    decided = client.post(f"{API}/swaps/{swap_id}/decision",
+                          json={"decision": decision, "note": "Decided"},
+                          headers=bearer(client, DIST_DHAKA))
+    assert decided.status_code == 200
+    for answer in ("accept", "decline"):
+        res = client.post(url, json={"response": answer}, headers=mirpur)
+        assert res.status_code == 409 and res.json()["detail"] == "already_decided"
+    # Another agent is still refused as forbidden, not told about the lock.
+    other = client.post(url, json={"response": "decline"}, headers=bearer(client, AGENT_PATIYA))
+    assert other.status_code == 403
+    (after,) = _page(client, AGENT_MIRPUR)["items"]
+    assert after["receiver"]["response"] == "accepted"
+    assert [r.action for r in _audit(swap_id)] == ["swap.accept", f"swap.{decision}"]
+
+
 def test_rebuild_keeps_decided_swaps(client: TestClient, market: Path) -> None:
     swap_id = _swap_id(client)
     res = client.post(f"{API}/swaps/{swap_id}/decision", json={"decision": "approve", "note": "go"},

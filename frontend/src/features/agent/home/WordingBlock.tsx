@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import type { GeneratedBy, LlmText } from "../../../api/types";
 import { PulseLine } from "../../../components/signature/PulseLine";
+import { LangText } from "../../../components/ui/LangText";
 import { cn } from "../../../lib/cn";
 import { useReducedMotionPref } from "../../../lib/motionPrefs";
 import { DUR, tween } from "../../../styles/motion";
@@ -34,7 +35,9 @@ export function WordingBlock({ templateText, narration, pending }: WordingBlockP
           animate={{ opacity: 1 }}
           transition={tween(reduced ? DUR.fast : DUR.reveal)}
         >
-          <p className="text-body leading-relaxed">{text}</p>
+          <p className="text-body leading-relaxed">
+            <LangText text={text} />
+          </p>
           <span
             data-testid="wording-chip"
             data-generated-by={by}

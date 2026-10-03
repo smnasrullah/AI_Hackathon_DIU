@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import { streamCopilotChat } from "../../../api/services/copilot";
 import { CopilotSheet } from "../../../components/signature/CopilotSheet";
+import { LangText } from "../../../components/ui/LangText";
 import { LiquidButton } from "../../../components/ui/LiquidButton";
 import { useLocale } from "../../../lib/prefs";
 import { AnswerCard, type Turn } from "./AnswerCard";
@@ -128,7 +129,7 @@ export function CopilotPage() {
               {turns.map((x) => (
                 <li key={x.id} className="space-y-2">
                   <p className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-md bg-brand/15 px-4 py-2 text-body" data-testid="copilot-question">
-                    {x.question}
+                    <LangText text={x.question} />
                   </p>
                   <AnswerCard turn={x} onRetry={() => retry(x)} retryDisabled={busy} />
                 </li>

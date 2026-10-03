@@ -5,10 +5,12 @@ import { useTranslation } from "react-i18next";
 import { useReviewAnomaly } from "../../../api/hooks/anomalies";
 import type { AnomalyDetail } from "../../../api/types";
 import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
+import { LangText } from "../../../components/ui/LangText";
 import { LiquidButton } from "../../../components/ui/LiquidButton";
 import { TimeText } from "../../../components/ui/TimeText";
 import { toast } from "../../../components/ui/toastStore";
-import { errorCode, NOTE_MIN } from "../decisionNote";
+import { errorCode } from "../../../lib/apiError";
+import { NOTE_MIN } from "../decisionNote";
 import { AnomalyStatusBadge } from "./AnomalyStatusBadge";
 
 type Decision = "confirmed" | "dismissed";
@@ -52,7 +54,9 @@ export function ReviewPanel({ anomaly }: { anomaly: AnomalyDetail }) {
             ) : null}
           </span>
         </div>
-        {anomaly.note ? <p className="mt-2 border-l-2 border-line-strong pl-2 text-small">{anomaly.note}</p> : null}
+        {anomaly.note ? <p className="mt-2 border-l-2 border-line-strong pl-2 text-small">
+            <LangText text={anomaly.note} />
+          </p> : null}
       </section>
     );
   }

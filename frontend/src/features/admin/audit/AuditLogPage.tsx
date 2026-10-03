@@ -6,6 +6,7 @@ import { useSearchParams } from "react-router-dom";
 import { useAudit } from "../../../api/hooks/admin";
 import type { AuditItem, AuditQuery } from "../../../api/types";
 import { DataTable, type Column } from "../../../components/ui/DataTable";
+import { LangText } from "../../../components/ui/LangText";
 import { LiquidButton } from "../../../components/ui/LiquidButton";
 import { Pagination } from "../../../components/ui/Pagination";
 import { TimeText } from "../../../components/ui/TimeText";
@@ -150,7 +151,9 @@ export function AuditLogPage() {
         renderExpanded={(a) => (
           <div className="text-xs">
             <p className="font-semibold">{t("admin.audit.payload")}</p>
-            {a.note ? <p className="mt-1 whitespace-pre-wrap">{a.note}</p> : null}
+            {a.note ? <p className="mt-1 whitespace-pre-wrap">
+                <LangText text={a.note} />
+              </p> : null}
             <pre className="mt-2 max-h-64 overflow-auto rounded-xl bg-surface p-3 font-mono" data-testid="audit-payload">
               {prettyPayload(a.payload)}
             </pre>

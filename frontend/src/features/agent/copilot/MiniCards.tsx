@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import { useAgentSummary } from "../../../api/hooks/agents";
 import type { CopilotMeta } from "../../../api/services/copilot";
+import { LangText } from "../../../components/ui/LangText";
 import { RiskPill } from "../../../components/ui/RiskPill";
 import { Skeleton } from "../../../components/ui/Skeleton";
 import { formatClock, formatPercent } from "../../../lib/format";
@@ -87,7 +88,9 @@ function SourcesCard({ sources }: { sources: CopilotMeta["sources"] }) {
       </p>
       <ul className="mt-1.5 list-disc space-y-0.5 pl-6 text-muted">
         {sources.map((s) => (
-          <li key={s.slug}>{s.title}</li>
+          <li key={s.slug}>
+            <LangText text={s.title} />
+          </li>
         ))}
       </ul>
     </div>

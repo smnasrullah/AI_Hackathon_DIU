@@ -3,6 +3,9 @@ import { createJSONStorage, persist } from "zustand/middleware";
 
 import { registerStoreReset, STORAGE_PREFIX } from "../../lib/storeRegistry";
 
+/** Phone widths: the sidebar is an icon rail + overlay drawer, so the desktop width choice does not apply. */
+export const PHONE_QUERY = "(max-width: 767px)";
+
 interface ShellState {
   /** Persisted per browser: the sidebar width choice. */
   sidebarCollapsed: boolean;

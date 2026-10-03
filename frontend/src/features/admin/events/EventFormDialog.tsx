@@ -9,7 +9,7 @@ import { useSaveEvent } from "../../../api/hooks/events";
 import type { EventItem } from "../../../api/types";
 import { LiquidButton } from "../../../components/ui/LiquidButton";
 import { toast } from "../../../components/ui/toastStore";
-import { errorCode } from "../shared/apiError";
+import { errorCode } from "../../../lib/apiError";
 import { FIELD, LABEL } from "../shared/fields";
 import { EVENT_TYPES, eventFromForm, eventSchema, formFromEvent, type EventForm } from "./eventForm";
 

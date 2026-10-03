@@ -102,7 +102,9 @@ describe("agent swap page", () => {
     const mine = await within(card).findByTestId("my-response");
     expect(mine).toHaveTextContent("You accepted · your distributor decides");
     expect(within(card).getByRole("button", { name: "Accept" })).toBeDisabled();
-    expect(within(card).getByText("Waiting for your distributor to decide")).toBeInTheDocument();
+    expect(card).toHaveTextContent("Waiting for your distributor to decide · You can change your answer until your distributor decides.");
+    // Changing the answer stays possible while pending.
+    expect(within(card).getByRole("button", { name: "Decline" })).toBeEnabled();
     expect(useToastStore.getState().toasts.at(-1)?.title).toBe("You accepted the swap");
   });
 
@@ -117,13 +119,16 @@ describe("agent swap page", () => {
     await waitFor(() => expect(useToastStore.getState().toasts.at(-1)?.title).toBe("Your distributor already decided this swap."));
   });
 
-  it("shows decided swaps with the distributor's decision and no buttons", async () => {
-    items = [swap(21, { status: "approved", decided_at: AS_OF, note: "Both agreed", receiver: { ...ME, response: "accepted" } })];
+  it.each(["approved", "rejected"] as const)("a %s swap is locked: buttons disabled with a short explanation", async (status) => {
+    items = [swap(21, { status, decided_at: AS_OF, note: "Both agreed", receiver: { ...ME, response: "accepted" } })];
     renderPage();
     const card = await screen.findByTestId("swap-offer-21");
-    expect(within(card).getByTestId("swap-decision")).toHaveTextContent("Approved by your distributor");
+    expect(within(card).getByTestId("swap-decision")).toHaveTextContent(status === "approved" ? "Approved by your distributor" : "Rejected by your distributor");
     expect(card).toHaveTextContent("Distributor note: Both agreed");
-    expect(within(card).queryByRole("button", { name: "Accept" })).toBeNull();
+    expect(within(card).getByRole("button", { name: "Accept" })).toBeDisabled();
+    expect(within(card).getByRole("button", { name: "Decline" })).toBeDisabled();
+    expect(within(card).getByTestId("swap-locked")).toHaveTextContent("this swap is locked");
+    expect(within(card).queryByText(/You can change your answer/)).toBeNull();
     expect(within(screen.getByTestId("swaps-outgoing")).getByText("Nothing here right now.")).toBeInTheDocument();
   });
 

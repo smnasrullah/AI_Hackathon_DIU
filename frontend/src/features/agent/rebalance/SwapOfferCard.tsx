@@ -1,15 +1,16 @@
-import { ArrowDownLeft, ArrowUpRight, Check, CheckCircle2, Clock, Hourglass, MapPin, ShieldCheck, X, XCircle } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Check, CheckCircle2, Clock, Hourglass, Lock, MapPin, ShieldCheck, X, XCircle } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useRespondSwap } from "../../../api/hooks/swaps";
 import type { SwapItem, SwapRespondIn } from "../../../api/types";
 import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
+import { LangText } from "../../../components/ui/LangText";
 import { LiquidButton } from "../../../components/ui/LiquidButton";
 import { toast } from "../../../components/ui/toastStore";
 import { formatDateTime, formatMoney, formatNumber } from "../../../lib/format";
 import { useLocale } from "../../../lib/prefs";
-import { errorCode } from "../../admin/shared/apiError";
+import { errorCode } from "../../../lib/apiError";
 
 type Answer = SwapRespondIn["response"];
 
@@ -89,16 +90,7 @@ export function SwapOfferCard({ swap, agentId }: { swap: SwapItem; agentId: numb
         </p>
       ) : null}
 
-      {pending ? (
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          <LiquidButton variant="secondary" icon={X} disabled={me.response === "declined"} onClick={() => setAsking("decline")}>
-            {t("rebalance.swaps.decline")}
-          </LiquidButton>
-          <LiquidButton icon={Check} disabled={me.response === "accepted"} onClick={() => setAsking("accept")}>
-            {t("rebalance.swaps.accept")}
-          </LiquidButton>
-        </div>
-      ) : (
+      {pending ? null : (
         <p role="status" data-testid="swap-decision" className="mt-4 flex items-center gap-2 rounded-xl bg-surface-2 px-4 py-3 text-small font-semibold">
           {swap.status === "approved" ? (
             <ShieldCheck aria-hidden className="size-4 text-safe-fg" />
@@ -108,13 +100,29 @@ export function SwapOfferCard({ swap, agentId }: { swap: SwapItem; agentId: numb
           {swap.status === "approved" ? t("rebalance.swaps.decided.approved") : t("rebalance.swaps.decided.rejected")}
         </p>
       )}
-      {pending && me.response === "accepted" ? (
+      {/* Answers can change until the distributor decides; after that the swap is locked. */}
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <LiquidButton variant="secondary" icon={X} disabled={!pending || me.response === "declined"} onClick={() => setAsking("decline")}>
+          {t("rebalance.swaps.decline")}
+        </LiquidButton>
+        <LiquidButton icon={Check} disabled={!pending || me.response === "accepted"} onClick={() => setAsking("accept")}>
+          {t("rebalance.swaps.accept")}
+        </LiquidButton>
+      </div>
+      {pending ? null : (
+        <p data-testid="swap-locked" className="mt-2 flex items-center gap-1.5 text-xs text-muted">
+          <Lock aria-hidden className="size-3.5" />
+          {t("rebalance.swaps.locked")}
+        </p>
+      )}
+      {pending && me.response ? (
         <p className="mt-2 flex items-center gap-1.5 text-xs text-muted">
           <Hourglass aria-hidden className="size-3.5" />
-          {t("rebalance.swaps.waiting")}
+          {me.response === "accepted" ? `${t("rebalance.swaps.waiting")} · ` : ""}
+          {t("rebalance.swaps.canChange")}
         </p>
       ) : null}
-      {swap.note ? <p className="mt-2 text-small text-muted">{t("rebalance.note", { note: swap.note })}</p> : null}
+      {swap.note ? <p className="mt-2 text-small text-muted"><LangText text={t("rebalance.note", { note: swap.note })} /></p> : null}
 
       <ConfirmDialog
         open={asking !== null}

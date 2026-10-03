@@ -1,17 +1,25 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useShellStore } from "./shellStore";
+import { PHONE_QUERY, useShellStore } from "./shellStore";
 
 const SEQUENCE_MS = 1200;
 
 function typing(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
-  return target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
+  if (["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return true;
+  return target.isContentEditable || target.closest("[contenteditable]:not([contenteditable='false'])") !== null;
 }
 
-/** Ctrl/Cmd+K palette, "?" shortcut help, "g" sequences, "[" sidebar. */
-export function useGlobalShortcuts(home: string): void {
+function phoneWidth(): boolean {
+  return typeof window.matchMedia === "function" && window.matchMedia(PHONE_QUERY).matches;
+}
+
+/**
+ * Ctrl/Cmd+K palette, "?" shortcut help, "g" sequences, "[" sidebar.
+ * "[" only toggles the saved desktop width where that sidebar is shown (`sidebar`, not on phones).
+ */
+export function useGlobalShortcuts(home: string, sidebar = true): void {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,7 +39,8 @@ export function useGlobalShortcuts(home: string): void {
         return;
       }
       if (e.key === "[") {
-        shell.toggleSidebar();
+        // Phones (rail + drawer) and the agent shell (no sidebar): do nothing, keep the saved preference.
+        if (sidebar && !e.shiftKey && !phoneWidth()) shell.toggleSidebar();
         return;
       }
       const key = e.key.toLowerCase();
@@ -45,5 +54,5 @@ export function useGlobalShortcuts(home: string): void {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [home, navigate]);
+  }, [home, navigate, sidebar]);
 }

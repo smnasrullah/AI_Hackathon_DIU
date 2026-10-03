@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 
 import type { GeneratedBy, Reason } from "../../api/types";
 import { cn } from "../../lib/cn";
+import { LangText } from "../ui/LangText";
 import { formatPercent } from "../../lib/format";
 import { useOnScreen, useReducedMotionPref } from "../../lib/motionPrefs";
 import { useLocale } from "../../lib/prefs";
@@ -56,7 +57,9 @@ export function WhyStones({ reasons, generatedBy, modelVersion, className }: Why
                 marginRight: reduced ? 0 : ((i + 1) % 2) * 8,
               }}
             >
-              <p className="text-body">{r.sentence}</p>
+              <p className="text-body">
+                <LangText text={r.sentence} />
+              </p>
               <div className="mt-2.5 flex items-center gap-3">
                 <Icon aria-hidden className={cn("size-4 shrink-0", up ? "text-watch-fg" : "text-safe-fg")} />
                 <span className="sr-only">{t(up ? "why.up" : "why.down")}</span>

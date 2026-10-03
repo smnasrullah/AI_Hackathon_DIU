@@ -18,6 +18,19 @@ export default defineConfig([
     languageOptions: { ecmaVersion: 2022, globals: globals.browser },
     rules: { "@typescript-eslint/no-explicit-any": "error" },
   },
+  // Feature boundaries: agent and admin code never import each other; shared helpers live in src/lib.
+  {
+    files: ["src/features/agent/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": ["error", { patterns: [{ group: ["**/admin/**"], message: "Agent code must not import admin code. Move shared helpers to src/lib." }] }],
+    },
+  },
+  {
+    files: ["src/features/admin/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": ["error", { patterns: [{ group: ["**/agent/**"], message: "Admin code must not import agent code. Move shared helpers to src/lib." }] }],
+    },
+  },
   {
     // Bangla shaping: a vowel sign or hasanta rendered on its own shows a dotted circle (◌).
     // Never split display text per character; use digitRuns() from src/lib/textRuns.ts.

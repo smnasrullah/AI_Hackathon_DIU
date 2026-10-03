@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { useAnomalies } from "../../../api/hooks/anomalies";
 import { useRequests } from "../../../api/hooks/requests";
 import { useSwaps } from "../../../api/hooks/swaps";
+import { LangText } from "../../../components/ui/LangText";
 import { SkeletonRows } from "../../../components/ui/Skeleton";
 import { StaggerItem, StaggerList } from "../../../components/ui/Stagger";
 import { EmptyState, ErrorState } from "../../../components/ui/StatePanel";
@@ -37,7 +38,9 @@ function Entry({ entry }: { entry: ActivityEntry }) {
           <TimeText at={entry.at} mode="datetime" />
           {entry.by ? ` · ${entry.by}` : ""}
         </p>
-        {entry.note ? <p className="mt-1 border-l-2 border-line-strong pl-2 text-small text-muted">{entry.note}</p> : null}
+        {entry.note ? <p className="mt-1 border-l-2 border-line-strong pl-2 text-small text-muted">
+            <LangText text={entry.note} />
+          </p> : null}
       </div>
     </StaggerItem>
   );

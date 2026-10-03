@@ -38,7 +38,7 @@ _ORDER = (case((SwapSuggestion.status == SwapStatus.pending, 0), else_=1),
 
 
 class SwapError(Exception):
-    """forbidden (403), already_decided / swap_declined (409)."""
+    """forbidden (403), already_decided (409, swap locked), swap_declined (409)."""
 
     def __init__(self, code: str) -> None:
         super().__init__(code)
@@ -166,16 +166,20 @@ def decide(session: Session, user: User, swap_id: int, decision: Literal["approv
 
 def respond(session: Session, user: User, swap_id: int, response: Literal["accept", "decline"],
             note: str | None) -> SwapItem:
+    """An agent may change their answer until the distributor decides; then the swap is locked."""
     row = _load(session, user, swap_id)
     s = row[0]
     if s.status != SwapStatus.pending:
         raise SwapError("already_decided")
     answer = SwapResponse.accepted if response == "accept" else SwapResponse.declined
     side = "donor" if s.donor_agent_id == user.agent_id else "receiver"
+    previous = s.donor_response if side == "donor" else s.receiver_response
     if side == "donor":
         s.donor_response = answer
     else:
         s.receiver_response = answer
-    _audit(session, user, f"swap.{response}", s, note, side=side)
+    # Actor = user_id, timestamp = created_at; old and new answer in the payload.
+    _audit(session, user, f"swap.{response}", s, note, side=side,
+           previous=previous.value if previous else None, response=answer.value)
     session.flush()
     return _items(session, [row])[0]

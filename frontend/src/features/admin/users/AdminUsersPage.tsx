@@ -12,7 +12,7 @@ import { Pagination } from "../../../components/ui/Pagination";
 import { TimeText } from "../../../components/ui/TimeText";
 import { toast } from "../../../components/ui/toastStore";
 import { useAuthStore } from "../../auth/authStore";
-import { errorCode } from "../shared/apiError";
+import { errorCode } from "../../../lib/apiError";
 import { SearchBox } from "../shared/SearchBox";
 import { AdminHeader, Badge, FilterSelect } from "../shared/ui";
 import { UserFormDialog } from "./UserFormDialog";

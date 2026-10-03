@@ -9,7 +9,7 @@ import { useCreateUser, useOrg, useUpdateUser } from "../../../api/hooks/admin";
 import type { AdminUser } from "../../../api/types";
 import { LiquidButton } from "../../../components/ui/LiquidButton";
 import { toast } from "../../../components/ui/toastStore";
-import { errorCode } from "../shared/apiError";
+import { errorCode } from "../../../lib/apiError";
 import { FIELD, LABEL } from "../shared/fields";
 import { createBody, formFromUser, ROLES, updateBody, userSchema, type UserForm } from "./userForm";
 

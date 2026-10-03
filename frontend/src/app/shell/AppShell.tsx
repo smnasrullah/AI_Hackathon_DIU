@@ -36,7 +36,7 @@ export function AppShell() {
   const meta = pageFor(pathname);
   const crumbs = crumbsFor(pathname, role);
   usePageTitle(meta ? t(`page.${meta.page}`) : null);
-  useGlobalShortcuts(home);
+  useGlobalShortcuts(home, !agent);
 
   const subRow =
     crumbs.length > 1 || meta?.prediction ? (

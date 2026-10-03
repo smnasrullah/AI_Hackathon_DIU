@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import type { CopilotMeta } from "../../../api/services/copilot";
 import type { GeneratedBy, LlmText } from "../../../api/types";
+import { LangText } from "../../../components/ui/LangText";
 import { Skeleton } from "../../../components/ui/Skeleton";
 import { cn } from "../../../lib/cn";
 import { useReducedMotionPref } from "../../../lib/motionPrefs";
@@ -52,7 +53,7 @@ export function AnswerCard({ turn, onRetry, retryDisabled }: AnswerCardProps) {
           transition={tween(reduced ? DUR.fast : DUR.slow)}
           className={cn("whitespace-pre-line text-body", turn.state === "pending" && phase === "draft" && "text-muted")}
         >
-          {text}
+          <LangText text={text} />
         </motion.p>
       ) : (
         <TypingShimmer />
