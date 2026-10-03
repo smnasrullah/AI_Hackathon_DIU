@@ -70,7 +70,11 @@ describe("app shell", () => {
     vi.mocked(logoutRequest).mockReset().mockResolvedValue(undefined);
     useShellStore.setState({ paletteOpen: false, shortcutsOpen: false, tourReplay: false });
     items = [unread];
-    api.on("get", "/notifications", () => inbox(items));
+    // Like the server: entity_type narrows both the items and the unread count.
+    api.on("get", "/notifications", (_body, config) => {
+      const kind = config?.params?.["entity_type"];
+      return inbox(typeof kind === "string" ? items.filter((n) => n.entity_type === kind) : items);
+    });
     api.on("post", "/notifications/7/read", () => {
       items = items.map((n) => (n.id === 7 ? { ...n, read_at: new Date().toISOString() } : n));
       return items[0];
@@ -142,5 +146,14 @@ describe("app shell", () => {
       fireEvent.keyDown(document.body, { key: "?" });
     });
     expect(await screen.findByRole("dialog", { name: "Keyboard shortcuts" })).toBeInTheDocument();
+  });
+
+  it("shows unread help-request notifications as a badge on the Help tab only", async () => {
+    items = [unread, { ...unread, id: 8, type: "help_request", title_key: "notifications.help.new", params: {}, entity_type: "liquidity_request", entity_id: "3" }];
+    signIn("agent");
+    renderShell();
+    const help = await screen.findByRole("link", { name: /^Help/ });
+    await waitFor(() => expect(within(help).getByTestId("help-nav-badge")).toHaveTextContent("1"));
+    expect(screen.getAllByTestId("help-nav-badge")).toHaveLength(1);
   });
 });

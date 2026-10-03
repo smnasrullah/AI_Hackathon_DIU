@@ -9,11 +9,13 @@ import { DemoModePanel } from "./DemoModePanel";
 import { DemoShortage } from "./DemoShortage";
 import { DryRunPreview } from "./DryRunPreview";
 import { PolicyForm } from "./PolicyForm";
+import { SchedulerStatusCard } from "./SchedulerStatusCard";
 import { TriggerForm } from "./TriggerForm";
+import { HELP_ADMIN_NS } from "../../../i18n/helpAdmin";
 
 /** /admin/help-settings: safety switches and limits, a dry-run preview, and (DEMO_MODE only) a shortage simulator. */
 export function AdminHelpSettingsPage() {
-  const { t } = useTranslation();
+  const { t: th } = useTranslation(HELP_ADMIN_NS);
   const policy = useHelpSettings();
   const trigger = useTriggerSettings();
   const status = useSystemStatus();
@@ -21,7 +23,7 @@ export function AdminHelpSettingsPage() {
 
   return (
     <div className="space-y-8">
-      <PageHeader title={t("liquidity.admin.title")} description={t("liquidity.admin.lead")} />
+      <PageHeader title={th("title")} description={th("lead")} />
 
       {demo ? <DemoModePanel /> : null}
 
@@ -44,6 +46,8 @@ export function AdminHelpSettingsPage() {
           <TriggerForm data={trigger.data} />
         </div>
       )}
+
+      <SchedulerStatusCard />
 
       <DryRunPreview />
 

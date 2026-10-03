@@ -102,6 +102,6 @@ describe("helpMapPoints", () => {
       [BASE, { ...BASE, id: 8, status: "fulfilled" }, { ...BASE, id: 9, requester: { ...BASE.requester, agent_id: 99 } }],
       shops,
     );
-    expect(points).toEqual([{ id: 7, name: "Mirpur 10 Mobile Point", amount: 15000, floatType: "cash", lng: 90.36, lat: 23.8 }]);
+    expect(points).toEqual([{ id: 7, name: "Mirpur 10 Mobile Point", amount: 15000, floatType: "cash", urgent: false, lng: 90.36, lat: 23.8 }]);
   });
 });

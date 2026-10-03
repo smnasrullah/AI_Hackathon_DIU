@@ -141,13 +141,19 @@
     "agentExplain": "Why?",
     "agents": "Agents",
     "adminEvents": "Events",
-    "syntheticData": "Synthetic data"
+    "syntheticData": "Synthetic data",
+    "agentHelp": "Help requests",
+    "helpRequests": "Help requests",
+    "helpRequest": "Help request",
+    "helpSettings": "Help settings"
   },
   "nav": {
     "home": "Home",
     "forecast": "Forecast",
     "swap": "Swap",
-    "ask": "Ask"
+    "ask": "Ask",
+    "help": "Help",
+    "helpUnread": "{{n}} unread"
   },
   "role": {
     "agent": "Agent",
@@ -350,7 +356,10 @@
     "tourReplay": "Replay tour",
     "security": "Security",
     "saved": "Preference saved",
-    "saveFailed": "Could not save your preference. It was undone."
+    "saveFailed": "Could not save your preference. It was undone.",
+    "helpAllow": "Allow help requests to me",
+    "helpAllowHint": "Nearby shops can ask you for float. You decide each time.",
+    "helpAllowError": "Could not load."
   },
   "shortcuts": {
     "title": "Keyboard shortcuts",
@@ -1542,8 +1551,8 @@
       "approveSubmit": "Approve and activate",
       "approved": "Sign-up approved",
       "reject": "Reject",
-      "rejectTitle": "Reject sign-up from {{email}}?",
-      "rejectBody": "The account is kept for the audit log but can never sign in. The person is not told why.",
+      "rejectTitle": "Reject {{email}}?",
+      "rejectBody": "Kept for the audit log; can never sign in.",
       "rejected": "Sign-up rejected"
     },
     "audit": {
@@ -1779,149 +1788,6 @@
       "open": "Help {{amount}}",
       "label": "Open help request from {{name}}: {{amount}} {{float}}"
     },
-    "admin": {
-      "title": "Help request settings",
-      "lead": "Safety switches and limits for the automatic helper search. Nothing here moves money.",
-      "save": "Save settings",
-      "saved": "Settings saved.",
-      "saveFailed": "Settings were not saved. Check the highlighted fields and try again.",
-      "sections": {
-        "switches": "Safety switches",
-        "timing": "Timing and limits",
-        "trigger": "When to ask for help",
-        "waves": "Waves and search"
-      },
-      "fields": {
-        "enabled": {
-          "label": "Automatic help is on",
-          "help": "When off, no new help requests are created."
-        },
-        "dryRun": {
-          "label": "Dry run (preview only)",
-          "help": "The system only records what it would do. Nobody is messaged."
-        },
-        "claimTimeout": {
-          "label": "Minutes before a claim reopens",
-          "help": "If a helper says yes and does not finish in this time, the request reopens for others."
-        },
-        "cooldown": {
-          "label": "Cooldown (minutes)",
-          "help": "Wait before asking the same shop again."
-        },
-        "dailyCap": {
-          "label": "Requests per shop per day",
-          "help": "Stops one shop from being asked too often."
-        },
-        "perWave": {
-          "label": "Helpers asked per wave",
-          "help": "How many helpers each wave contacts at once."
-        },
-        "horizon": {
-          "label": "Look-ahead (hours)",
-          "help": "How far ahead to check for a shortage."
-        },
-        "buffer": {
-          "label": "Safety buffer (%)",
-          "help": "Extra money added on top of the shortfall."
-        },
-        "minShortfall": {
-          "label": "Smallest shortfall (৳)",
-          "help": "Smaller gaps are not worth a request."
-        },
-        "maxRequest": {
-          "label": "Largest request (৳)",
-          "help": "Caps the amount of one request."
-        },
-        "leadMargin": {
-          "label": "Lead time (hours)",
-          "help": "Ask at least this long before the shortage hits."
-        },
-        "radius": {
-          "label": "Search radius (km)",
-          "help": "Helpers must be within this distance."
-        },
-        "maxWaves": {
-          "label": "Number of waves",
-          "help": "How many rounds of helpers are asked before the distributor is told."
-        },
-        "waveTimeout": {
-          "label": "Minutes per wave",
-          "help": "How long a wave has to answer before the next one starts."
-        },
-        "recentAsk": {
-          "label": "Do not ask again within (hours)",
-          "help": "Stops repeated asks for the same shop."
-        },
-        "deadlineFloor": {
-          "label": "Shortest deadline (minutes)",
-          "help": "A request never asks for help sooner than this. Stock-out within twice this time marks it urgent."
-        },
-        "urgentWave": {
-          "label": "Urgent first wave (times)",
-          "help": "Urgent requests ask this many times more agents in the first wave."
-        },
-        "lateGrace": {
-          "label": "Late confirm window (hours)",
-          "help": "After a request expires, the requester side can still confirm a late delivery from the helper whose acceptance timed out, for this long."
-        },
-        "perTick": {
-          "label": "New requests per run",
-          "help": "At most this many new requests per scheduler run, most urgent first. The rest wait for the next runs."
-        }
-      },
-      "range": "Enter a whole number from {{min}} to {{max}}.",
-      "number": "Enter a whole number.",
-      "preview": {
-        "title": "Dry-run preview",
-        "lead": "Shows who would get a request right now. Sends nothing.",
-        "run": "Run preview",
-        "empty": "Nothing would be requested right now.",
-        "failed": "The preview could not run. Try again.",
-        "cols": {
-          "agent": "Shop",
-          "float": "Float",
-          "amount": "Amount",
-          "result": "Result",
-          "asks": "Would ask"
-        },
-        "fires": "Would create a request",
-        "holds": "Not this time",
-        "summary": "{{creates}} requests, {{asks}} helper asks"
-      },
-      "demo": {
-        "title": "Simulate a shortage",
-        "lead": "Demo only. Forces one shop short for 30 minutes and runs the helper search now. Results are marked as simulated.",
-        "agent": "Shop",
-        "float": "Float",
-        "run": "Simulate shortage",
-        "done": "{{agent}}: {{n}} request(s) created (simulated).",
-        "none": "No request was created for that shop.",
-        "failed": "The simulation could not run.",
-        "dryRun": "Dry run is on: nothing was sent. {{n}} people would have been asked.",
-        "switchedOff": "Help requests are switched off: nothing was sent. {{n}} people would have been asked.",
-        "blocked": {
-          "active_request": "This shop already has an open request for that float. Open it, or reset the demo state first.",
-          "no_candidates": "Nobody nearby can help with that amount right now.",
-          "no_recipients": "Nobody nearby can help with that amount right now.",
-          "feature_disabled": "Help requests are switched off, so nothing was created.",
-          "deadline_passed": "The deadline had already passed, so nothing was created.",
-          "other": "No request was created for that shop."
-        }
-      },
-      "demoMode": {
-        "title": "Demo mode is on",
-        "lead": "These demo defaults are in force so the wave story works without changing any setting. A value you save yourself still wins.",
-        "none": "No demo defaults are in force; your own settings apply.",
-        "autoCap": "The automatic check makes at most {{n}} request(s) per shop and float per day.",
-        "startDelay": "After a fresh start, the first automatic check waits {{n}} seconds.",
-        "lastReset": "Last demo reset:",
-        "reset": "Reset demo help-request state",
-        "resetTitle": "Reset the demo help requests?",
-        "resetBody": "Open and claimed requests of the demo shops are cancelled (they stay in the history), any simulated shortage ends, and their cooldowns and daily limits start again from now. Nobody is messaged. This is written to the audit log.",
-        "resetDone": "Demo state reset: {{n}} request(s) cancelled.",
-        "resetFailed": "The reset did not work. Try again."
-      }
-    },
     "urgent": "Urgent",
     "reasonCategory": {
       "salary_day": "salary day",
@@ -1932,6 +1798,7 @@
       "high_demand": "high demand",
       "unknown": "not given"
     },
-    "asap": "As soon as possible"
+    "asap": "As soon as possible",
+    "loadMore": "Load more"
   }
 }

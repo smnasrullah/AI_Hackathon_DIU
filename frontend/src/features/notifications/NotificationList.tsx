@@ -82,11 +82,16 @@ function Row({ item, onOpen }: { item: NotificationItem; onOpen?: () => void }) 
 }
 
 /** Day-grouped notification rows (bell panel and /notifications). */
+const NO_STAGGER = { hidden: {}, show: {} };
+
 export function NotificationList({ items, onOpen }: { items: NotificationItem[]; onOpen?: () => void }) {
   const { t } = useTranslation();
   const { lang, digits } = useLocale();
   const now = useNow(60_000);
   const groups = groupByDay(items, now);
+  // Reduced motion: every row fades in at once (a stagger over many rows leaves late rows
+  // invisible for seconds).
+  const reduced = useReducedMotionPref();
 
   return (
     <div className="space-y-3">
@@ -98,7 +103,7 @@ export function NotificationList({ items, onOpen }: { items: NotificationItem[];
         return (
           <section key={g.day} aria-label={label}>
             <h3 className="px-3 pb-1 ap-eyebrow">{label}</h3>
-            <motion.ul variants={listStagger} initial="hidden" animate="show" className="space-y-0.5">
+            <motion.ul variants={reduced ? NO_STAGGER : listStagger} initial="hidden" animate="show" className="space-y-0.5">
               {g.items.map((item) => (
                 <Row key={item.id} item={item} onOpen={onOpen} />
               ))}

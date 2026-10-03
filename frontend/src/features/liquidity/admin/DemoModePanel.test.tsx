@@ -1,7 +1,7 @@
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { DemoHelpInfo, SimulateOut } from "../../../api/types";
+import type { DemoHelpInfo, PlanItemOut, SimulateOut } from "../../../api/types";
 import { useToastStore } from "../../../components/ui/toastStore";
 import { api as realApi } from "../../../lib/api";
 import type { FakeApi } from "../../../test/fakeApi";
@@ -9,6 +9,7 @@ import { signIn } from "../../auth/testUtils";
 import { renderAt } from "../../distributor/testRender";
 import { DemoModePanel } from "./DemoModePanel";
 import { DemoShortage } from "./DemoShortage";
+import { WouldAskList } from "./WouldAskList";
 
 vi.mock("../../../lib/api", async () => {
   const { createFakeApi } = await import("../../../test/fakeApi");
@@ -43,7 +44,7 @@ describe("demo mode panel", () => {
     const list = await screen.findByTestId("demo-overrides");
     expect(within(list).getByText("Helpers asked per wave")).toBeInTheDocument();
     expect(within(list).queryByRole("textbox")).not.toBeInTheDocument();
-    expect(screen.getByText(/at most 1 request\(s\) per shop and float per day/)).toBeInTheDocument();
+    expect(screen.getByText(/max 1 per shop and float a day/)).toBeInTheDocument();
   });
 
   it("resets only after confirming", async () => {
@@ -54,7 +55,7 @@ describe("demo mode panel", () => {
     expect(api.post).not.toHaveBeenCalled();
     fireEvent.click(within(dialog).getByRole("button", { name: "Reset demo help-request state" }));
     await waitFor(() => expect(api.post).toHaveBeenCalledWith("/admin/liquidity-requests/demo-reset"));
-    await waitFor(() => expect(toasts()).toContain("Demo state reset: 2 request(s) cancelled."));
+    await waitFor(() => expect(toasts()).toContain("Reset: 2 cancelled."));
   });
 
   it("cancelling the reset sends nothing", async () => {
@@ -81,6 +82,16 @@ describe("simulate shortage result", () => {
     const pick = await screen.findByTestId("demo-agent");
     fireEvent.change(pick, { target: { value: "1" } });
     fireEvent.click(screen.getByTestId("demo-simulate"));
-    expect(await screen.findByTestId("demo-result")).toHaveTextContent("already has an open request");
+    expect(await screen.findByTestId("demo-result")).toHaveTextContent("Already has an open request");
+  });
+});
+
+describe("dry-run result", () => {
+  it("says nothing was sent and lists who would have been asked", () => {
+    const plan = { agent_id: 1, agent_code: "AGT-0001", float_type: "cash", amount_bdt: 25000, asks: [{ display: "DST-DHK" }, { display: "AGT-0004" }] } as unknown as PlanItemOut;
+    renderAt("/admin/help-settings", "/admin/help-settings", <WouldAskList dryRun items={[plan]} />);
+    const box = screen.getByTestId("would-ask");
+    expect(box).toHaveTextContent("Dry run is ON: nothing was sent.");
+    expect(within(box).getByTestId("would-ask-item")).toHaveTextContent("Would ask: DST-DHK, AGT-0004");
   });
 });

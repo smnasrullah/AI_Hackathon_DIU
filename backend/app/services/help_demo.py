@@ -4,6 +4,8 @@
   notified), ends a simulated shortage and starts their cooldown / daily cap / demo auto cap
   afresh (a reset marker in system_meta; earlier requests stay in the history).
 - counts_since(): the reset marker for one requester agent; the limits count from there.
+- reset_at(): the last reset; helper ranking (fairness rotation, recent asks) counts asks from
+  there, so the wave order after a reset is the same as on a fresh database.
 - auto_count(): automatic requests for one agent and float in the last 24 h (demo auto cap).
 """
 
@@ -40,16 +42,23 @@ def demo_agent_ids(session: Session) -> list[int]:
     return sorted({i for i in ids if i is not None})
 
 
-def counts_since(session: Session, agent_id: int) -> datetime | None:
-    """When this agent's limits were last reset (DEMO_MODE only), else None."""
+def reset_at(session: Session) -> datetime | None:
+    """When the demo help state was last reset (DEMO_MODE only), else None."""
     if not get_settings().demo_mode:
         return None
     row = session.get(SystemMeta, RESET_KEY)
     if row is None or not isinstance(row.value, dict):
         return None
-    if agent_id not in row.value.get("agent_ids", []):
-        return None
     return as_utc(datetime.fromisoformat(str(row.value["at"])))
+
+
+def counts_since(session: Session, agent_id: int) -> datetime | None:
+    """When this agent's limits were last reset (DEMO_MODE only), else None."""
+    at = reset_at(session)
+    row = session.get(SystemMeta, RESET_KEY)
+    if at is None or row is None or agent_id not in row.value.get("agent_ids", []):
+        return None
+    return at
 
 
 def window_start(session: Session, agent_id: int, now: datetime) -> datetime:

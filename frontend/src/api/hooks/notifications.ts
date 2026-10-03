@@ -1,14 +1,32 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 
 import { qk } from "../keys";
 import { listNotifications, markAllNotificationsRead, markNotificationRead } from "../services/notifications";
 import type { NotificationListQuery } from "../types";
 
-// Help requests need a fast answer; TanStack pauses this poll while the tab is hidden.
-const POLL_MS = 12_000;
+// TanStack pauses both polls while the tab is hidden (refetchIntervalInBackground is off).
+// Everything else: once a minute. Help requests need a fast answer: their unread count every 12 s
+// (one row, entity_type filter), and a new one refreshes the full lists at once.
+const POLL_MS = 60_000;
+export const HELP_POLL_MS = 12_000;
+const HELP_UNREAD: NotificationListQuery = { entity_type: "liquidity_request", unread: true, page_size: 1 };
 
 export function useNotifications(q: NotificationListQuery = {}) {
   return useQuery({ queryKey: qk.notifications.list(q), queryFn: () => listNotifications(q), refetchInterval: POLL_MS });
+}
+
+/** Unread help-request notifications (the Help badge). A rise refreshes every notification list. */
+export function useHelpUnread(): number {
+  const client = useQueryClient();
+  const q = useQuery({ queryKey: qk.notifications.list(HELP_UNREAD), queryFn: () => listNotifications(HELP_UNREAD), refetchInterval: HELP_POLL_MS });
+  const count = q.data?.unread_count ?? 0;
+  const seen = useRef<number | null>(null);
+  useEffect(() => {
+    if (seen.current !== null && count > seen.current) void client.invalidateQueries({ queryKey: qk.notifications.all });
+    seen.current = count;
+  }, [count, client]);
+  return count;
 }
 
 export function useMarkNotificationRead() {

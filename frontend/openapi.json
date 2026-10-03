@@ -12238,7 +12238,7 @@
   },
   "/api/v1/notifications": {
    "get": {
-    "description": "The caller's own notifications, newest first, with the unread count for the bell.",
+    "description": "The caller's own notifications, newest first, with the unread count for the bell.\n`entity_type=liquidity_request&unread=true&page_size=1` is the cheap help-badge poll.",
     "operationId": "list_notifications_api_v1_notifications_get",
     "parameters": [
      {
@@ -12257,6 +12257,26 @@
        ],
        "description": "true: unread only; false: read only",
        "title": "Unread"
+      }
+     },
+     {
+      "description": "only this kind (e.g. liquidity_request); unread_count follows it",
+      "in": "query",
+      "name": "entity_type",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 40,
+         "pattern": "^[a-z_]+$",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "only this kind (e.g. liquidity_request); unread_count follows it",
+       "title": "Entity Type"
       }
      },
      {

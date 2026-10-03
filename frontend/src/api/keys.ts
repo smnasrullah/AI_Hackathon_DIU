@@ -72,6 +72,7 @@ export const qk = {
     trigger: ["help-requests", "admin", "trigger"] as const,
     demo: ["help-requests", "admin", "demo"] as const,
     agents: ["help-requests", "agents"] as const,
+    optOut: ["help-requests", "opt-out"] as const,
   },
   system: { freshness: ["system", "freshness"] as const, llm: ["llm", "status"] as const },
   modelCard: (lang: string) => ["responsible-ai", "model-card", lang] as const,

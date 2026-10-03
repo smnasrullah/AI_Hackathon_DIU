@@ -112,7 +112,7 @@ describe("admin users", () => {
     renderAt("/admin/users", "/admin/users", <AdminUsersPage />);
     fireEvent.click(await screen.findByTestId("reject-user"));
     const dialog = await screen.findByRole("dialog");
-    expect(within(dialog).getByText("Reject sign-up from new.person@example.org?")).toBeInTheDocument();
+    expect(within(dialog).getByText("Reject new.person@example.org?")).toBeInTheDocument();
     expect(api.post).not.toHaveBeenCalled();
     fireEvent.click(within(dialog).getByRole("button", { name: "Reject" }));
     await waitFor(() => expect(api.post).toHaveBeenCalledWith(`/admin/users/${pending.id}/reject`, {}));

@@ -67,6 +67,7 @@ export interface HelpMapPoint {
   name: string;
   amount: number;
   floatType: FloatType;
+  urgent: boolean;
   lng: number;
   lat: number;
 }
@@ -79,7 +80,7 @@ export function helpMapPoints(items: readonly HelpRequestItem[], agents: readonl
     if (item.status !== "open") continue;
     const shop = at.get(item.requester.agent_id);
     if (!shop) continue;
-    points.push({ id: item.id, name: item.requester.name, amount: item.amount_needed, floatType: item.float_type, lng: shop.lng, lat: shop.lat });
+    points.push({ id: item.id, name: item.requester.name, amount: item.amount_needed, floatType: item.float_type, urgent: item.urgent, lng: shop.lng, lat: shop.lat });
   }
   return points;
 }

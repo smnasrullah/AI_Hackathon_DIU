@@ -1,4 +1,4 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { qk } from "../keys";
 import {
@@ -9,6 +9,7 @@ import {
   declineHelpRequest,
   dryRunHelp,
   getDemoHelp,
+  getHelpOptOut,
   getHelpRequest,
   getHelpSettings,
   getTriggerSettings,
@@ -16,13 +17,15 @@ import {
   listAllHelpRequests,
   listHelpInbox,
   listMyHelpRequests,
+  putHelpOptOut,
   putHelpSettings,
   putTriggerSettings,
   resetDemoHelp,
+  runHelpTrigger,
   simulateShortage,
   withdrawHelpRequest,
 } from "../services/helpRequests";
-import type { HelpNoteIn, HelpRequestListQuery, HelpSettingsIn, SimulateIn, TriggerSettingsIn } from "../types";
+import type { HelpNoteIn, HelpRequestListQuery, HelpRequestPage, HelpSettingsIn, SimulateIn, TriggerSettingsIn } from "../types";
 
 /** Live enough for "someone accepted": the page refetches every 12 s while the tab is visible. */
 export const HELP_POLL_MS = 12_000;
@@ -44,6 +47,33 @@ export function useHelpInbox(q: HelpRequestListQuery = {}, enabled = true) {
     refetchInterval: HELP_POLL_MS,
     placeholderData: keepPreviousData,
     enabled,
+  });
+}
+
+type PageQ = Omit<HelpRequestListQuery, "page">;
+
+function nextPage(last: HelpRequestPage): number | undefined {
+  return last.page * last.page_size < last.total ? last.page + 1 : undefined;
+}
+
+/** "Load more" lists: page after page, all loaded pages refreshed on the same 12 s poll. */
+export function useMyHelpRequestPages(q: PageQ = {}) {
+  return useInfiniteQuery({
+    queryKey: [...qk.help.mine(q), "pages"],
+    queryFn: ({ pageParam }) => listMyHelpRequests({ ...q, page: pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: nextPage,
+    refetchInterval: HELP_POLL_MS,
+  });
+}
+
+export function useHelpInboxPages(q: PageQ = {}) {
+  return useInfiniteQuery({
+    queryKey: [...qk.help.inbox(q), "pages"],
+    queryFn: ({ pageParam }) => listHelpInbox({ ...q, page: pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: nextPage,
+    refetchInterval: HELP_POLL_MS,
   });
 }
 
@@ -127,6 +157,29 @@ export function useSimulateShortage() {
   return useMutation({
     mutationFn: (body: SimulateIn) => simulateShortage(body),
     onSettled: () => client.invalidateQueries({ queryKey: qk.help.all }),
+  });
+}
+
+export function useHelpOptOut(enabled: boolean) {
+  return useQuery({ queryKey: qk.help.optOut, queryFn: getHelpOptOut, enabled });
+}
+
+export function useSetHelpOptOut() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (optedOut: boolean) => putHelpOptOut(optedOut),
+    onSuccess: (data) => client.setQueryData(qk.help.optOut, data),
+  });
+}
+
+export function useRunHelpTrigger() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: runHelpTrigger,
+    onSettled: () => {
+      void client.invalidateQueries({ queryKey: qk.help.all });
+      void client.invalidateQueries({ queryKey: qk.admin.overview });
+    },
   });
 }
 

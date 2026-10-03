@@ -5,6 +5,7 @@ Exit codes for checks: 0 = work needed, 1 = already done.
 
 import argparse
 import logging
+import secrets
 import sys
 import time
 from datetime import UTC, datetime
@@ -16,6 +17,9 @@ from sqlalchemy.orm import Session
 
 from app.core.config import DATA_VERSION, get_settings
 from app.core.db import get_engine
+from app.core.security import hash_password
+from app.models import User
+from app.models.enums import UserRole
 from app.models.system_meta import SystemMeta
 from app.services import auth, help_scheduler, jobs, notifications, pipeline
 from app.services import seed as reference_seed
@@ -114,15 +118,31 @@ def seed_notifications() -> int:
 
 
 E2E_WRONG_PASSWORD_USER = "agent.sunamganj@agentpulse.demo"
+E2E_PENDING_USER = "e2e.pending@example.org"  # a11y spec: the admin "Reject" sign-up UI
+
+
+def _pending_signup(session: Session) -> None:
+    """One self-signup awaiting approval (created once, put back to pending if needed)."""
+    user = session.scalar(select(User).where(User.email == E2E_PENDING_USER))
+    if user is None:
+        session.add(User(email=E2E_PENDING_USER, full_name="E2E Pending Signup",
+                         password_hash=hash_password(secrets.token_urlsafe(24)),
+                         role=UserRole.agent, agent_id=None, distributor_id=None,
+                         is_active=False, is_pending=True, is_demo=False))
+        return
+    user.is_active, user.is_pending, user.is_rejected = False, True, False
+    user.role, user.agent_id, user.distributor_id = UserRole.agent, None, None
 
 
 def e2e_fixtures() -> int:
-    """Known state before each e2e run (no DB reset): one unread notice for the distributor, and
-    no lockout left on the account the wrong-password spec uses."""
+    """Known state before each e2e run (no DB reset): one unread notice for the distributor, no
+    lockout left on the account the wrong-password spec uses, and one pending self-signup."""
     seed_notifications()
     with Session(get_engine()) as session, session.begin():
         n = auth.clear_login_failures(session, E2E_WRONG_PASSWORD_USER)
-    log.info("cleared %d login failures for %s", n, E2E_WRONG_PASSWORD_USER)
+        _pending_signup(session)
+    log.info("cleared %d login failures for %s; pending signup %s", n,
+             E2E_WRONG_PASSWORD_USER, E2E_PENDING_USER)
     return 0
 
 

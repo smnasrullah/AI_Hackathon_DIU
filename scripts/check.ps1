@@ -167,8 +167,14 @@ try {
   }
   if ($runE2E) {
     $port = if ($env:FRONTEND_PORT) { $env:FRONTEND_PORT } else { '5173' }
+    # `up --wait` returns once /health answers; bootstrap (migrate, precompute) may still run.
     $ready = $false
-    try { $ready = (Invoke-RestMethod "http://localhost:$port/api/v1/system/status" -TimeoutSec 5).ready } catch { }
+    $until = (Get-Date).AddSeconds(600)
+    while ($true) {
+      try { $ready = (Invoke-RestMethod "http://localhost:$port/api/v1/system/status" -TimeoutSec 5).ready } catch { }
+      if ($ready -or (Get-Date) -gt $until) { break }
+      Start-Sleep -Seconds 3
+    }
     $kit = $null
     try {
       $kit = (docker image inspect agentpulse-frontend --format '{{json .Config.Labels}}' 2>$null |

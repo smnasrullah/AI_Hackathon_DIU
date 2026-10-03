@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-import { useMarkAllNotificationsRead, useNotifications } from "../../api/hooks/notifications";
+import { useHelpUnread, useMarkAllNotificationsRead, useNotifications } from "../../api/hooks/notifications";
 import { SkeletonRows } from "../../components/ui/Skeleton";
 import { ErrorState } from "../../components/ui/StatePanel";
 import { toast } from "../../components/ui/toastStore";
@@ -27,6 +27,7 @@ export function NotificationBell() {
   const reduced = useReducedMotionPref();
   const [open, setOpen] = useState(false);
   const q = useNotifications({ page_size: PANEL_SIZE });
+  useHelpUnread(); // fast help poll: a new help request refreshes this list at once
   const markAll = useMarkAllNotificationsRead();
   const controls = useAnimationControls();
   const seen = useRef<number | null>(null);

@@ -115,4 +115,12 @@ describe("MyHelpRequestCard", () => {
     fireEvent.click(within(dialog).getByRole("button", { name: "Cancel request" }));
     await waitFor(() => expect(api.post).toHaveBeenCalledWith("/liquidity-requests/7/cancel", {}));
   });
+
+  it("shows the requester their own full reason and the Urgent badge", () => {
+    renderCard(mine({ urgent: true, reason_summary: "নগদ প্রায় ৩ ঘণ্টায় শেষ হবে (বেতনের দিন)।" }));
+    expect(screen.getByTestId("help-urgent")).toHaveTextContent("Urgent");
+    const reason = screen.getByTestId("my-help-reason");
+    expect(reason).toHaveTextContent("বেতনের দিন");
+    expect(reason.querySelector('[lang="bn"]')).not.toBeNull();
+  });
 });

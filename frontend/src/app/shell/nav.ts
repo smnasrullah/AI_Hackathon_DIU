@@ -6,6 +6,7 @@ import {
   CalendarDays,
   ChartLine,
   Database,
+  HandHeart,
   House,
   Map as MapIcon,
   MessageCircle,
@@ -36,6 +37,7 @@ export const SIDE_NAV: Record<Exclude<Role, "agent">, NavItem[]> = {
     { to: "/distributor", page: "controlRoom", icon: MapIcon, end: true },
     { to: "/distributor/agents", page: "agents", icon: Users },
     { to: "/distributor/swaps", page: "swapQueue", icon: ArrowLeftRight },
+    { to: "/distributor/help-requests", page: "helpRequests", icon: HandHeart },
     { to: "/distributor/anomalies", page: "anomalies", icon: ScanSearch },
     { to: "/distributor/impact", page: "impact", icon: TrendingUp },
     { to: "/distributor/briefing", page: "briefing", icon: Newspaper },
@@ -47,6 +49,7 @@ export const SIDE_NAV: Record<Exclude<Role, "agent">, NavItem[]> = {
     { to: "/admin/data", page: "syntheticData", icon: Database },
     { to: "/admin/models", page: "models", icon: Boxes },
     { to: "/admin/users", page: "users", icon: Users },
+    { to: "/admin/help-settings", page: "helpSettings", icon: HandHeart },
     { to: "/admin/audit-log", page: "auditLog", icon: ScrollText },
     { to: "/admin/llm", page: "llmLog", icon: Bot },
     { to: "/responsible-ai", page: "responsibleAi", icon: ShieldCheck },
@@ -56,6 +59,7 @@ export const SIDE_NAV: Record<Exclude<Role, "agent">, NavItem[]> = {
 export const AGENT_NAV = [
   { to: "/agent", label: "nav.home", icon: House, end: true },
   { to: "/agent/forecast", label: "nav.forecast", icon: ChartLine, end: false },
+  { to: "/agent/help", label: "nav.help", icon: HandHeart, end: false },
   { to: "/agent/swap", label: "nav.swap", icon: ArrowLeftRight, end: false },
   { to: "/agent/copilot", label: "nav.ask", icon: MessageCircle, end: false },
 ] as const;
@@ -63,7 +67,7 @@ export const AGENT_NAV = [
 /** Nav entries for the palette's empty state. */
 export function navFor(role: Role): NavItem[] {
   if (role !== "agent") return SIDE_NAV[role];
-  const pages: PageKey[] = ["agentHome", "agentForecast", "agentSwap", "agentCopilot"];
+  const pages: PageKey[] = ["agentHome", "agentForecast", "agentHelp", "agentSwap", "agentCopilot"];
   return AGENT_NAV.map((item, i) => ({ to: item.to, page: pages[i] ?? "agentHome", icon: item.icon, end: item.end }));
 }
 
@@ -86,12 +90,15 @@ const PAGES: PageMeta[] = [
   { pattern: "/agent/explain", page: "agentExplain", parent: "/agent", prediction: true },
   { pattern: "/agent/swap", page: "agentSwap", parent: "/agent", prediction: true },
   { pattern: "/agent/copilot", page: "agentCopilot", parent: "/agent" },
+  { pattern: "/agent/help", page: "agentHelp", parent: "/agent" },
   { pattern: "/agent/settings", page: "settings", parent: "/agent" },
   // The control room shows freshness in its own bottom stripe.
   { pattern: "/distributor", page: "controlRoom" },
   { pattern: "/distributor/agents", page: "agents", parent: "/distributor", prediction: true },
   { pattern: "/distributor/agents/:id", page: "agentDetail", parent: "/distributor/agents", prediction: true },
   { pattern: "/distributor/swaps", page: "swapQueue", parent: "/distributor", prediction: true },
+  { pattern: "/distributor/help-requests", page: "helpRequests", parent: "/distributor" },
+  { pattern: "/distributor/help-requests/:id", page: "helpRequest", parent: "/distributor/help-requests" },
   { pattern: "/distributor/anomalies", page: "anomalies", parent: "/distributor" },
   { pattern: "/distributor/anomalies/:id", page: "investigation", parent: "/distributor/anomalies" },
   { pattern: "/distributor/impact", page: "impact", parent: "/distributor", prediction: true },
@@ -100,6 +107,7 @@ const PAGES: PageMeta[] = [
   { pattern: "/admin/events", page: "adminEvents", parent: "/admin" },
   { pattern: "/admin/data", page: "syntheticData", parent: "/admin" },
   { pattern: "/admin/users", page: "users", parent: "/admin" },
+  { pattern: "/admin/help-settings", page: "helpSettings", parent: "/admin" },
   { pattern: "/admin/models", page: "models", parent: "/admin" },
   { pattern: "/admin/llm", page: "llmLog", parent: "/admin" },
   { pattern: "/admin/audit-log", page: "auditLog", parent: "/admin" },

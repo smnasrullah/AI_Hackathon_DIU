@@ -187,8 +187,14 @@ if [ "$E2E" -eq 1 ]; then
   port="${FRONTEND_PORT:-5173}"
   kit=$(docker image inspect agentpulse-frontend \
     --format '{{ index .Config.Labels "agentpulse.devkit" }}' 2>/dev/null)
-  if ! curl -fsS --max-time 5 "http://localhost:$port/api/v1/system/status" 2>/dev/null |
-       grep -q '"ready": *true'; then
+  # `up --wait` returns once /health answers; bootstrap (migrate, precompute) may still run.
+  is_ready() {
+    curl -fsS --max-time 5 "http://localhost:$port/api/v1/system/status" 2>/dev/null |
+      grep -q '"ready": *true'
+  }
+  waited=0
+  until is_ready || [ "$waited" -ge 600 ]; do sleep 3; waited=$((waited + 3)); done
+  if ! is_ready; then
     echo "FAIL  e2e          stack not ready; start it with: scripts/check.sh --up"
     failed=$((failed + 1))
   elif [ "$kit" != "true" ]; then

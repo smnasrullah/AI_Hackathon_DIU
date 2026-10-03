@@ -285,3 +285,23 @@ def test_mark_ready_stamps_only_a_freshly_seeded_run(client: TestClient, seeded:
     assert help_scheduler.fresh_ready_at() is not None
     assert bootstrap.mark_ready() == 0
     assert meta(help_scheduler.FRESH_READY_KEY) == stamp  # the next restart keeps the old stamp
+
+
+def test_reset_restarts_the_helper_fairness_history(client: TestClient, seeded: Path,
+                                                    monkeypatch: pytest.MonkeyPatch) -> None:
+    arrange_neighbours()
+    install_signals(monkeypatch, short=None)
+    make_request([AGENT_SUNAMGANJ])  # the farther helper was just asked: left out for now
+
+    def pool() -> list[str]:
+        now, tp = now_utc(), TriggerPolicy()
+        with Session(get_engine()) as s:
+            req = s.scalar(select(Agent).where(Agent.code == REQUESTER))
+            assert req is not None
+            return [a.display for a in trig.ranked_helpers(
+                s, req, FloatType.emoney, 25_000.0, now, tp,
+                trig.signals(s, now, tp, None), set()).agents]
+
+    assert "AGT-0003" not in pool()
+    assert client.post(RESET, headers=bearer(client, ADMIN)).status_code == 200
+    assert "AGT-0003" in pool()  # earlier asks no longer count after a demo reset

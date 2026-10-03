@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { useClaimHelp, useDeclineHelp, useWithdrawHelp } from "../../api/hooks/helpRequests";
 import type { HelpRequestItem } from "../../api/types";
+import { LangText } from "../../components/ui/LangText";
 import { LiquidButton } from "../../components/ui/LiquidButton";
 import { toast } from "../../components/ui/toastStore";
 import { errorCode } from "../../lib/apiError";
@@ -69,7 +70,9 @@ export function HelpNeededCard({ item, now }: Props) {
       <p className="flex items-start gap-2 font-semibold">
         <HandHeart aria-hidden className="mt-0.5 size-5 shrink-0 text-act-fg" />
         <span>
-          <span className="block">{t("liquidity.agent.card.from", { name, area: area ?? "" })}</span>
+          <span className="block">
+            <LangText text={t("liquidity.agent.card.from", { name, area: area ?? "" })} />
+          </span>
           <span className="block text-body font-bold">{t("liquidity.agent.card.needs", { amount, float })}</span>
         </span>
       </p>
@@ -114,7 +117,7 @@ export function HelpNeededCard({ item, now }: Props) {
         <div className="mt-4 space-y-3">
           <p role="status" data-testid="help-next-step" className="flex items-start gap-2 rounded-xl bg-surface-2 px-4 py-3 text-small font-semibold">
             <CheckCircle2 aria-hidden className="mt-0.5 size-4 shrink-0 text-safe-fg" />
-            {t("liquidity.agent.card.next", { amount, float, name })}
+            <LangText text={t("liquidity.agent.card.next", { amount, float, name })} />
           </p>
           <LiquidButton data-testid="help-withdraw" variant="secondary" size="sm" icon={Undo2} disabled={busy} loading={withdraw.isPending} onClick={onWithdraw}>
             {t("liquidity.agent.card.withdraw")}

@@ -1,16 +1,18 @@
-import { Banknote, Clock, PackageCheck, Users, XCircle } from "lucide-react";
+import { Banknote, Clock, Info, PackageCheck, Users, XCircle } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useCancelHelp, useConfirmHelp, useConfirmLateHelp } from "../../api/hooks/helpRequests";
 import type { HelpRequestItem } from "../../api/types";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
+import { LangText } from "../../components/ui/LangText";
 import { LiquidButton } from "../../components/ui/LiquidButton";
 import { toast } from "../../components/ui/toastStore";
 import { formatDuration, formatMoney, formatNumber } from "../../lib/format";
 import { useLocale } from "../../lib/prefs";
 import { askedCount, hoursUntil, isActive } from "./helpModel";
 import { HelpTimeline } from "./HelpTimeline";
+import { UrgentBadge } from "./HelpParts";
 
 /** The requester's own request: where it stands, how many were asked (never who), and the two actions. */
 export function MyHelpRequestCard({ item, now }: { item: HelpRequestItem; now: Date }) {
@@ -72,6 +74,11 @@ export function MyHelpRequestCard({ item, now }: { item: HelpRequestItem; now: D
           <span data-testid="my-help-status" className="block text-small text-muted">
             {t(`liquidity.status.${item.status}`)}
           </span>
+          {item.urgent && active ? (
+            <span className="mt-1 block">
+              <UrgentBadge />
+            </span>
+          ) : null}
         </p>
         {active ? (
           <time dateTime={item.needed_by} data-testid="my-help-left" className="num rounded-full bg-surface-2 px-3 py-1 text-small font-semibold">
@@ -81,6 +88,16 @@ export function MyHelpRequestCard({ item, now }: { item: HelpRequestItem; now: D
       </header>
 
       <HelpTimeline status={item.status} />
+
+      {/* The requester's own full reason, already in their language (server-rendered). */}
+      {item.reason_summary ? (
+        <p data-testid="my-help-reason" className="flex items-start gap-2 text-small">
+          <Info aria-hidden className="mt-0.5 size-4 shrink-0 text-muted" />
+          <span>
+            <LangText text={item.reason_summary} />
+          </span>
+        </p>
+      ) : null}
 
       {active && stockoutLeft !== null && stockoutLeft > 0 ? (
         <p className="num flex items-center gap-2 text-small text-muted" data-testid="my-help-stockout">

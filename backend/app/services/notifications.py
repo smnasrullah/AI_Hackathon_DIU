@@ -20,8 +20,10 @@ def _item(n: Notification) -> NotificationItem:
 
 
 def page(session: Session, user: User, unread: bool | None, page_no: int,
-         page_size: int) -> NotificationPage:
+         page_size: int, entity_type: str | None = None) -> NotificationPage:
     mine = Notification.user_id == user.id
+    if entity_type is not None:
+        mine = mine & (Notification.entity_type == entity_type)
     query = select(Notification).where(mine)
     if unread is True:
         query = query.where(Notification.read_at.is_(None))

@@ -1454,6 +1454,7 @@ export interface paths {
         /**
          * List Notifications
          * @description The caller's own notifications, newest first, with the unread count for the bell.
+         *     `entity_type=liquidity_request&unread=true&page_size=1` is the cheap help-badge poll.
          */
         get: operations["list_notifications_api_v1_notifications_get"];
         put?: never;
@@ -7041,6 +7042,8 @@ export interface operations {
             query?: {
                 /** @description true: unread only; false: read only */
                 unread?: boolean | null;
+                /** @description only this kind (e.g. liquidity_request); unread_count follows it */
+                entity_type?: string | null;
                 page?: number;
                 page_size?: number;
             };

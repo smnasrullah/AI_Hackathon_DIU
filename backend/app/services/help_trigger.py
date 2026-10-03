@@ -164,15 +164,20 @@ def abuse_block(session: Session, agent_id: int, now: datetime,
 
 def _stats(session: Session, user_ids: list[uuid.UUID], now: datetime
            ) -> dict[uuid.UUID, tuple[int, int, int, datetime | None]]:
-    """user -> (asked ever, accepted ever, asked in the fairness window, last asked)."""
+    """user -> (asked ever, accepted ever, asked in the fairness window, last asked).
+    DEMO_MODE: asks before the last demo reset do not count."""
     if not user_ids:
         return {}
     r = LiquidityRequestRecipient
+    since = help_demo.reset_at(session)
+    scope = [r.recipient_user_id.in_(user_ids)]
+    if since is not None:
+        scope.append(r.notified_at > since)
     rows = session.execute(select(
         r.recipient_user_id, func.count(),
         func.count(case((r.response == HelpResponse.accepted, 1))),
         func.count(case((r.notified_at > now - rules.ASK_WINDOW, 1))),
-        func.max(r.notified_at)).where(r.recipient_user_id.in_(user_ids))
+        func.max(r.notified_at)).where(*scope)
         .group_by(r.recipient_user_id)).all()
     return {uid: (asked, acc, recent, _utc(last) if last else None)
             for uid, asked, acc, recent, last in rows}

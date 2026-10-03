@@ -15,11 +15,15 @@ def list_notifications(
     user: CurrentUser,
     session: SessionDep,
     unread: Annotated[bool | None, Query(description="true: unread only; false: read only")] = None,
+    entity_type: Annotated[str | None, Query(
+        max_length=40, pattern=r"^[a-z_]+$",
+        description="only this kind (e.g. liquidity_request); unread_count follows it")] = None,
     page: PageQuery = 1,
     page_size: Annotated[int, Query(ge=1, le=100)] = 20,
 ) -> NotificationPage:
-    """The caller's own notifications, newest first, with the unread count for the bell."""
-    return notifications.page(session, user, unread, page, page_size)
+    """The caller's own notifications, newest first, with the unread count for the bell.
+    `entity_type=liquidity_request&unread=true&page_size=1` is the cheap help-badge poll."""
+    return notifications.page(session, user, unread, page, page_size, entity_type)
 
 
 @router.post("/read-all", response_model=ReadAllResult)

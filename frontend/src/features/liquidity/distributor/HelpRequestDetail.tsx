@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCancelHelp, useConfirmHelp, useConfirmLateHelp, useHelpRequest } from "../../../api/hooks/helpRequests";
 import type { HelpRequestItem, Lang } from "../../../api/types";
 import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
+import { LangText } from "../../../components/ui/LangText";
 import { LiquidButton } from "../../../components/ui/LiquidButton";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import { EmptyState, ErrorState } from "../../../components/ui/StatePanel";
@@ -16,6 +17,7 @@ import { formatDateTime, formatMoney, formatNumber } from "../../../lib/format";
 import { useLocale } from "../../../lib/prefs";
 import { attentionFor } from "../helpModel";
 import { HelpTimeline } from "../HelpTimeline";
+import { UrgentBadge } from "../HelpParts";
 
 /** One request of mine: timeline, who was asked and what they said, and confirm on the requester's behalf. */
 export function HelpRequestDetail({ id }: { id: number }) {
@@ -57,6 +59,8 @@ function HelpRequestBody({ item, lang, digits }: { item: HelpRequestItem; lang: 
   const float = t(`float.${item.float_type}`);
   const attention = attentionFor(item);
   const active = item.status === "open" || item.status === "claimed";
+  // Only the requester's own distributor (owner view) may call it off; hidden otherwise.
+  const canCancel = active && item.view === "owner";
   const pending = confirm.isPending || confirmLate.isPending || cancel.isPending;
   const recipients = item.recipients ?? [];
   const area = item.requester.upazila ?? item.requester.district;
@@ -83,7 +87,7 @@ function HelpRequestBody({ item, lang, digits }: { item: HelpRequestItem; lang: 
     <>
       <PageHeader
         title={t("liquidity.agent.card.needs", { amount, float })}
-        description={`${item.requester.name} · ${area}`}
+        description={<LangText text={`${item.requester.name} · ${area}`} />}
         actions={
           <div className="flex flex-wrap gap-2">
             {item.status === "claimed" ? (
@@ -96,7 +100,7 @@ function HelpRequestBody({ item, lang, digits }: { item: HelpRequestItem; lang: 
                 {t("liquidity.dist.confirmLate")}
               </LiquidButton>
             ) : null}
-            {active ? (
+            {canCancel ? (
               <LiquidButton data-testid="help-dist-cancel" variant="secondary" icon={XCircle} onClick={() => setAsking("cancel")}>
                 {t("liquidity.dist.cancel")}
               </LiquidButton>
@@ -104,6 +108,8 @@ function HelpRequestBody({ item, lang, digits }: { item: HelpRequestItem; lang: 
           </div>
         }
       />
+
+      {item.urgent ? <UrgentBadge /> : null}
 
       {attention ? (
         <p role="status" data-testid="help-attention" className="flex items-center gap-2 rounded-xl bg-act-solid px-4 py-3 text-small font-bold text-white">
@@ -124,10 +130,13 @@ function HelpRequestBody({ item, lang, digits }: { item: HelpRequestItem; lang: 
         {typeof item.wave_number === "number" && typeof item.max_waves === "number" ? (
           <p className="num text-small text-muted" data-testid="help-wave">
             {t("liquidity.dist.waveOf", { n: formatNumber(item.wave_number, digits), max: formatNumber(item.max_waves, digits) })}
-            {item.urgent ? ` · ${t("liquidity.urgent")}` : ""}
           </p>
         ) : null}
-        {item.reason_summary ? <p className="text-small">{item.reason_summary}</p> : null}
+        {item.reason_summary ? (
+          <p className="text-small" data-testid="help-reason">
+            <LangText text={item.reason_summary} />
+          </p>
+        ) : null}
         <HelpTimeline status={item.status} />
       </section>
 

@@ -26,15 +26,21 @@ test("Ctrl+K opens the command palette and jumps to an agent", async ({ page }) 
 // scripts/check -E2E first runs `python bootstrap.py e2e-fixtures` (includes seed-notifications):
 // the distributor's inbox is all read except one unread notice, every run, no DB reset. Saved
 // language/digits are not reset, so labels are matched in both (en | bn).
+// Help requests made earlier in the suite (help-requests.spec) or by the background scheduler
+// may add live notices for this distributor, so the count is read, not assumed to be one.
 test("notifications can be read from the bell", async ({ page }) => {
   await loginAs(page, "distributor");
   const badge = page.getByTestId("notification-badge");
-  await expect(badge).toHaveText(/^[1১]$/);
+  await expect(badge).toHaveText(/^[0-9০-৯]+\+?$/);
+  const shown = (await badge.textContent()) ?? "";
+  const unread = Number(shown.replace(/[০-৯]/g, (d) => String("০১২৩৪৫৬৭৮৯".indexOf(d))).replace("+", ""));
+  expect(unread).toBeGreaterThanOrEqual(1); // e2e-fixtures leaves at least one unread notice
   await page.getByTestId("notification-bell").click();
   const panel = page.getByRole("dialog", { name: /^(Notifications|নোটিফিকেশন)$/ });
   await expect(panel).toBeVisible();
   const unreadRows = panel.locator('[data-testid="notification-row"][data-unread="true"]');
-  await expect(unreadRows).toHaveCount(1);
+  await expect.poll(async () => unreadRows.count()).toBeGreaterThanOrEqual(Math.min(unread, 1));
+  if (!shown.endsWith("+")) expect(await unreadRows.count()).toBeLessThanOrEqual(unread);
 
   await panel.getByRole("button", { name: /^(Mark all read|সব পড়া হয়েছে)$/ }).click();
   await expect(badge).toHaveCount(0);

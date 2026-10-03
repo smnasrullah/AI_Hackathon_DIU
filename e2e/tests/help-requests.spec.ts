@@ -33,7 +33,8 @@ async function askedHelper(browser: Browser, password: string, match: (page: Pag
   for (const email of HELPERS.filter((h) => !skip.includes(h))) {
     const page = await signIn(browser, email, password, "/agent");
     await page.goto("/agent/help");
-    await expect(page.locator('[aria-busy="true"]')).toHaveCount(0, { timeout: 60_000 });
+    // Settled: either the cards that need an answer or the "nothing to answer" state.
+    await expect(page.locator('[data-testid^="help-needed-"]').first()).toBeVisible({ timeout: 60_000 });
     if ((await match(page).count()) > 0) return { email, page };
     await page.context().close();
   }

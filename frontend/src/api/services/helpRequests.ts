@@ -11,8 +11,10 @@ import type {
   HelpSettingsIn,
   HelpSettingsOut,
   HelpSweepOut,
+  OptOutOut,
   SimulateIn,
   SimulateOut,
+  TriggerRunOut,
   TriggerSettingsIn,
   TriggerSettingsOut,
 } from "../types";
@@ -92,6 +94,15 @@ export async function simulateShortage(body: SimulateIn): Promise<SimulateOut> {
   return (await api.post<SimulateOut>(`${ADMIN}/simulate-shortage`, body)).data;
 }
 
+/** Agent: may I be asked to help other shops? opted_out true = never asked. */
+export async function getHelpOptOut(): Promise<OptOutOut> {
+  return (await api.get<OptOutOut>(`${BASE}/opt-out`)).data;
+}
+
+export async function putHelpOptOut(optedOut: boolean): Promise<OptOutOut> {
+  return (await api.put<OptOutOut>(`${BASE}/opt-out`, { opted_out: optedOut })).data;
+}
+
 /** What DEMO_MODE changes for help requests (read-only). */
 export async function getDemoHelp(): Promise<DemoHelpInfo> {
   return (await api.get<DemoHelpInfo>(`${ADMIN}/demo`)).data;
@@ -100,6 +111,11 @@ export async function getDemoHelp(): Promise<DemoHelpInfo> {
 /** DEMO_MODE only: cancels the demo agents' open requests and restarts their limits. */
 export async function resetDemoHelp(): Promise<DemoResetOut> {
   return (await api.post<DemoResetOut>(`${ADMIN}/demo-reset`)).data;
+}
+
+/** One scheduler tick now (sweep, waves, trigger). Under dry run it lists what WOULD be sent. */
+export async function runHelpTrigger(): Promise<TriggerRunOut> {
+  return (await api.post<TriggerRunOut>(`${ADMIN}/run-trigger`)).data;
 }
 
 export async function sweepHelpRequests(): Promise<HelpSweepOut> {

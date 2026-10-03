@@ -1,22 +1,23 @@
 import { HandHeart, ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { useHelpInbox, useMyHelpRequests } from "../../api/hooks/helpRequests";
+import { useHelpInboxPages, useMyHelpRequests } from "../../api/hooks/helpRequests";
 import { EmptyState, ErrorState } from "../../components/ui/StatePanel";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { SkeletonPanel } from "../../components/ui/Skeleton";
 import { useNow } from "../../lib/useNow";
 import { helpNeededFor, isActive } from "./helpModel";
 import { HelpNeededCard } from "./HelpNeededCard";
+import { LoadMore } from "./HelpParts";
 import { MyHelpRequestCard } from "./MyHelpRequestCard";
 
 /** /agent/help: requests that need my answer, and my own request while it is still open or claimed. */
 export function AgentHelpPage() {
   const { t } = useTranslation();
   const now = useNow(15_000);
-  const inbox = useHelpInbox({ page_size: 50 });
+  const inbox = useHelpInboxPages({ page_size: 25 });
   const mine = useMyHelpRequests({ page_size: 20 });
-  const needed = inbox.data ? helpNeededFor(inbox.data.items) : [];
+  const needed = inbox.data ? helpNeededFor(inbox.data.pages.flatMap((p) => p.items)) : [];
   const active = mine.data ? mine.data.items.filter((item) => isActive(item.status)) : [];
 
   return (
@@ -32,19 +33,24 @@ export function AgentHelpPage() {
           <SkeletonPanel rows={2} />
         ) : inbox.isError ? (
           <ErrorState onRetry={() => void inbox.refetch()} retrying={inbox.isFetching} />
-        ) : needed.length === 0 ? (
-          <EmptyState
-            illustration="quiet-pulse"
-            title={t("liquidity.agent.needed.empty.title")}
-            body={t("liquidity.agent.needed.empty.body")}
-            action={{ label: t("liquidity.agent.needed.check"), onClick: () => void inbox.refetch() }}
-          />
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {needed.map((item) => (
-              <HelpNeededCard key={item.id} item={item} now={now} />
-            ))}
+        ) : needed.length === 0 && !inbox.hasNextPage ? (
+          <div data-testid="help-needed-empty">
+            <EmptyState
+              illustration="quiet-pulse"
+              title={t("liquidity.agent.needed.empty.title")}
+              body={t("liquidity.agent.needed.empty.body")}
+              action={{ label: t("liquidity.agent.needed.check"), onClick: () => void inbox.refetch() }}
+            />
           </div>
+        ) : (
+          <>
+            <div className="grid gap-4 md:grid-cols-2">
+              {needed.map((item) => (
+                <HelpNeededCard key={item.id} item={item} now={now} />
+              ))}
+            </div>
+            <LoadMore hasMore={inbox.hasNextPage} loading={inbox.isFetchingNextPage} onMore={() => void inbox.fetchNextPage()} />
+          </>
         )}
       </section>
 

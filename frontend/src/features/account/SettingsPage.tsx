@@ -2,11 +2,13 @@ import { Monitor, Moon, Route, Sun } from "lucide-react";
 import { useId, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
+import { useHelpOptOut, useSetHelpOptOut } from "../../api/hooks/helpRequests";
 import { useUpdatePreferences } from "../../api/hooks/users";
 import type { PreferencesUpdate } from "../../api/types";
 import { LiquidButton } from "../../components/ui/LiquidButton";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { SegmentedControl } from "../../components/ui/SegmentedControl";
+import { Skeleton } from "../../components/ui/Skeleton";
 import { toast } from "../../components/ui/toastStore";
 import { useShellStore } from "../../app/shell/shellStore";
 import { cn } from "../../lib/cn";
@@ -50,7 +52,43 @@ function Switch({ checked, onChange, label }: { checked: boolean; onChange: (nex
   );
 }
 
-/** Language, digits, theme (live preview), notifications, tour replay, password. Saved to the profile. */
+/** Agents only: whether nearby shops may ask me for help (PUT /liquidity-requests/opt-out). */
+function HelpOptOutRow() {
+  const { t } = useTranslation();
+  const q = useHelpOptOut(true);
+  const save = useSetHelpOptOut();
+  return (
+    <Row label={t("settings.helpAllow")} hint={t("settings.helpAllowHint")}>
+      {q.isPending ? (
+        <span role="status" aria-busy="true">
+          <Skeleton className="h-8 w-14 rounded-full" />
+          <span className="sr-only">{t("common.loading")}</span>
+        </span>
+      ) : q.isError ? (
+        <span className="flex items-center gap-2 text-xs text-muted">
+          {t("settings.helpAllowError")}
+          <LiquidButton variant="secondary" size="sm" onClick={() => void q.refetch()}>
+            {t("common.retry")}
+          </LiquidButton>
+        </span>
+      ) : (
+        <Switch
+          label={t("settings.helpAllow")}
+          checked={!q.data.opted_out}
+          onChange={(allow) =>
+            save.mutate(!allow, {
+              onSuccess: () => toast({ tone: "success", title: t("settings.saved"), duration: 2500 }),
+              onError: () => toast({ tone: "error", title: t("settings.saveFailed") }),
+            })
+          }
+        />
+      )}
+    </Row>
+  );
+}
+
+/** Language, digits, theme (live preview), notifications, help requests (agents), tour replay,
+ * password. Saved to the profile. */
 export function SettingsPage() {
   const { t } = useTranslation();
   const headingId = useId();
@@ -106,6 +144,7 @@ export function SettingsPage() {
         <Row label={t("settings.notifyInApp")} hint={t("settings.notifyInAppHint")}>
           <Switch label={t("settings.notifyInApp")} checked={user?.notify_in_app ?? true} onChange={(v) => set({ notify_in_app: v })} />
         </Row>
+        {user?.role === "agent" ? <HelpOptOutRow /> : null}
         <Row label={t("settings.tour")} hint={t("settings.tourHint")}>
           <LiquidButton variant="secondary" icon={Route} onClick={() => useShellStore.getState().setTourReplay(true)}>
             {t("settings.tourReplay")}

@@ -12,24 +12,25 @@ import { TimeText } from "../../../components/ui/TimeText";
 import { toast } from "../../../components/ui/toastStore";
 import { formatNumber } from "../../../lib/format";
 import { useLocale } from "../../../lib/prefs";
+import { HELP_ADMIN_NS } from "../../../i18n/helpAdmin";
 
 /** Setting name (API) -> the field label the settings forms use. */
 const FIELD_LABEL = {
-  max_recipients_per_wave: "liquidity.admin.fields.perWave.label",
-  max_request_bdt: "liquidity.admin.fields.maxRequest.label",
-  wave_timeout_min: "liquidity.admin.fields.waveTimeout.label",
-  max_waves: "liquidity.admin.fields.maxWaves.label",
-  recent_ask_h: "liquidity.admin.fields.recentAsk.label",
+  max_recipients_per_wave: "fields.perWave.label",
+  max_request_bdt: "fields.maxRequest.label",
+  wave_timeout_min: "fields.waveTimeout.label",
+  max_waves: "fields.maxWaves.label",
+  recent_ask_h: "fields.recentAsk.label",
 } as const;
 
 function Overrides({ info }: { info: DemoHelpInfo }) {
-  const { t } = useTranslation();
+  const { t: th } = useTranslation(HELP_ADMIN_NS);
   const { digits } = useLocale();
   return (
     <dl className="grid gap-x-6 gap-y-2 text-small sm:grid-cols-2" data-testid="demo-overrides">
       {info.overrides.map((o) => (
         <div key={o.name} className="flex justify-between gap-3 border-b border-line/60 py-1">
-          <dt className="text-muted">{o.name in FIELD_LABEL ? t(FIELD_LABEL[o.name as keyof typeof FIELD_LABEL]) : o.name}</dt>
+          <dt className="text-muted">{o.name in FIELD_LABEL ? th(FIELD_LABEL[o.name as keyof typeof FIELD_LABEL]) : o.name}</dt>
           <dd className="num font-semibold">{formatNumber(o.value, digits)}</dd>
         </div>
       ))}
@@ -40,7 +41,7 @@ function Overrides({ info }: { info: DemoHelpInfo }) {
 /** DEMO_MODE only (the page hides it otherwise): the demo defaults in force (read-only) and the
  * "reset demo help-request state" action behind a confirm dialog. */
 export function DemoModePanel() {
-  const { t } = useTranslation();
+  const { t: th } = useTranslation(HELP_ADMIN_NS);
   const { digits } = useLocale();
   const info = useDemoHelp(true);
   const reset = useResetDemoHelp();
@@ -48,8 +49,8 @@ export function DemoModePanel() {
 
   function runReset(): void {
     reset.mutate(undefined, {
-      onSuccess: (data) => toast({ tone: "success", title: t("liquidity.admin.demoMode.resetDone", { n: formatNumber(data.cancelled_request_ids.length, digits) }) }),
-      onError: () => toast({ tone: "error", title: t("liquidity.admin.demoMode.resetFailed") }),
+      onSuccess: (data) => toast({ tone: "success", title: th("demoMode.resetDone", { n: formatNumber(data.cancelled_request_ids.length, digits) }) }),
+      onError: () => toast({ tone: "error", title: th("demoMode.resetFailed") }),
       onSettled: () => setConfirming(false),
     });
   }
@@ -61,13 +62,13 @@ export function DemoModePanel() {
           <FlaskConical aria-hidden className="mt-1 size-5 shrink-0 text-pulse-fg" />
           <div>
             <h2 id="demo-mode-title" className="font-display text-h2 font-bold">
-              {t("liquidity.admin.demoMode.title")}
+              {th("demoMode.title")}
             </h2>
-            <p className="text-small text-muted">{t("liquidity.admin.demoMode.lead")}</p>
+            <p className="text-small text-muted">{th("demoMode.lead")}</p>
           </div>
         </div>
         <LiquidButton variant="secondary" icon={RotateCcw} data-testid="demo-reset" onClick={() => setConfirming(true)}>
-          {t("liquidity.admin.demoMode.reset")}
+          {th("demoMode.reset")}
         </LiquidButton>
       </div>
 
@@ -77,13 +78,13 @@ export function DemoModePanel() {
         <ErrorState onRetry={() => void info.refetch()} retrying={info.isFetching} />
       ) : (
         <div className="space-y-3">
-          {info.data.overrides.length > 0 ? <Overrides info={info.data} /> : <p className="text-small text-muted">{t("liquidity.admin.demoMode.none")}</p>}
+          {info.data.overrides.length > 0 ? <Overrides info={info.data} /> : <p className="text-small text-muted">{th("demoMode.none")}</p>}
           <ul className="space-y-1 text-small text-muted">
-            {info.data.auto_per_day > 0 ? <li>{t("liquidity.admin.demoMode.autoCap", { n: formatNumber(info.data.auto_per_day, digits) })}</li> : null}
-            {info.data.start_delay_s > 0 ? <li>{t("liquidity.admin.demoMode.startDelay", { n: formatNumber(info.data.start_delay_s, digits) })}</li> : null}
+            {info.data.auto_per_day > 0 ? <li>{th("demoMode.autoCap", { n: formatNumber(info.data.auto_per_day, digits) })}</li> : null}
+            {info.data.start_delay_s > 0 ? <li>{th("demoMode.startDelay", { n: formatNumber(info.data.start_delay_s, digits) })}</li> : null}
             {info.data.last_reset_at ? (
               <li>
-                {t("liquidity.admin.demoMode.lastReset")} <TimeText at={info.data.last_reset_at} mode="datetime" />
+                {th("demoMode.lastReset")} <TimeText at={info.data.last_reset_at} mode="datetime" />
               </li>
             ) : null}
           </ul>
@@ -93,9 +94,9 @@ export function DemoModePanel() {
       <ConfirmDialog
         open={confirming}
         onOpenChange={(open) => (open ? undefined : setConfirming(false))}
-        title={t("liquidity.admin.demoMode.resetTitle")}
-        description={t("liquidity.admin.demoMode.resetBody")}
-        confirmLabel={t("liquidity.admin.demoMode.reset")}
+        title={th("demoMode.resetTitle")}
+        description={th("demoMode.resetBody")}
+        confirmLabel={th("demoMode.reset")}
         tone="danger"
         pending={reset.isPending}
         onConfirm={runReset}

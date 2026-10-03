@@ -107,3 +107,16 @@ def test_non_admin_cannot_reject(client: TestClient, seeded: Path, who: str) -> 
     assert res.status_code == 403
     still = _user(NEW["email"])
     assert still is not None and still.is_pending and not still.is_rejected
+
+
+def test_e2e_fixture_keeps_one_pending_signup(client: TestClient, seeded: Path) -> None:
+    import bootstrap
+
+    assert bootstrap.e2e_fixtures() == 0
+    u = _user(bootstrap.E2E_PENDING_USER)
+    assert u is not None and u.is_pending and not u.is_active
+    res = client.post(f"{API}/admin/users/{u.id}/reject", json={}, headers=bearer(client, ADMIN))
+    assert res.status_code == 200
+    assert bootstrap.e2e_fixtures() == 0  # the next run starts from a pending account again
+    again = _user(bootstrap.E2E_PENDING_USER)
+    assert again is not None and again.is_pending and not again.is_rejected

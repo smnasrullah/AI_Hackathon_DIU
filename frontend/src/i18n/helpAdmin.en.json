@@ -1,0 +1,169 @@
+{
+  "title": "Help request settings",
+  "lead": "Safety switches and limits for the automatic helper search. Nothing here moves money.",
+  "save": "Save settings",
+  "saved": "Settings saved.",
+  "saveFailed": "Settings were not saved. Check the highlighted fields and try again.",
+  "sections": {
+    "switches": "Safety switches",
+    "timing": "Timing and limits",
+    "trigger": "When to ask for help",
+    "waves": "Waves and search"
+  },
+  "fields": {
+    "enabled": {
+      "label": "Automatic help is on",
+      "help": "When off, no new help requests are created."
+    },
+    "dryRun": {
+      "label": "Dry run (preview only)",
+      "help": "The system only records what it would do. Nobody is messaged."
+    },
+    "claimTimeout": {
+      "label": "Minutes before a claim reopens",
+      "help": "If a helper says yes and does not finish in this time, the request reopens for others."
+    },
+    "cooldown": {
+      "label": "Cooldown (minutes)",
+      "help": "Wait before asking the same shop again."
+    },
+    "dailyCap": {
+      "label": "Requests per shop per day",
+      "help": "Stops one shop from being asked too often."
+    },
+    "perWave": {
+      "label": "Helpers asked per wave",
+      "help": "How many helpers each wave contacts at once."
+    },
+    "horizon": {
+      "label": "Look-ahead (hours)",
+      "help": "How far ahead to check for a shortage."
+    },
+    "buffer": {
+      "label": "Safety buffer (%)",
+      "help": "Extra money added on top of the shortfall."
+    },
+    "minShortfall": {
+      "label": "Smallest shortfall (৳)",
+      "help": "Smaller gaps are not worth a request."
+    },
+    "maxRequest": {
+      "label": "Largest request (৳)",
+      "help": "Caps the amount of one request."
+    },
+    "leadMargin": {
+      "label": "Lead time (hours)",
+      "help": "Ask at least this long before the shortage hits."
+    },
+    "radius": {
+      "label": "Search radius (km)",
+      "help": "Helpers must be within this distance."
+    },
+    "maxWaves": {
+      "label": "Number of waves",
+      "help": "How many rounds of helpers are asked before the distributor is told."
+    },
+    "waveTimeout": {
+      "label": "Minutes per wave",
+      "help": "How long a wave has to answer before the next one starts."
+    },
+    "recentAsk": {
+      "label": "Do not ask again within (hours)",
+      "help": "Stops repeated asks for the same shop."
+    },
+    "deadlineFloor": {
+      "label": "Shortest deadline (minutes)",
+      "help": "A request never asks for help sooner than this. Stock-out within twice this time marks it urgent."
+    },
+    "urgentWave": {
+      "label": "Urgent first wave (times)",
+      "help": "Urgent requests ask this many times more agents in the first wave."
+    },
+    "lateGrace": {
+      "label": "Late confirm window (hours)",
+      "help": "After a request expires, the requester side can still confirm a late delivery from the helper whose acceptance timed out, for this long."
+    },
+    "perTick": {
+      "label": "New requests per run",
+      "help": "At most this many new requests per scheduler run, most urgent first. The rest wait for the next runs."
+    }
+  },
+  "range": "Enter a whole number from {{min}} to {{max}}.",
+  "number": "Enter a whole number.",
+  "preview": {
+    "title": "Dry-run preview",
+    "lead": "Shows who would get a request right now. Sends nothing.",
+    "run": "Run preview",
+    "empty": "Nothing would be requested right now.",
+    "failed": "The preview could not run. Try again.",
+    "cols": {
+      "agent": "Shop",
+      "float": "Float",
+      "amount": "Amount",
+      "result": "Result",
+      "asks": "Would ask"
+    },
+    "fires": "Would create a request",
+    "holds": "Not this time",
+    "summary": "{{creates}} requests, {{asks}} helper asks"
+  },
+  "demo": {
+    "title": "Simulate a shortage",
+    "lead": "Demo only. Forces one shop short for 30 minutes and runs the helper search now. Results are marked as simulated.",
+    "agent": "Shop",
+    "float": "Float",
+    "run": "Simulate shortage",
+    "done": "{{agent}}: {{n}} request(s) created (simulated).",
+    "none": "No request was created for that shop.",
+    "failed": "The simulation could not run.",
+    "dryRun": "Dry run is ON: nothing was sent. {{n}} people would have been asked.",
+    "switchedOff": "Help requests are switched off: nothing was sent. {{n}} people would have been asked.",
+    "blocked": {
+      "active_request": "Already has an open request for that float.",
+      "no_candidates": "Nobody nearby can help now.",
+      "feature_disabled": "Help requests are off.",
+      "other": "No request was created."
+    }
+  },
+  "demoMode": {
+    "title": "Demo mode",
+    "lead": "Demo defaults below; your saved values win.",
+    "none": "No demo defaults in force.",
+    "autoCap": "Auto requests: max {{n}} per shop and float a day.",
+    "startDelay": "First check waits {{n}} s after a fresh start.",
+    "lastReset": "Last reset:",
+    "reset": "Reset demo help-request state",
+    "resetTitle": "Reset demo help requests?",
+    "resetBody": "Cancels demo shops' open requests and restarts their limits. Nobody is messaged. Audited.",
+    "resetDone": "Reset: {{n}} cancelled.",
+    "resetFailed": "Reset failed. Try again."
+  },
+  "scheduler": {
+    "title": "Background check",
+    "lead": "Runs every minute: new requests, next waves, timeouts.",
+    "lastRun": "Last run",
+    "nextRun": "Next run",
+    "lastResult": "Last result",
+    "lastError": "Last error",
+    "noError": "None",
+    "never": "Not yet",
+    "notYet": "Not run yet.",
+    "stale": "No recent run: the check may be down.",
+    "runNow": "Run check now",
+    "runFailed": "Check failed. Try again.",
+    "ran": "Done: {{n}} new.",
+    "counts": {
+      "requests_created": "{{n}} new",
+      "waves_advanced": "{{n}} waves",
+      "waves_exhausted": "{{n}} out of waves",
+      "reopened": "{{n}} reopened",
+      "expired": "{{n}} expired"
+    }
+  },
+  "wouldAsk": {
+    "dryRun": "Dry run is ON: nothing was sent.",
+    "off": "Help requests are off: nothing was sent.",
+    "none": "Nothing would be sent.",
+    "asked": "Would ask: {{who}}"
+  }
+}

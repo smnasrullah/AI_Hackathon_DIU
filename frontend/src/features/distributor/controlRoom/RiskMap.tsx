@@ -178,9 +178,10 @@ export default function RiskMap({ agents, swaps, selectedId, onSelect, onlineTil
     if (!map) return;
     const text = (p: HelpMapPoint): HelpMarkerText => {
       const amount = formatMoney(p.amount, digits, { compact: true, lang });
+      const urgent = p.urgent ? `${t("liquidity.urgent")} · ` : "";
       return {
-        text: t("liquidity.map.open", { amount }),
-        label: t("liquidity.map.label", { name: p.name, amount, float: t(`float.${p.floatType}`) }),
+        text: urgent + t("liquidity.map.open", { amount }),
+        label: urgent + t("liquidity.map.label", { name: p.name, amount, float: t(`float.${p.floatType}`) }),
       };
     };
     syncHelpMarkers(map, helpMarks.current, helpPoints, text);
