@@ -81,9 +81,13 @@ export function DemoShortage() {
 
       {result ? (
         <p role="status" data-testid="demo-result" className="text-small font-semibold">
-          {result.created_request_ids.length === 0
-            ? t("liquidity.admin.demo.none")
-            : t("liquidity.admin.demo.done", { agent: result.agent_code, n: formatNumber(result.created_request_ids.length, digits) })}
+          {!result.sent
+            ? t(result.dry_run ? "liquidity.admin.demo.dryRun" : "liquidity.admin.demo.switchedOff", {
+                n: formatNumber(result.would_create.reduce((sum, p) => sum + p.asks.length, 0), digits),
+              })
+            : result.created_request_ids.length === 0
+              ? t("liquidity.admin.demo.none")
+              : t("liquidity.admin.demo.done", { agent: result.agent_code, n: formatNumber(result.created_request_ids.length, digits) })}
         </p>
       ) : null}
       {failed ? (

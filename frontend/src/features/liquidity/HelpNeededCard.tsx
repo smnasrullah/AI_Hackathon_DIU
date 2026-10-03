@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock, HandHeart, MapPin, Undo2, X } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, HandHeart, Info, MapPin, Undo2, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { useClaimHelp, useDeclineHelp, useWithdrawHelp } from "../../api/hooks/helpRequests";
@@ -75,11 +75,21 @@ export function HelpNeededCard({ item, now }: Props) {
       </p>
 
       <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-small text-muted">
+        {item.urgent ? (
+          <li data-testid="help-urgent" className="flex items-center gap-1.5 font-semibold text-act-fg">
+            <AlertTriangle aria-hidden className="size-3.5" />
+            {t("liquidity.urgent")}
+          </li>
+        ) : null}
         <li className="flex items-center gap-1.5">
           <Clock aria-hidden className="size-3.5" />
           {overdue ? (
             <span data-testid="help-countdown" className="font-semibold text-act-fg">
               {t("liquidity.agent.card.overdue")}
+            </span>
+          ) : item.deadline_asap ? (
+            <span data-testid="help-countdown" className="font-semibold text-act-fg">
+              {t("liquidity.asap")}
             </span>
           ) : (
             <time data-testid="help-countdown" dateTime={item.needed_by} className="num">
@@ -94,7 +104,11 @@ export function HelpNeededCard({ item, now }: Props) {
           </li>
         ) : null}
       </ul>
-      {item.reason_summary ? <p className="mt-2 text-small">{t("liquidity.agent.card.reason", { reason: item.reason_summary })}</p> : null}
+      {/* Helpers get only a coarse, number-free reason; the full one stays with the requester side. */}
+      <p data-testid="help-reason-category" className="mt-2 flex items-center gap-1.5 text-small">
+        <Info aria-hidden className="size-3.5 text-muted" />
+        {t("liquidity.agent.card.reason", { reason: t(`liquidity.reasonCategory.${item.reason_category ?? "unknown"}`) })}
+      </p>
 
       {claimedByMe ? (
         <div className="mt-4 space-y-3">

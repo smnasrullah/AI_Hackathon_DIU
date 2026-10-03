@@ -3,7 +3,7 @@ Advisory coordination only: no endpoint moves money."""
 
 from collections.abc import Callable
 from dataclasses import asdict
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
@@ -27,9 +27,13 @@ router = APIRouter(prefix="/liquidity-requests", tags=["liquidity-requests"])
 admin_router = APIRouter(prefix="/admin/liquidity-requests", tags=["liquidity-requests"])
 
 Helper = Annotated[User, Depends(require_roles(UserRole.agent, UserRole.distributor))]
-Canceller = Annotated[User, Depends(require_roles(UserRole.agent, UserRole.admin))]
+Canceller = Annotated[User, Depends(require_roles(UserRole.agent, UserRole.distributor,
+                                                   UserRole.admin))]
 Admin = Annotated[User, Depends(require_roles(UserRole.admin))]
 StatusQuery = Annotated[HelpStatus | None, Query(alias="status")]
+# Unset fields are omitted: owner-only extras never reach helpers, wave counters never agents.
+ITEM: dict[str, Any] = {"response_model": HelpRequestItem, "response_model_exclude_unset": True}
+PAGE: dict[str, Any] = {"response_model": HelpRequestPage, "response_model_exclude_unset": True}
 PageSize = Annotated[int, Query(ge=1, le=100)]
 
 
@@ -48,63 +52,74 @@ def _note(body: HelpNoteIn | None) -> str | None:
     return body.note if body else None
 
 
-@router.get("/mine", response_model=HelpRequestPage)
+@router.get("/mine", **PAGE)
 def list_mine(user: Helper, session: SessionDep, request_status: StatusQuery = None,
               page: PageQuery = 1, page_size: PageSize = 20) -> HelpRequestPage:
     """As requester: an agent's own requests; a distributor's agents' requests. Newest first."""
     return liquidity_read.as_requester(session, user, request_status, page, page_size)
 
 
-@router.get("/inbox", response_model=HelpRequestPage)
+@router.get("/inbox", **PAGE)
 def list_inbox(user: Helper, session: SessionDep, request_status: StatusQuery = None,
                page: PageQuery = 1, page_size: PageSize = 20) -> HelpRequestPage:
     """Requests the caller was asked to help with (amount, area and deadline; no balances)."""
     return liquidity_read.addressed_to(session, user, request_status, page, page_size)
 
 
-@router.get("/{request_id}", response_model=HelpRequestItem)
+@router.get("/{request_id}", **ITEM)
 def get_request(request_id: IdPath, user: CurrentUser, session: SessionDep) -> HelpRequestItem:
     """One request. Unknown ids and ids outside the caller's reach are both 403."""
     return _run(session, lambda: help_requests.get(session, user, request_id))
 
 
-@router.post("/{request_id}/claim", response_model=HelpRequestItem)
+@router.post("/{request_id}/claim", **ITEM)
 def claim(request_id: IdPath, user: Helper, session: SessionDep) -> HelpRequestItem:
     """A listed recipient accepts. Exactly one wins; the others get 409 already_taken."""
     return _run(session, lambda: help_requests.claim(session, user, request_id))
 
 
-@router.post("/{request_id}/decline", response_model=HelpRequestItem)
+@router.post("/{request_id}/decline", **ITEM)
 def decline(request_id: IdPath, user: Helper, session: SessionDep,
             body: HelpNoteIn | None = None) -> HelpRequestItem:
     """A listed recipient says no; nobody else is affected."""
     return _run(session, lambda: help_requests.decline(session, user, request_id, _note(body)))
 
 
-@router.post("/{request_id}/withdraw", response_model=HelpRequestItem)
+@router.post("/{request_id}/withdraw", **ITEM)
 def withdraw(request_id: IdPath, user: Helper, session: SessionDep,
              body: HelpNoteIn | None = None) -> HelpRequestItem:
     """The helper who claimed it backs out before confirmation; the request reopens."""
     return _run(session, lambda: help_requests.withdraw(session, user, request_id, _note(body)))
 
 
-@router.post("/{request_id}/confirm", response_model=HelpRequestItem)
+@router.post("/{request_id}/confirm", **ITEM)
 def confirm(request_id: IdPath, user: Helper, session: SessionDep,
             body: HelpNoteIn | None = None) -> HelpRequestItem:
     """The requester agent or their distributor confirms receipt."""
     return _run(session, lambda: help_requests.confirm(session, user, request_id, _note(body)))
 
 
-@router.post("/{request_id}/cancel", response_model=HelpRequestItem)
+@router.post("/{request_id}/confirm-late", **ITEM)
+def confirm_late(request_id: IdPath, user: Helper, session: SessionDep,
+                 body: HelpNoteIn | None = None) -> HelpRequestItem:
+    """The requester agent or their distributor confirms that the helper whose claim timed out
+    delivered after all. Only on a reopened request that had such a claim (409
+    no_lapsed_claim otherwise)."""
+    return _run(session, lambda: help_requests.confirm_late(session, user, request_id,
+                                                            _note(body)))
+
+
+@router.post("/{request_id}/cancel", **ITEM)
 def cancel(request_id: IdPath, user: Canceller, session: SessionDep,
            body: HelpNoteIn | None = None) -> HelpRequestItem:
-    """The requester agent or an admin cancels an open or claimed request."""
+    """The requester agent, their own distributor or an admin cancels an open or claimed
+    request. Anyone else is 403. Audited (actor, old and new status)."""
     return _run(session, lambda: help_requests.cancel(session, user, request_id, _note(body)))
 
 
 # --- admin ------------------------------------------------------------------------------------
 
-@admin_router.get("", response_model=HelpRequestPage)
+@admin_router.get("", **PAGE)
 def list_all(user: Admin, session: SessionDep, request_status: StatusQuery = None,
              page: PageQuery = 1, page_size: PageSize = 20) -> HelpRequestPage:
     """Every help request, newest first."""

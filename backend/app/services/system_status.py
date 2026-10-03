@@ -15,7 +15,7 @@ from app.models.system_meta import SystemMeta
 from app.schemas.system import BootstrapState, SystemStatus
 
 
-def _bootstrap_state(settings: Settings) -> BootstrapState:
+def bootstrap_state(settings: Settings) -> BootstrapState:
     try:
         raw = settings.bootstrap_state_file.read_text(encoding="utf-8").strip()
     except OSError:
@@ -58,7 +58,7 @@ def _model_version(settings: Settings) -> str | None:
 def build_status(settings: Settings, engine: Engine) -> SystemStatus:
     db_ok, current, meta = _read_db(engine)
     head = _migration_head()
-    state = _bootstrap_state(settings)
+    state = bootstrap_state(settings)
     model_version = _model_version(settings)
     seed = meta.get("seed")
     data_version = meta.get("data_version")

@@ -43,9 +43,14 @@ export function notificationLink(item: NotificationItem, role: Role): string | n
     case "swap":
       if (role === "agent") return "/agent/swap";
       return role === "distributor" ? "/distributor/swaps" : null;
-    case "liquidity_request":
+    case "liquidity_request": {
+      // The server sends each reader's own link; the role mapping below is the fallback.
+      const link = item.params.link;
+      if (typeof link === "string" && link.startsWith("/") && link.startsWith(`/${role}`)) return link;
       if (role === "agent") return "/agent/help";
+      if (role === "admin") return "/admin/help-settings";
       return role === "distributor" && id ? `/distributor/help-requests/${id}` : null;
+    }
     case "anomaly":
       if (role !== "distributor") return null;
       return id ? `/distributor/anomalies/${id}` : "/distributor/anomalies";

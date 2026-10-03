@@ -103,6 +103,60 @@ Limitations: volume bursts are the hardest kind (holdout recall 0.40), likely be
 | Distributor | Own agents' risk map, swap queue, requests, anomalies | Approve / reject swap with note; approve / decline request with note, mark fulfilled; review anomaly confirmed / dismissed with note | `audit_log` (user id + note), `swaps.decided_by`, `recommendation_requests.decided_by`, `anomalies.reviewed_by` |
 | Admin | All | Users, models, LLM logs, audit | `audit_log` |
 
+### Liquidity help requests (automatic trigger)
+
+Advisory coordination only: the system asks nearby helpers, a human confirms the money arrived;
+nothing moves money. Rules: `backend/app/rules/help_trigger_rules.py`, `help_request_rules.py`;
+services `help_trigger.py`, `help_trigger_run.py`, `help_waves.py`, `liquidity_requests.py`.
+
+- **Trigger**: per agent and float, the cautious path (drain q90, inflow q10) over
+  `HELP_TRIGGER_HORIZON_H` drops below the agent's buffer, the headline risk is red, and the gap
+  is at least `HELP_TRIGGER_MIN_SHORTFALL_BDT`. Each float fires on its own; one active request
+  per agent and float (dedupe), cooldown and daily cap across both floats.
+- **Amount** = shortfall to zero + buffer, rounded up to 500, capped at
+  `HELP_TRIGGER_MAX_REQUEST_BDT`.
+- **Buffer** = `HELP_TRIGGER_BUFFER_PCT` of the agent's **expected 24 h drain from the forecast**
+  (sum of the hourly q50 drain for the next 24 h), not a historical average. A helper keeps its own
+  need plus its own buffer before anything counts as surplus.
+- **Time base**: the forecast is a frozen snapshot made at the synthetic clock `SIM_NOW`; its
+  hours count from that origin. Every workflow time (created, needed_by, claim expiry, wave
+  timers, notifications, the UI countdown) is real wall-clock UTC (`backend/app/core/clock.py`),
+  and the one conversion `forecast_to_wall()` places a forecast moment at "now + the same offset".
+  So a request made when the agent page says "stock-out in 3 h 40 m" stores `stockout_at` =
+  now + 3 h 40 m, and `needed_by` = (earlier of the cautious crossing and that median stock-out)
+  - `HELP_TRIGGER_LEAD_MARGIN_H`, never sooner than `HELP_TRIGGER_DEADLINE_FLOOR_MIN` (15 min).
+  The agent page keeps showing the snapshot ("as of SIM_NOW"); the request counts down in real time.
+- **Urgent**: forecast stock-out sooner than twice the deadline floor; wave 1 then asks
+  `HELP_TRIGGER_URGENT_WAVE_MULTIPLIER` times as many agents.
+- **As soon as possible**: when the floor pushes `needed_by` past the forecast stock-out
+  (stock-out sooner than the floor), the request is flagged (`deadline_after_stockout` in the
+  database, `deadline_asap` in the API, helpers included) and the UI and notifications say "as
+  soon as possible" instead of a time after the stock-out.
+- **Late delivery**: if a helper's claim timed out but the money still arrived, the requester or
+  their distributor confirms it late (`confirm_late`); allowed while the request is open again,
+  or up to `HELP_LATE_CONFIRM_GRACE_H` (24 h) after it expired, never once cancelled.
+- **New shortages appear only when the data changes**: the forecast is tied to the synthetic
+  clock, so with the shipped data the set of short agents is fixed after bootstrap (regenerating
+  data or retraining changes it). In a demo, the admin **simulate shortage** button
+  (`DEMO_MODE` only, audited, results marked simulated) is the path to a fresh request.
+- **Waves**: the requester's distributor is always asked; agents (same distributor, within
+  `HELP_TRIGGER_RADIUS_KM`, surplus covers the whole amount, not opted out, not asked in the last
+  `HELP_TRIGGER_RECENT_ASK_H`) are ranked by distance, recent asks and past acceptance. After
+  `HELP_TRIGGER_WAVE_TIMEOUT_MIN` unanswered, the next agents are asked; after
+  `HELP_TRIGGER_MAX_WAVES` the request expires and the distributor and admins are escalated.
+- **Who sees the reason**: stored as a code plus parameters and rendered in the reader's language
+  for the requester, their distributor and admins; helpers see only a coarse category
+  (salary_day, eid, holiday, market_day, weather, high_demand, unknown), never numbers or balances.
+- **Scheduler**: one tick every `HELP_TRIGGER_INTERVAL_S` (claim-timeout sweep, wave advance,
+  trigger), only after bootstrap is ready and only in the process holding the leader lock
+  (Postgres advisory lock; file lock on SQLite). Status on `GET /admin/overview`.
+- **Pacing**: a tick opens at most `HELP_TRIGGER_MAX_NEW_PER_TICK` (3) new requests, earliest
+  stock-out first (then larger amount, then agent id); the others are reported `tick_cap` and are
+  re-evaluated on the next ticks, where dedupe, cooldown and the daily cap still apply. A fresh
+  start of the shipped data finds about 20 short agents, so they arrive over several minutes
+  instead of all at once. In `DEMO_MODE` the first tick of each app start also waits
+  `HELP_SCHEDULER_DEMO_START_DELAY_S` (120 s) after bootstrap is ready.
+
 ## 4. LLM usage (language only; matches docs/LLM_SPEC.md)
 
 | Feature | Intent (`llm_call_log.intent`) | Deterministic part | LLM-generated part | Endpoint |

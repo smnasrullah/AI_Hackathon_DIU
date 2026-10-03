@@ -84,7 +84,8 @@ def test_scope_and_role_rules(client: TestClient, seeded: Path) -> None:
     assert client.get(f"{API}/{req_id}", headers=bearer(client, DIST_SYL)).status_code == 403
     assert client.get(f"{API}/999999", headers=bearer(client, AGENT_MIRPUR)).status_code == 403
     assert act(client, req_id, "cancel", AGENT_PATIYA).status_code == 403  # not the requester
-    assert act(client, req_id, "cancel", DIST_DHAKA).status_code == 403  # role gate
+    # Distributors may cancel only their own agents' requests (test_distributor_cancel_rights).
+    assert act(client, req_id, "cancel", DIST_CTG).status_code == 403
     assert act(client, req_id, "decline", ADMIN).status_code == 403  # role gate
     act(client, req_id, "claim", AGENT_PATIYA)
     assert act(client, req_id, "confirm", AGENT_PATIYA).status_code == 403  # helper cannot

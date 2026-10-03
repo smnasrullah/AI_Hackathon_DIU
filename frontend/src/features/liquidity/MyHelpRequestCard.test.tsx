@@ -53,6 +53,10 @@ function mine(over: Partial<HelpRequestItem> = {}): HelpRequestItem {
     claimed_by: null,
     recipients: [recipient("AGT-0009", "none"), recipient("AGT-0010", "declined", 2)],
     advisory: true,
+    urgent: false,
+    deadline_asap: false,
+    reason_category: "unknown",
+    can_confirm_late: false,
     ...over,
   };
 }

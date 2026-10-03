@@ -22,6 +22,7 @@ export function policySchema(m: SettingsMessages) {
     cooldown_min: whole(m, 0, 1440),
     daily_cap_per_agent: whole(m, 1, 100),
     max_recipients_per_wave: whole(m, 1, 50),
+    late_confirm_grace_h: whole(m, 0, 168),
   });
 }
 
@@ -36,6 +37,9 @@ export function triggerSchema(m: SettingsMessages) {
     wave_timeout_min: whole(m, 1, 1440),
     max_waves: whole(m, 1, 10),
     recent_ask_h: decimal(m, 0, 168),
+    deadline_floor_min: whole(m, 1, 240),
+    urgent_wave_multiplier: decimal(m, 1, 5),
+    max_new_per_tick: whole(m, 1, 100),
   });
 }
 

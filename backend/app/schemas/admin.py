@@ -119,6 +119,18 @@ class RoleCount(BaseModel):
     active: int
 
 
+class SchedulerStatus(BaseModel):
+    """The help-request scheduler as its leader last recorded it (read only)."""
+
+    interval_s: int | None
+    last_run_at: datetime | None
+    last_result: dict[str, int] | None  # reopened, expired, waves_advanced, ... of that tick
+    last_error: str | None
+    next_run_at: datetime | None
+    leader: str | None  # host:pid of the process that ran it
+    stale: bool  # no tick for over two intervals past next_run_at: the loop may be down
+
+
 class AdminOverview(BaseModel):
     users: list[RoleCount]
     distributors: int
@@ -132,4 +144,5 @@ class AdminOverview(BaseModel):
     active_models: list[ActiveModel]
     latest_job: JobOut | None
     recent_audit: list[AuditItem]
+    help_scheduler: SchedulerStatus | None  # None until the first tick
     generated_at: datetime

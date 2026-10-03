@@ -100,6 +100,7 @@ class Settings(BaseSettings):
     help_cooldown_min: int = 30
     help_daily_cap_per_agent: int = 3
     help_max_recipients_per_wave: int = 5
+    help_late_confirm_grace_h: int = 24  # expired requests: late delivery confirmable this long
     # Automatic trigger (app/services/help_trigger.py): defaults only, admins override at runtime
     # (app/services/help_settings.py trigger_*). Interval 0 turns the background loop off.
     help_trigger_interval_s: int = 60
@@ -112,6 +113,13 @@ class Settings(BaseSettings):
     help_trigger_wave_timeout_min: int = 15
     help_trigger_max_waves: int = 3
     help_trigger_recent_ask_h: float = 2.0
+    help_trigger_deadline_floor_min: int = 15  # needed_by is never sooner than this
+    # Urgent (stock-out sooner than twice the floor): wave 1 asks this many times more agents.
+    help_trigger_urgent_wave_multiplier: float = 2.0
+    help_trigger_max_new_per_tick: int = 3  # new requests per tick, most urgent first
+    # DEMO_MODE: the scheduler's first tick waits this long after bootstrap is ready, so a fresh
+    # demo does not open with a burst of requests before anyone is watching.
+    help_scheduler_demo_start_delay_s: int = 120
 
     llm_provider: LlmProvider = "auto"
     llm_model: str = "claude-haiku-4-5-20251001"

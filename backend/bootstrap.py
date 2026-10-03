@@ -57,6 +57,7 @@ def seed() -> int:
     settings = get_settings()
     seed_reference()
     counts = generate.run(seed=settings.seed)
+    seed_helpers()  # logins for agents that only exist now (seed.HELPER_USERS)
     with Session(get_engine()) as session, session.begin():
         _set_meta(session, "seed", settings.seed)
         _set_meta(session, "data_version", DATA_VERSION)
@@ -68,6 +69,15 @@ def seed_reference() -> int:
     """Re-run only the idempotent distributor/agent/user seed (e.g. after a password change)."""
     with Session(get_engine()) as session, session.begin():
         log.info("reference seed: %s", reference_seed.run(session, get_settings()))
+    return 0
+
+
+def seed_helpers() -> int:
+    """Create missing helper-agent demo logins (seed.HELPER_USERS). Create-only: safe on every
+    start and on an existing database; never resets a user."""
+    with Session(get_engine()) as session, session.begin():
+        log.info("helper logins created: %d", reference_seed.ensure_helpers(session,
+                                                                           get_settings()))
     return 0
 
 
@@ -127,6 +137,7 @@ COMMANDS = {
     "needs-seed": needs_seed,
     "seed": seed,
     "seed-reference": seed_reference,
+    "seed-helpers": seed_helpers,
     "needs-train": needs_train,
     "train": run_train,
     "precompute": precompute,

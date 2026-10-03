@@ -21,10 +21,15 @@ export function timelineStates(status: HelpStatus): Record<Step, StepState> {
 
 export type Attention = "lastWave" | "expired";
 
-/** Needs a human: it ran out of time unfilled, or it is still open on the last wave. */
-export function attentionFor(item: Pick<HelpRequestItem, "status" | "wave_number">, lastWave: number | null): Attention | null {
+/**
+ * Needs a human: it ran out of time unfilled, or it is still open on the last wave. The server says
+ * which wave is the last (`is_last_wave`, distributors and admins only); `lastWave` is a fallback.
+ */
+export function attentionFor(item: Pick<HelpRequestItem, "status" | "wave_number" | "is_last_wave">, lastWave: number | null = null): Attention | null {
   if (item.status === "expired") return "expired";
-  if (item.status === "open" && lastWave !== null && item.wave_number >= lastWave) return "lastWave";
+  if (item.status !== "open") return null;
+  if (item.is_last_wave === true) return "lastWave";
+  if (lastWave !== null && typeof item.wave_number === "number" && item.wave_number >= lastWave) return "lastWave";
   return null;
 }
 

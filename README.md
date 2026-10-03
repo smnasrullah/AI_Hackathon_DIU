@@ -54,6 +54,14 @@ one-click chips for these; otherwise sign in with the password set at seed time.
 | Agent | `agent.mirpur@agentpulse.demo` | AGT-0001 — the scripted "cash runs dry at 3:40 PM" scenario |
 | Agent | `agent.patiya@agentpulse.demo` | AGT-0002 |
 | Agent | `agent.sunamganj@agentpulse.demo` | AGT-0003 |
+| Agent | `agent.mirpur11@agentpulse.demo` | AGT-0004, ~1 km from AGT-0001: help-request helper (cash donor) |
+| Agent | `agent.mirpur.chowdhury@agentpulse.demo` | AGT-0072, ~1.7 km: help-request helper |
+| Agent | `agent.mirpur.sarkar@agentpulse.demo` | AGT-0064, ~1.8 km: help-request helper |
+| Agent | `agent.mohammadpur@agentpulse.demo` | AGT-0106, ~4.3 km: help-request helper |
+
+The four helper logins are synthetic shops of the generated data under DST-DHK, near AGT-0001.
+They use the agent password (no one-click chip) and are created after the data load, on every
+start if missing (`python bootstrap.py seed-helpers`), so an existing database gets them too.
 
 ## Replay and template answers
 

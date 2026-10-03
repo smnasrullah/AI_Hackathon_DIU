@@ -31,6 +31,9 @@ if python bootstrap.py needs-seed; then
   step seeding python bootstrap.py seed
 fi
 
+# Create-only: demo helper logins for agents of the synthetic data (also on an existing DB).
+python bootstrap.py seed-helpers || echo "[bootstrap] warning: helper logins not created"
+
 if python bootstrap.py needs-train; then
   step training python bootstrap.py train
 fi

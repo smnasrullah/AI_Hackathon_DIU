@@ -24,7 +24,8 @@ def defaults() -> HelpPolicy:
                       claim_timeout_min=s.help_claim_timeout_min,
                       cooldown_min=s.help_cooldown_min,
                       daily_cap_per_agent=s.help_daily_cap_per_agent,
-                      max_recipients_per_wave=s.help_max_recipients_per_wave)
+                      max_recipients_per_wave=s.help_max_recipients_per_wave,
+                      late_confirm_grace_h=s.help_late_confirm_grace_h)
 
 
 def current(session: Session) -> HelpPolicy:
@@ -44,7 +45,10 @@ def trigger_defaults() -> TriggerPolicy:
                          radius_km=s.help_trigger_radius_km,
                          wave_timeout_min=s.help_trigger_wave_timeout_min,
                          max_waves=s.help_trigger_max_waves,
-                         recent_ask_h=s.help_trigger_recent_ask_h)
+                         recent_ask_h=s.help_trigger_recent_ask_h,
+                         deadline_floor_min=s.help_trigger_deadline_floor_min,
+                         urgent_wave_multiplier=s.help_trigger_urgent_wave_multiplier,
+                         max_new_per_tick=s.help_trigger_max_new_per_tick)
 
 
 def trigger_current(session: Session) -> TriggerPolicy:

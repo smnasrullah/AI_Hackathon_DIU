@@ -46,7 +46,8 @@ def test_shortage_to_fulfilled(client: TestClient, ready: Path) -> None:
 
     done = act(client, req_id, "confirm", REQUESTER)
     assert done.status_code == 200 and done.json()["status"] == "fulfilled"
-    assert "fulfilled" in notes(req_id)[REQUESTER]
+    assert "fulfilled" in notes(req_id)[first]  # the helper hears it was received
+    assert "fulfilled" not in notes(req_id)[REQUESTER]  # never told of their own action
 
     again = help_trigger_run.run_trigger(now_utc())  # next tick: no duplicate for this agent
     assert again.created == []

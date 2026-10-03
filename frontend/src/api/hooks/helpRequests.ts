@@ -5,6 +5,7 @@ import {
   cancelHelpRequest,
   claimHelpRequest,
   confirmHelpRequest,
+  confirmLateHelpRequest,
   declineHelpRequest,
   dryRunHelp,
   getHelpRequest,
@@ -75,6 +76,10 @@ export function useWithdrawHelp() {
 
 export function useConfirmHelp() {
   return useHelpAction(({ id, body }: { id: number; body?: HelpNoteIn }) => confirmHelpRequest(id, body));
+}
+
+export function useConfirmLateHelp() {
+  return useHelpAction(({ id, body }: { id: number; body?: HelpNoteIn }) => confirmLateHelpRequest(id, body));
 }
 
 export function useCancelHelp() {

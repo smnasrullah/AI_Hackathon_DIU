@@ -71,6 +71,17 @@ measured there.
   agent count this becomes a scheduled job (queue + workers), still writing to the same
   `forecasts`/`risk_levels`/`recommendations` tables the API already only reads from — the API
   layer does not need to change.
+- **Several app instances**: the help-request scheduler already elects one leader (Postgres
+  advisory lock, `backend/app/core/leader.py`) so only one instance ticks; keep that guard when
+  scaling out, and alert when `GET /admin/overview` reports the scheduler `stale`. Every tick is
+  idempotent as a second line of defence.
+- **Rate limiting**: the per-IP limiter (`backend/app/core/rate_limit.py`) and the LLM per-user
+  limiter keep their counters in process memory, so each instance counts separately and a
+  restart resets them. Behind a load balancer move them to a shared store (e.g. Redis) and read
+  the real client IP from the trusted proxy header.
+- **Sessions after a password reset**: a reset revokes the refresh tokens, but an access token
+  already issued stays valid until it expires (up to `JWT_ACCESS_TTL_MIN`, 15 minutes). If that
+  window is not acceptable, add a per-user token version checked on every request.
 - **Observability**: structured logs already exist per request; add request tracing and
   dashboards for the metrics already logged (`llm_call_log`, `audit_log`, impact cache).
 

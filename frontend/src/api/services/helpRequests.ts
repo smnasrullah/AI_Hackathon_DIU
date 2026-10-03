@@ -49,6 +49,11 @@ export async function confirmHelpRequest(id: number, body: HelpNoteIn = {}): Pro
   return (await api.post<HelpRequestItem>(`${BASE}/${id}/confirm`, body)).data;
 }
 
+/** The helper whose claim timed out delivered after all (reopened requests that had such a claim). */
+export async function confirmLateHelpRequest(id: number, body: HelpNoteIn = {}): Promise<HelpRequestItem> {
+  return (await api.post<HelpRequestItem>(`${BASE}/${id}/confirm-late`, body)).data;
+}
+
 export async function cancelHelpRequest(id: number, body: HelpNoteIn = {}): Promise<HelpRequestItem> {
   return (await api.post<HelpRequestItem>(`${BASE}/${id}/cancel`, body)).data;
 }

@@ -26,6 +26,10 @@ const BASE: HelpRequestItem = {
   claimed_by: null,
   recipients: null,
   advisory: true,
+  urgent: false,
+  deadline_asap: false,
+  reason_category: "unknown",
+  can_confirm_late: false,
 };
 
 describe("timelineStates", () => {
@@ -53,6 +57,13 @@ describe("attentionFor", () => {
 
   it("does not flag when the last wave is unknown", () => {
     expect(attentionFor({ status: "open", wave_number: 9 }, null)).toBeNull();
+  });
+
+  it("trusts the server's last-wave flag (distributors get it, agents do not)", () => {
+    expect(attentionFor({ status: "open", wave_number: 2, is_last_wave: true })).toBe("lastWave");
+    expect(attentionFor({ status: "open", wave_number: 2, is_last_wave: false })).toBeNull();
+    expect(attentionFor({ status: "claimed", wave_number: 3, is_last_wave: true })).toBeNull();
+    expect(attentionFor({ status: "open" })).toBeNull();
   });
 });
 

@@ -4,7 +4,7 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 from app.core.params import MAX_ID
-from app.models.enums import FloatType, UserRole
+from app.models.enums import FloatType, HelpReasonCategory, UserRole
 
 
 class TriggerSettingsOut(BaseModel):
@@ -17,6 +17,9 @@ class TriggerSettingsOut(BaseModel):
     wave_timeout_min: int
     max_waves: int
     recent_ask_h: float
+    deadline_floor_min: int
+    urgent_wave_multiplier: float
+    max_new_per_tick: int
 
 
 class TriggerSettingsIn(BaseModel):
@@ -31,6 +34,9 @@ class TriggerSettingsIn(BaseModel):
     wave_timeout_min: int | None = Field(default=None, ge=1, le=1440)
     max_waves: int | None = Field(default=None, ge=1, le=10)
     recent_ask_h: float | None = Field(default=None, ge=0, le=168)
+    deadline_floor_min: int | None = Field(default=None, ge=1, le=240)
+    urgent_wave_multiplier: float | None = Field(default=None, ge=1, le=5)
+    max_new_per_tick: int | None = Field(default=None, ge=1, le=100)
 
 
 class PlanAskOut(BaseModel):
@@ -49,10 +55,15 @@ class PlanItemOut(BaseModel):
     projected_low_bdt: float
     buffer_bdt: float
     amount_bdt: float
-    needed_by: datetime | None
-    skipped: str | None  # active_request | cooldown | daily_cap | no_candidates
+    needed_by: datetime | None  # wall clock
+    stockout_at: datetime | None  # the agent page's stock-out, placed on the wall clock
+    urgent: bool
+    deadline_asap: bool  # floor put needed_by after the stock-out: say "as soon as possible"
+    # active_request | cooldown | daily_cap | no_candidates | tick_cap (waits for a later tick)
+    skipped: str | None
     simulated: bool
-    reason_summary: str | None
+    reason_summary: str | None  # in the caller's language
+    reason_category: HelpReasonCategory | None
     asks: list[PlanAskOut]
 
 
@@ -83,6 +94,25 @@ class SimulateOut(BaseModel):
     until: datetime
     created_request_ids: list[int]
     plan: PlanItemOut
+    dry_run: bool
+    enabled: bool
+    sent: bool  # false under dry run or the kill switch: nothing was created or sent
+    would_create: list[PlanItemOut]  # then: what WOULD have been sent, and to whom
+
+
+class TriggerRunOut(BaseModel):
+    """One manual run of the trigger (sweep and wave advance included)."""
+
+    evaluated_at: datetime
+    dry_run: bool
+    enabled: bool
+    sent: bool  # false under dry run or the kill switch: nothing was created or sent
+    created_request_ids: list[int]
+    would_create: list[PlanItemOut]  # dry run / kill switch: what WOULD have been sent
+    reopened: int
+    expired: int
+    waves_advanced: int
+    waves_exhausted: int
 
 
 class OptOutIn(BaseModel):

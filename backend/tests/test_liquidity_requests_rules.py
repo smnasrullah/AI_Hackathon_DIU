@@ -43,11 +43,14 @@ def test_transition_table() -> None:
     H = HelpStatus
     allowed = {(e, s) for e, (frm, _) in rules.TRANSITIONS.items() for s in frm}
     assert allowed == {("claim", H.open), ("withdraw", H.claimed), ("reopen", H.claimed),
-                       ("confirm", H.claimed), ("expire", H.open), ("exhaust", H.open),
+                       ("confirm", H.claimed), ("confirm_late", H.open),
+                       ("confirm_late", H.expired), ("expire", H.open), ("exhaust", H.open),
                        ("cancel", H.open),
                        ("cancel", H.claimed)}
-    for terminal in (H.fulfilled, H.expired, H.cancelled):
+    for terminal in (H.fulfilled, H.cancelled):
         assert not any(rules.can(e, terminal) for e in rules.TRANSITIONS)
+    # Expired is final except for a late delivery inside the grace window (service checks it).
+    assert [e for e in rules.TRANSITIONS if rules.can(e, H.expired)] == ["confirm_late"]
     assert rules.target("withdraw") == rules.target("reopen") == H.open
 
 

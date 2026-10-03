@@ -51,9 +51,11 @@ def arrange_neighbours() -> None:
 
 
 def install_signals(monkeypatch: pytest.MonkeyPatch, *, short: tuple[str, FloatType] | None,
-                    balances: dict[str, float] | None = None) -> None:
-    """Fixed signals for every agent. The `short` agent and float: red, no balance, drained at
-    3 000 BDT an hour. Everyone else holds a large balance and has no drain."""
+                    balances: dict[str, float] | None = None,
+                    short_balance: float = 3000.0) -> None:
+    """Fixed signals for every agent. The `short` agent and float: red, `short_balance` left
+    (default one hour of float: short, but not urgent), drained at 3 000 BDT an hour. Everyone
+    else holds a large balance and has no drain."""
     overrides = balances or {}
 
     def fake(session: Session, now: Any, tp: TriggerPolicy, demo: Any) -> dict[Key, trig.Signal]:
@@ -63,7 +65,7 @@ def install_signals(monkeypatch: pytest.MonkeyPatch, *, short: tuple[str, FloatT
                 hit = short == (agent.code, ft)
                 out[(agent.id, ft)] = trig.Signal(
                     agent=agent, float_type=ft,
-                    balance=0.0 if hit else overrides.get(agent.code, 1_000_000.0),
+                    balance=short_balance if hit else overrides.get(agent.code, 1_000_000.0),
                     level=RiskLevelCode.red if hit else None,
                     drain=np.full((24, 3), 3000.0) if hit else np.zeros((24, 3)),
                     inflow=np.zeros((24, 3)), median_h=None, buffer=0.0, simulated=False)

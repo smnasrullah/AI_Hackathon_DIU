@@ -14,6 +14,7 @@ const POLICY = {
   cooldown_min: 60,
   daily_cap_per_agent: 3,
   max_recipients_per_wave: 5,
+  late_confirm_grace_h: 24,
 };
 
 describe("policySchema", () => {
@@ -49,6 +50,9 @@ describe("triggerSchema", () => {
     wave_timeout_min: 30,
     max_waves: 3,
     recent_ask_h: 6,
+    deadline_floor_min: 15,
+    urgent_wave_multiplier: 2,
+    max_new_per_tick: 3,
   };
 
   it("accepts the default-like settings", () => {
@@ -62,6 +66,13 @@ describe("triggerSchema", () => {
 
   it("allows a fractional buffer percentage", () => {
     expect(triggerSchema(MESSAGES).safeParse({ ...TRIGGER, buffer_pct: 12.5 }).success).toBe(true);
+  });
+
+  it("keeps the deadline floor at 1..240 minutes and the urgent multiplier at 1..5", () => {
+    expect(triggerSchema(MESSAGES).safeParse({ ...TRIGGER, deadline_floor_min: 0 }).success).toBe(false);
+    expect(triggerSchema(MESSAGES).safeParse({ ...TRIGGER, deadline_floor_min: 241 }).success).toBe(false);
+    expect(triggerSchema(MESSAGES).safeParse({ ...TRIGGER, urgent_wave_multiplier: 1.5 }).success).toBe(true);
+    expect(triggerSchema(MESSAGES).safeParse({ ...TRIGGER, urgent_wave_multiplier: 0.5 }).success).toBe(false);
   });
 
   it("limits the number of waves to 10", () => {

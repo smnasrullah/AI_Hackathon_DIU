@@ -15,10 +15,21 @@ from app.services import help_scheduler
 log = logging.getLogger("app")
 
 
+def _app_logging() -> None:
+    """INFO from app.* (scheduler ticks, trigger decisions) on stderr next to uvicorn's lines."""
+    if not log.handlers:
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter("%(levelname)s  [%(name)s] %(message)s"))
+        log.addHandler(handler)
+        log.setLevel(logging.INFO)
+        log.propagate = False
+
+
 @asynccontextmanager
 async def _lifespan(_app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     if settings.app_env != "test":  # tests drive the trigger explicitly
+        _app_logging()
         help_scheduler.start(settings.help_trigger_interval_s)
     yield
     help_scheduler.stop()

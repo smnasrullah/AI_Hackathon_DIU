@@ -219,8 +219,16 @@ def _retrain_anomaly(settings: Settings, job_id: int, p: Progress) -> dict[str, 
 def _help_trigger(settings: Settings, job_id: int, p: Progress) -> dict[str, Any]:
     """One help-trigger tick (sweep, wave advance, trigger); the same tick the scheduler runs."""
     p("trigger", 10)
-    counts: dict[str, Any] = dict(help_trigger_run.tick())
-    return counts
+    report = help_trigger_run.tick_report()
+    result: dict[str, Any] = dict(report.counts)
+    run = report.run
+    # Dry run / kill switch: say so, and list what WOULD have been sent and to whom.
+    result["dry_run"], result["enabled"], result["sent"] = run.dry_run, run.enabled, run.sent
+    result["would_create"] = len(run.would_create)
+    for plan in run.would_create:
+        result[f"would_ask.{plan.agent_code}.{plan.float_type.value}"] = ", ".join(
+            a.display for a in plan.asks)
+    return result
 
 
 RUNNERS: dict[str, Callable[[Settings, int, Progress], dict[str, Any]]] = {

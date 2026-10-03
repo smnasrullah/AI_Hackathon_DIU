@@ -47,6 +47,10 @@ function item(over: Partial<HelpRequestItem> = {}): HelpRequestItem {
     claimed_by: null,
     recipients: null,
     advisory: true,
+    urgent: false,
+    deadline_asap: false,
+    reason_category: "unknown",
+    can_confirm_late: false,
     ...over,
   };
 }

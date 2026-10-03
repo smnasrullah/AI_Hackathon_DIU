@@ -1,9 +1,9 @@
-import { AlertTriangle, Banknote, ChevronLeft } from "lucide-react";
+import { AlertTriangle, Banknote, ChevronLeft, PackageCheck, XCircle } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 
-import { useConfirmHelp, useHelpRequest } from "../../../api/hooks/helpRequests";
+import { useCancelHelp, useConfirmHelp, useConfirmLateHelp, useHelpRequest } from "../../../api/hooks/helpRequests";
 import type { HelpRequestItem, Lang } from "../../../api/types";
 import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
 import { LiquidButton } from "../../../components/ui/LiquidButton";
@@ -45,26 +45,34 @@ export function HelpRequestDetail({ id }: { id: number }) {
   );
 }
 
+type Ask = "confirm" | "confirmLate" | "cancel" | null;
+
 function HelpRequestBody({ item, lang, digits }: { item: HelpRequestItem; lang: Lang; digits: Lang }) {
   const { t } = useTranslation();
   const confirm = useConfirmHelp();
-  const [asking, setAsking] = useState(false);
+  const confirmLate = useConfirmLateHelp();
+  const cancel = useCancelHelp();
+  const [asking, setAsking] = useState<Ask>(null);
   const amount = formatMoney(item.amount_needed, digits, { lang });
   const float = t(`float.${item.float_type}`);
-  const attention = attentionFor(item, null);
+  const attention = attentionFor(item);
+  const active = item.status === "open" || item.status === "claimed";
+  const pending = confirm.isPending || confirmLate.isPending || cancel.isPending;
   const recipients = item.recipients ?? [];
   const area = item.requester.upazila ?? item.requester.district;
 
-  function onConfirm(): void {
-    confirm.mutate(
+  function onAnswer(): void {
+    const action = asking === "cancel" ? cancel : asking === "confirmLate" ? confirmLate : confirm;
+    const done = asking === "cancel" ? t("liquidity.dist.cancelled") : t("liquidity.dist.done");
+    action.mutate(
       { id: item.id },
       {
         onSuccess: () => {
-          setAsking(false);
-          toast({ tone: "success", title: t("liquidity.dist.done") });
+          setAsking(null);
+          toast({ tone: "success", title: done });
         },
         onError: () => {
-          setAsking(false);
+          setAsking(null);
           toast({ tone: "error", title: t("liquidity.agent.card.failed") });
         },
       },
@@ -77,11 +85,23 @@ function HelpRequestBody({ item, lang, digits }: { item: HelpRequestItem; lang: 
         title={t("liquidity.agent.card.needs", { amount, float })}
         description={`${item.requester.name} · ${area}`}
         actions={
-          item.status === "claimed" ? (
-            <LiquidButton icon={Banknote} onClick={() => setAsking(true)}>
-              {t("liquidity.dist.confirm")}
-            </LiquidButton>
-          ) : null
+          <div className="flex flex-wrap gap-2">
+            {item.status === "claimed" ? (
+              <LiquidButton icon={Banknote} onClick={() => setAsking("confirm")}>
+                {t("liquidity.dist.confirm")}
+              </LiquidButton>
+            ) : null}
+            {item.can_confirm_late ? (
+              <LiquidButton data-testid="help-confirm-late" variant="secondary" icon={PackageCheck} onClick={() => setAsking("confirmLate")}>
+                {t("liquidity.dist.confirmLate")}
+              </LiquidButton>
+            ) : null}
+            {active ? (
+              <LiquidButton data-testid="help-dist-cancel" variant="secondary" icon={XCircle} onClick={() => setAsking("cancel")}>
+                {t("liquidity.dist.cancel")}
+              </LiquidButton>
+            ) : null}
+          </div>
         }
       />
 
@@ -96,11 +116,18 @@ function HelpRequestBody({ item, lang, digits }: { item: HelpRequestItem; lang: 
         <p className="text-small">
           <span className="font-semibold">{t(`liquidity.status.${item.status}`)}</span>
           {" · "}
-          {t("liquidity.dist.deadline", { time: formatDateTime(new Date(item.needed_by), lang, digits) })}
+          {t("liquidity.dist.deadline", { time: item.deadline_asap ? t("liquidity.asap") : formatDateTime(new Date(item.needed_by), lang, digits) })}
         </p>
         <p className="text-small text-muted">
           {item.claimed_by ? t("liquidity.dist.claimedBy", { code: item.claimed_by.display }) : t("liquidity.dist.nobody")}
         </p>
+        {typeof item.wave_number === "number" && typeof item.max_waves === "number" ? (
+          <p className="num text-small text-muted" data-testid="help-wave">
+            {t("liquidity.dist.waveOf", { n: formatNumber(item.wave_number, digits), max: formatNumber(item.max_waves, digits) })}
+            {item.urgent ? ` · ${t("liquidity.urgent")}` : ""}
+          </p>
+        ) : null}
+        {item.reason_summary ? <p className="text-small">{item.reason_summary}</p> : null}
         <HelpTimeline status={item.status} />
       </section>
 
@@ -127,13 +154,14 @@ function HelpRequestBody({ item, lang, digits }: { item: HelpRequestItem; lang: 
       </section>
 
       <ConfirmDialog
-        open={asking}
-        onOpenChange={setAsking}
-        title={t("liquidity.dist.confirmTitle")}
-        description={t("liquidity.dist.confirmBody")}
-        confirmLabel={t("liquidity.dist.confirm")}
-        pending={confirm.isPending}
-        onConfirm={onConfirm}
+        open={asking !== null}
+        onOpenChange={(open) => setAsking(open ? asking : null)}
+        title={t(`liquidity.dist.ask.${asking ?? "confirm"}.title`)}
+        description={t(`liquidity.dist.ask.${asking ?? "confirm"}.body`)}
+        confirmLabel={t(`liquidity.dist.ask.${asking ?? "confirm"}.action`)}
+        tone={asking === "cancel" ? "danger" : "default"}
+        pending={pending}
+        onConfirm={onAnswer}
       />
     </>
   );

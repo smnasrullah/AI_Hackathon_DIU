@@ -56,7 +56,7 @@ export function HelpRequestList() {
 
 function HelpRequestRow({ item, lang, digits }: { item: HelpRequestItem; lang: Lang; digits: Lang }) {
   const { t } = useTranslation();
-  const attention = attentionFor(item, null);
+  const attention = attentionFor(item);
   const amount = formatMoney(item.amount_needed, digits, { lang });
   const area = item.requester.upazila ?? item.requester.district;
   return (
@@ -72,7 +72,7 @@ function HelpRequestRow({ item, lang, digits }: { item: HelpRequestItem; lang: L
         </span>
         <span className="block text-small">{t("liquidity.agent.card.needs", { amount, float: t(`float.${item.float_type}`) })}</span>
         <span className="block text-small text-muted">
-          {t("liquidity.dist.deadline", { time: formatDateTime(new Date(item.needed_by), lang, digits) })}
+          {t("liquidity.dist.deadline", { time: item.deadline_asap ? t("liquidity.asap") : formatDateTime(new Date(item.needed_by), lang, digits) })}
         </span>
         <span className="block text-small text-muted">
           {item.claimed_by ? t("liquidity.dist.claimedBy", { code: item.claimed_by.display }) : t("liquidity.dist.nobody")}

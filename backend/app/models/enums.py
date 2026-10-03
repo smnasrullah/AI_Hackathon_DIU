@@ -112,6 +112,18 @@ class HelpOrigin(StrEnum):
     user = "user"
 
 
+class HelpReasonCategory(StrEnum):
+    """The only part of a help request's reason a helper sees (no numbers, no balances)."""
+
+    salary_day = "salary_day"
+    eid = "eid"
+    holiday = "holiday"
+    market_day = "market_day"
+    weather = "weather"
+    high_demand = "high_demand"
+    unknown = "unknown"
+
+
 class AnomalyStatus(StrEnum):
     open = "open"
     confirmed = "confirmed"
@@ -193,6 +205,7 @@ PG_ENUM_NAMES: dict[type[StrEnum], str] = {
     HelpStatus: "help_status",
     HelpResponse: "help_response",
     HelpOrigin: "help_origin",
+    HelpReasonCategory: "help_reason_category",
     AnomalyStatus: "anomaly_status",
     ImpactScenario: "impact_scenario",
     LlmIntent: "llm_intent",

@@ -13,6 +13,7 @@ import numpy as np
 from sqlalchemy import case, func, select
 from sqlalchemy.orm import Session
 
+from app.core import clock
 from app.core.config import get_settings
 from app.models import (
     Agent,
@@ -25,14 +26,14 @@ from app.models import (
     SystemMeta,
     User,
 )
-from app.models.enums import FloatType, HelpResponse, Lang, RiskLevelCode, UserRole
+from app.models.enums import FloatType, HelpResponse, RiskLevelCode, UserRole
 from app.rules import help_request_rules as hrules
 from app.rules import help_trigger_rules as rules
 from app.rules.help_trigger_rules import Helper, TriggerPolicy, Verdict
 from app.rules.rebalance_rules import ROUND_BDT
 from app.rules.risk_rules import HEADLINE_HORIZON
 from app.rules.swap_rules import Donor, Receiver, SwapConfig, haversine_km, pair
-from app.services import explanation, forecast, risk
+from app.services import explanation, forecast, help_reason, risk
 from app.services import liquidity_requests as help_requests
 from app.services.forecast import _utc
 from app.services.model_registry import active_model
@@ -40,7 +41,6 @@ from ml.registry import FORECAST_MODEL
 
 DEMO_KEY = "help_demo_shortage"
 DEMO_MINUTES = 30
-LABEL = {FloatType.cash: "Cash", FloatType.emoney: "E-money"}
 Key = tuple[int, FloatType]
 
 
@@ -93,9 +93,12 @@ class AgentPlan:
     float_type: FloatType
     verdict: Verdict
     simulated: bool
-    needed_by: datetime | None = None
+    needed_by: datetime | None = None  # wall clock, like stockout_at
+    stockout_at: datetime | None = None  # the agent page's stock-out, placed on the wall clock
+    urgent: bool = False
+    asap: bool = False  # deadline_after_stockout: the floor put needed_by after the stock-out
     skipped: str | None = None
-    reason_summary: str | None = None
+    reason: help_reason.HelpReason | None = None
     asks: list[Ask] = field(default_factory=list)
 
     @property
@@ -230,24 +233,27 @@ def ranked_helpers(session: Session, requester: Agent, float_type: FloatType, am
     return Pool(dist_asks, [asks[h.user_id] for h in rules.rank(helpers)])
 
 
-def _reason(session: Session, sig: Signal, v: Verdict) -> str:
-    """Plain language from the agent's own explanation; never a number we computed here."""
-    hours = max(1, round(v.stockout_h))
-    head = f"{LABEL[sig.float_type]} is forecast to run short in about {hours} hours."
+def _reason(session: Session, sig: Signal, v: Verdict) -> help_reason.HelpReason:
+    """Code + parameters from the agent's own explanation (rendered per reader language)."""
     hit = explanation.load(session, sig.agent.id, sig.float_type)
-    driver = explanation.reasons(hit[1], Lang.en)[:1] if hit else []
-    text = f"{head} {driver[0].sentence}" if driver else head
-    return f"[SIMULATED] {text}" if sig.simulated else text
+    return help_reason.forecast_short(sig.float_type, v.stockout_h, sig.simulated,
+                                      hit[1] if hit else None)
 
 
 def _plan_one(session: Session, sig: Signal, now: datetime, tp: TriggerPolicy,
               hp: hrules.HelpPolicy, sigs: dict[Key, Signal]) -> AgentPlan:
+    """`now` is wall-clock time; the forecast's hours count from its origin, which is placed at
+    `now` (app/core/clock.py), so needed_by and stockout_at are wall-clock times."""
     v = rules.evaluate(sig.balance, sig.drain[:, 2], sig.inflow[:, 0], sig.buffer, sig.level,
                        sig.median_h, tp)
     item = AgentPlan(sig.agent.id, sig.agent.code, sig.float_type, v, sig.simulated)
     if not v.fires:
         return item
-    item.needed_by = now + rules.deadline_after(v.stockout_h, tp)
+    shown_h = v.stockout_h if sig.simulated or sig.median_h is None else sig.median_h
+    item.stockout_at = clock.hours_after(now, shown_h)
+    item.needed_by = clock.as_utc(now) + rules.deadline_after(v.stockout_h, tp)
+    item.urgent = rules.is_urgent(v.stockout_h, tp)
+    item.asap = rules.deadline_after_stockout(v.stockout_h, tp)
     key = help_requests.dedupe_key(sig.agent.id, sig.float_type)
     if help_requests.active_for(session, key) is not None:
         item.skipped = "active_request"
@@ -256,12 +262,16 @@ def _plan_one(session: Session, sig: Signal, now: datetime, tp: TriggerPolicy,
     if item.skipped:
         return item
     pool = ranked_helpers(session, sig.agent, sig.float_type, v.amount_bdt, now, tp, sigs, set())
-    item.asks = pool.distributors + pool.agents[:hp.max_recipients_per_wave]
+    item.asks = pool.distributors + pool.agents[:wave_one_cap(item.urgent, tp, hp)]
     if not item.asks:
         item.skipped = "no_candidates"
     else:
-        item.reason_summary = _reason(session, sig, v)
+        item.reason = _reason(session, sig, v)
     return item
+
+
+def wave_one_cap(urgent: bool, tp: TriggerPolicy, hp: hrules.HelpPolicy) -> int:
+    return rules.wave_one_agents(hp.max_recipients_per_wave, urgent, tp)
 
 
 def plan(session: Session, now: datetime, tp: TriggerPolicy, hp: hrules.HelpPolicy,

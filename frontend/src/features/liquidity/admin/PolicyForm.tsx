@@ -80,6 +80,13 @@ export function PolicyForm({ data }: { data: HelpSettingsOut }) {
           step={1}
           {...register("max_recipients_per_wave", num)}
         />
+        <NumberField
+          label={t("liquidity.admin.fields.lateGrace.label")}
+          help={t("liquidity.admin.fields.lateGrace.help")}
+          error={e.late_confirm_grace_h?.message}
+          step={1}
+          {...register("late_confirm_grace_h", num)}
+        />
       </div>
 
       <div className="flex justify-end">

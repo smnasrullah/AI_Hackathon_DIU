@@ -1,11 +1,12 @@
 """Admin system overview counts and the model registry listing."""
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.core import clock
 from app.core.config import Settings
 from app.llm import store
 from app.models import (
@@ -16,14 +17,16 @@ from app.models import (
     ModelVersion,
     RecommendationRequest,
     SwapSuggestion,
+    SystemMeta,
     User,
 )
 from app.models.enums import AnomalyStatus, RequestStatus, SwapStatus, UserRole
-from app.schemas.admin import ActiveModel, AdminOverview, RoleCount
+from app.schemas.admin import ActiveModel, AdminOverview, RoleCount, SchedulerStatus
 from app.schemas.admin_ops import MetricItem, ModelRegistry, ModelVersionItem
 from app.services import admin_audit, jobs
 
 RECENT_AUDIT = 6
+SCHEDULER_KEY = "help_scheduler_status"  # written by app/services/help_scheduler.py
 
 
 def _utc(ts: datetime) -> datetime:
@@ -55,7 +58,29 @@ def overview(session: Session, settings: Settings) -> AdminOverview:
                                    trained_at=_utc(m.trained_at)) for m in models],
         latest_job=jobs.to_out(session, job) if job else None,
         recent_audit=admin_audit.recent(session, RECENT_AUDIT),
+        help_scheduler=scheduler_status(session, clock.now()),
         generated_at=datetime.now(UTC))
+
+
+def _ts(value: object) -> datetime | None:
+    return _utc(datetime.fromisoformat(value)) if isinstance(value, str) else None
+
+
+def scheduler_status(session: Session, now: datetime) -> SchedulerStatus | None:
+    row = session.get(SystemMeta, SCHEDULER_KEY)
+    v = row.value if row is not None and isinstance(row.value, dict) else None
+    if v is None:
+        return None
+    interval = v.get("interval_s") if isinstance(v.get("interval_s"), int) else None
+    nxt = _ts(v.get("next_run_at"))
+    result = v.get("last_result")
+    return SchedulerStatus(
+        interval_s=interval, last_run_at=_ts(v.get("last_run_at")),
+        last_result={str(k): int(n) for k, n in result.items()}
+        if isinstance(result, dict) else None,
+        last_error=v.get("last_error") if isinstance(v.get("last_error"), str) else None,
+        next_run_at=nxt, leader=v.get("leader") if isinstance(v.get("leader"), str) else None,
+        stale=nxt is not None and now > nxt + timedelta(seconds=2 * (interval or 60)))
 
 
 def flatten(metrics: dict[str, Any], prefix: str = "") -> list[MetricItem]:

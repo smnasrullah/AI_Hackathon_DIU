@@ -103,6 +103,27 @@ export function TriggerForm({ data }: { data: TriggerSettingsOut }) {
           step={1}
           {...register("wave_timeout_min", num)}
         />
+        <NumberField
+          label={t("liquidity.admin.fields.deadlineFloor.label")}
+          help={t("liquidity.admin.fields.deadlineFloor.help")}
+          error={e.deadline_floor_min?.message}
+          step={1}
+          {...register("deadline_floor_min", num)}
+        />
+        <NumberField
+          label={t("liquidity.admin.fields.urgentWave.label")}
+          help={t("liquidity.admin.fields.urgentWave.help")}
+          error={e.urgent_wave_multiplier?.message}
+          step="any"
+          {...register("urgent_wave_multiplier", num)}
+        />
+        <NumberField
+          label={t("liquidity.admin.fields.perTick.label")}
+          help={t("liquidity.admin.fields.perTick.help")}
+          error={e.max_new_per_tick?.message}
+          step={1}
+          {...register("max_new_per_tick", num)}
+        />
       </div>
 
       <div className="flex justify-end">

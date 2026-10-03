@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 from app.models.enums import EventType, UrbanRural
+from app.services import seed
 from app.services.seed import DEMO_AGENTS
 from ml.data_gen import calendar_effects as cal
 from ml.data_gen import demo_spec
@@ -247,3 +248,17 @@ def test_demo_donor_and_anomaly(ds: Dataset) -> None:
     lab = next(x for x in ds.anomalies if x.agent_code == demo_spec.ANOMALY_AGENT)
     assert lab.window_end == SIM_NOW
     assert ds.agents[ds.index(lab.agent_code)].distributor_code == r.distributor_code
+
+
+def test_demo_helper_logins_sit_near_the_short_agent_with_cash(ds: Dataset) -> None:
+    """seed.HELPER_USERS: same distributor as AGT-0001, inside the default help radius, and cash
+    that stays above a demo-sized request (100 000 BDT) for the next 24 h."""
+    r = ds.agents[ds.index(demo_spec.STOCKOUT_AGENT)]
+    t_s = hour_index(SIM_NOW)
+    for u in seed.HELPER_USERS:
+        assert u.agent_code is not None
+        a = ds.agents[ds.index(u.agent_code)]
+        assert a.distributor_code == r.distributor_code, u.agent_code
+        assert haversine_km(r.lat, r.lng, a.lat, a.lng) < 5.0, u.agent_code
+        low = float(ds.floats.cash[ds.index(u.agent_code), t_s:t_s + 25].min())
+        assert low >= 100_000, (u.agent_code, low)

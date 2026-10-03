@@ -1,15 +1,20 @@
-"""Help request views. Owner (requester agent, their distributor, admin): full detail.
-Recipient: amount, float, area and deadline, own answer only; never balances or who claimed it.
+"""Help request views. Owner (requester agent, their distributor, admin): full detail, the
+reason in the reader's language; distributor and admin also see the wave counters.
+Recipient: amount, float, area, deadline and the coarse reason category, own answer only; never
+the reason text, balances, forecast numbers or who claimed it.
 """
 
 import uuid
 from collections.abc import Sequence
+from datetime import datetime
 
 from sqlalchemy import Select, func, select
 from sqlalchemy.orm import Session
 
+from app.core import clock
 from app.models import Agent, Distributor, LiquidityRequest, LiquidityRequestRecipient, User
 from app.models.enums import HelpStatus, UserRole
+from app.rules.help_request_rules import HelpPolicy, late_confirm_open
 from app.schemas.liquidity_request import (
     HelpRecipientOut,
     HelpRequester,
@@ -17,6 +22,7 @@ from app.schemas.liquidity_request import (
     HelpRequestPage,
     HelpView,
 )
+from app.services import help_reason, help_settings
 from app.services.forecast import _utc
 
 Recipient = LiquidityRequestRecipient
@@ -72,39 +78,63 @@ def items(session: Session, user: User, reqs: Sequence[LiquidityRequest]) -> lis
             everyone.setdefault(row.request_id, []).append(row)
     displays = _displays(session, {row.recipient_user_id for rows in everyone.values()
                                    for row in rows})
+    max_waves = help_settings.trigger_current(session).max_waves
+    policy = help_settings.current(session)
+    now = clock.now()
     out = []
     for req in reqs:
         view = views[req.id]
         if view is None:
             continue
         out.append(_item(req, agents[req.requester_agent_id], view, mine.get(req.id), user,
-                         everyone.get(req.id, []), displays))
+                         everyone.get(req.id, []), displays, max_waves,
+                         _late_ok(req, policy, now)))
     return out
 
 
 def _item(req: LiquidityRequest, agent: Agent, view: HelpView, me: Recipient | None, user: User,
-          recipients: list[Recipient], displays: dict[uuid.UUID, str]) -> HelpRequestItem:
+          recipients: list[Recipient], displays: dict[uuid.UUID, str],
+          max_waves: int, late_ok: bool) -> HelpRequestItem:
     item = HelpRequestItem(
         id=req.id, view=view,
         requester=HelpRequester(agent_id=agent.id, code=agent.code, name=agent.name,
                                 upazila=agent.upazila, district=agent.district),
         float_type=req.float_type, amount_needed=float(req.amount_needed),
-        needed_by=_utc(req.needed_by), status=req.status, wave_number=req.wave_number,
-        created_by=req.created_by, created_at=_utc(req.created_at),
-        updated_at=_utc(req.updated_at),
+        needed_by=_utc(req.needed_by), status=req.status, urgent=req.urgent,
+        deadline_asap=req.deadline_after_stockout,
+        reason_category=req.reason_category, created_by=req.created_by,
+        created_at=_utc(req.created_at), updated_at=_utc(req.updated_at),
         claimed_at=_utc(req.claimed_at) if req.claimed_at else None,
         claim_expires_at=_utc(req.claim_expires_at) if req.claim_expires_at else None,
         fulfilled_at=_utc(req.fulfilled_at) if req.fulfilled_at else None,
         my_response=me.response if me else None,
         claimed_by_me=req.claimed_by_user_id == user.id,
         my_distance_km=float(me.distance_km) if me and me.distance_km is not None else None,
-        simulated=req.simulated)
+        simulated=req.simulated, reason_summary=None, claimed_by=None, recipients=None,
+        advisory=True)
+    # Fields below are set only for viewers entitled to them; the API omits unset fields
+    # (response_model_exclude_unset), so helpers never even receive the keys.
     if view == "owner":
         outs = [_recipient_out(r, displays) for r in recipients]
-        item.reason_summary = req.reason_summary
+        item.reason_summary = help_reason.for_owner(req, user.lang)
         item.recipients = outs
         item.claimed_by = next((o for o in outs if o.user_id == req.claimed_by_user_id), None)
+        item.stockout_at = _utc(req.stockout_at) if req.stockout_at else None
+        item.can_confirm_late = late_ok and user.role != UserRole.admin
+        if user.role in (UserRole.distributor, UserRole.admin):
+            item.wave_number, item.max_waves = req.wave_number, max_waves
+            item.is_last_wave = req.wave_number >= max_waves
     return item
+
+
+def _late_ok(req: LiquidityRequest, policy: HelpPolicy, now: datetime) -> bool:
+    """A timed-out claim, and the request is open again or expired within the grace window."""
+    if req.lapsed_claimant_user_id is None:
+        return False
+    if req.status == HelpStatus.open:
+        return True
+    return req.status == HelpStatus.expired and late_confirm_open(
+        _utc(req.expired_at or req.updated_at), now, policy)
 
 
 def one(session: Session, user: User, req: LiquidityRequest) -> HelpRequestItem | None:

@@ -281,7 +281,7 @@
     "swap_decision": "Your {{amount_bdt}} {{float_type}} swap with {{counterpart_code}} was {{status}}",
     "anomalies_new": "New anomaly flags to review: {{count}}",
     "help": {
-      "new": "{{agent_code}} ({{area}}) needs {{amount_bdt}} {{float_type}} by {{needed_by}}. Can you help?",
+      "new": "{{agent_code}} ({{area}}) needs {{amount_bdt}} {{float_type}}, deadline {{needed_by}}. Can you help?",
       "created": "A help request for {{amount_bdt}} {{float_type}} was sent to nearby helpers",
       "covered": "This request is now covered by another helper",
       "claimed": "A helper accepted your {{amount_bdt}} {{float_type}} request. Confirm when it arrives",
@@ -291,7 +291,8 @@
       "cancelled": "The {{amount_bdt}} {{float_type}} request from {{agent_code}} was cancelled",
       "expired": "The {{amount_bdt}} {{float_type}} request from {{agent_code}} expired without a helper",
       "escalated": "The {{amount_bdt}} {{float_type}} request from {{agent_code}} went unfilled after every wave. Please step in",
-      "still_open": "The {{amount_bdt}} {{float_type}} request from {{agent_code}} is still open and more helpers were asked"
+      "still_open": "The {{amount_bdt}} {{float_type}} request from {{agent_code}} is still open and more helpers were asked",
+      "fulfilled_late": "The {{amount_bdt}} {{float_type}} request from {{agent_code}} was confirmed as received late, from the helper whose claim had timed out"
     },
     "fallback": "New update"
   },
@@ -1694,7 +1695,10 @@
         "cancelBody": "Nearby helpers will be told it is no longer needed.",
         "keep": "Keep request",
         "cancelled": "The request is cancelled.",
-        "check": "Check again"
+        "check": "Check again",
+        "stockout": "Forecast stock-out in {{time}}",
+        "receivedLate": "Money arrived late",
+        "receivedLateHint": "A helper's acceptance timed out, but the money still came? Confirm it here and that helper is recorded."
       }
     },
     "status": {
@@ -1744,7 +1748,27 @@
       "cancel": "Cancel request",
       "cancelTitle": "Cancel this request?",
       "cancelBody": "Nearby helpers will be told it is no longer needed.",
-      "done": "The request is updated."
+      "done": "The request is updated.",
+      "confirmLate": "Arrived late",
+      "cancelled": "Request cancelled",
+      "waveOf": "Wave {{n}} of {{max}}",
+      "ask": {
+        "confirm": {
+          "title": "Confirm the money arrived?",
+          "body": "Confirm only after the money has reached the requester.",
+          "action": "Confirm money received"
+        },
+        "confirmLate": {
+          "title": "Confirm a late delivery?",
+          "body": "The helper whose acceptance timed out is recorded as the one who delivered. Everyone still asked is told it is covered.",
+          "action": "Confirm late delivery"
+        },
+        "cancel": {
+          "title": "Cancel this request?",
+          "body": "Nearby helpers will be told it is no longer needed. This cannot be undone.",
+          "action": "Cancel request"
+        }
+      }
     },
     "map": {
       "open": "Help {{amount}}",
@@ -1822,6 +1846,22 @@
         "recentAsk": {
           "label": "Do not ask again within (hours)",
           "help": "Stops repeated asks for the same shop."
+        },
+        "deadlineFloor": {
+          "label": "Shortest deadline (minutes)",
+          "help": "A request never asks for help sooner than this. Stock-out within twice this time marks it urgent."
+        },
+        "urgentWave": {
+          "label": "Urgent first wave (times)",
+          "help": "Urgent requests ask this many times more agents in the first wave."
+        },
+        "lateGrace": {
+          "label": "Late confirm window (hours)",
+          "help": "After a request expires, the requester side can still confirm a late delivery from the helper whose acceptance timed out, for this long."
+        },
+        "perTick": {
+          "label": "New requests per run",
+          "help": "At most this many new requests per scheduler run, most urgent first. The rest wait for the next runs."
         }
       },
       "range": "Enter a whole number from {{min}} to {{max}}.",
@@ -1851,8 +1891,21 @@
         "run": "Simulate shortage",
         "done": "{{agent}}: {{n}} request(s) created (simulated).",
         "none": "No request was created for that shop.",
-        "failed": "The simulation could not run."
+        "failed": "The simulation could not run.",
+        "dryRun": "Dry run is on: nothing was sent. {{n}} people would have been asked.",
+        "switchedOff": "Help requests are switched off: nothing was sent. {{n}} people would have been asked."
       }
-    }
+    },
+    "urgent": "Urgent",
+    "reasonCategory": {
+      "salary_day": "salary day",
+      "eid": "Eid",
+      "holiday": "holiday",
+      "market_day": "market day",
+      "weather": "weather",
+      "high_demand": "high demand",
+      "unknown": "not given"
+    },
+    "asap": "As soon as possible"
   }
 }

@@ -21,7 +21,8 @@ from app.models.enums import RiskLevelCode
 from app.rules.rebalance_rules import ROUND_BDT, Need, RebalanceConfig, assess
 
 DAY_HOURS = 24
-MIN_DEADLINE = timedelta(minutes=30)  # a request never asks for help by a time already past
+# Default deadline floor (TriggerPolicy.deadline_floor_min): never ask by a time already past.
+MIN_DEADLINE = timedelta(minutes=15)
 ASK_WINDOW = timedelta(days=7)  # asks counted for the fairness rotation
 ASK_PENALTY_KM = 1.0  # each ask in the window counts as this much extra distance
 RESPONSE_WEIGHT_KM = 2.0  # a helper who usually says yes ranks as if this much closer
@@ -40,8 +41,17 @@ class TriggerPolicy:
     wave_timeout_min: int = 15  # wave N+1 goes out when wave N has had this long
     max_waves: int = 3
     recent_ask_h: float = 2.0  # a helper asked this recently is left out
+    deadline_floor_min: int = 15  # needed_by is at least this far ahead
+    urgent_wave_multiplier: float = 2.0  # urgent: wave 1 asks this many times more agents
+    max_new_per_tick: int = 3  # new requests per run, most urgent first; the rest wait
 
     def __post_init__(self) -> None:
+        if not 1 <= self.deadline_floor_min <= 240:
+            raise ValueError("deadline floor must be 1..240 min")
+        if not 1 <= self.urgent_wave_multiplier <= 5:
+            raise ValueError("urgent wave multiplier must be 1..5")
+        if not 1 <= self.max_new_per_tick <= 100:
+            raise ValueError("new requests per tick must be 1..100")
         if not 1 <= self.horizon_h <= 72:
             raise ValueError("trigger horizon must be 1..72 h")
         if not 0 <= self.buffer_pct <= 100:
@@ -101,8 +111,24 @@ def evaluate(balance: float, drain_high: np.ndarray, inflow_low: np.ndarray, buf
 
 
 def deadline_after(stockout_h: float, policy: TriggerPolicy) -> timedelta:
-    """needed_by = time to stock-out minus the lead margin, never sooner than MIN_DEADLINE."""
-    return max(MIN_DEADLINE, timedelta(hours=stockout_h - policy.lead_margin_h))
+    """needed_by = time to stock-out minus the lead margin, never sooner than the floor."""
+    floor = timedelta(minutes=policy.deadline_floor_min)
+    return max(floor, timedelta(hours=stockout_h - policy.lead_margin_h))
+
+
+def deadline_after_stockout(stockout_h: float, policy: TriggerPolicy) -> bool:
+    """The floor pushed needed_by past the forecast stock-out: ask "as soon as possible"."""
+    return deadline_after(stockout_h, policy) > timedelta(hours=max(stockout_h, 0.0))
+
+
+def is_urgent(stockout_h: float, policy: TriggerPolicy) -> bool:
+    """Stock-out is forecast sooner than twice the deadline floor."""
+    return timedelta(hours=stockout_h) < 2 * timedelta(minutes=policy.deadline_floor_min)
+
+
+def wave_one_agents(per_wave: int, urgent: bool, policy: TriggerPolicy) -> int:
+    """How many agents wave 1 asks: the normal wave size, larger when urgent."""
+    return math.ceil(per_wave * policy.urgent_wave_multiplier) if urgent else per_wave
 
 
 def surplus_bdt(balance: float, drain_high: np.ndarray, inflow_low: np.ndarray, buffer: float,

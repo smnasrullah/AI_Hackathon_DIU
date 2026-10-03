@@ -2,11 +2,14 @@ import { expect, test, type Browser, type Page } from "@playwright/test";
 
 import { ACCOUNTS, dismissTour, fillLogin } from "./helpers";
 
-// Demo agents (seeded, shared agent password). AGT-0001 is short; the two others are asked for help.
+// Demo agents (seeded, shared agent password). AGT-0001 is short. Helpers must share its
+// distributor (DST-DHK) and be able to cover the whole default-size request alone: AGT-0004 and
+// AGT-0064 (backend/app/services/seed.py HELPER_USERS). Agents of other distributors are never asked.
 const REQUESTER = "agent.mirpur@agentpulse.demo";
-const HELPER_A = "agent.patiya@agentpulse.demo";
-const HELPER_B = "agent.sunamganj@agentpulse.demo";
+const HELPER_A = "agent.mirpur11@agentpulse.demo";
+const HELPER_B = "agent.mirpur.sarkar@agentpulse.demo";
 const SHORT_AGENT_CODE = "AGT-0001";
+const SHORT_AGENT_NAME = "Mirpur 10 Mobile Point";
 
 /** A fresh browser session (its own cookies) signed in as one account. */
 async function signIn(browser: Browser, email: string, password: string, home: string): Promise<Page> {
@@ -38,7 +41,8 @@ test.describe("liquidity help request story", () => {
     // 2. Helper A sees the request and accepts it; the next step is shown.
     const helperA = await signIn(browser, HELPER_A, ACCOUNTS.agent.password, "/agent");
     await helperA.goto("/agent/help");
-    const helperCard = helperA.locator('[data-testid^="help-needed-"]').first();
+    // Automatic requests from other shops may also be listed: take AGT-0001's.
+    const helperCard = helperA.locator('[data-testid^="help-needed-"]', { hasText: SHORT_AGENT_NAME }).first();
     await expect(helperCard).toBeVisible({ timeout: 60_000 });
     const cardId = await helperCard.getAttribute("data-testid");
     if (!cardId) throw new Error("help card has no test id");

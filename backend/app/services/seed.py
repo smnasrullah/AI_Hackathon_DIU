@@ -101,6 +101,23 @@ DEMO_USERS: tuple[UserSeed, ...] = (
              agent_code="AGT-0003"),
 )
 
+# Logins for synthetic agents near AGT-0001 (DST-DHK) so its help requests have agents to ask
+# in more than one wave. They come with the synthetic data, not with this seed: created once the
+# agent exists (bootstrap runs seed-helpers after every data load), skipped before. AGT-0004 is
+# the pinned cash donor (ml/data_gen/demo_spec.DONOR_AGENT); the others are generated shops the
+# seed-42 data leaves with a large cash surplus at SIM_NOW (tests/test_data_gen_patterns.py
+# checks distance and cash). Synthetic shops, synthetic accounts.
+HELPER_USERS: tuple[UserSeed, ...] = (
+    UserSeed("agent.mirpur11@agentpulse.demo", "Mirpur 11 Agent", UserRole.agent, Lang.bn,
+             agent_code="AGT-0004"),
+    UserSeed("agent.mirpur.sarkar@agentpulse.demo", "Mirpur Sarkar Agent", UserRole.agent,
+             Lang.bn, agent_code="AGT-0064"),
+    UserSeed("agent.mirpur.chowdhury@agentpulse.demo", "Mirpur Chowdhury Agent", UserRole.agent,
+             Lang.bn, agent_code="AGT-0072"),
+    UserSeed("agent.mohammadpur@agentpulse.demo", "Mohammadpur Agent", UserRole.agent, Lang.bn,
+             agent_code="AGT-0106"),
+)
+
 
 def _password_for(role: UserRole, settings: Settings) -> str:
     secret = {
@@ -149,7 +166,12 @@ def _upsert_users(
     session: Session, settings: Settings, dist_ids: dict[str, int], agent_ids: dict[str, int]
 ) -> tuple[int, int]:
     created = skipped = 0
-    for u in DEMO_USERS:
+    for u in DEMO_USERS + HELPER_USERS:
+        if u.agent_code and u.agent_code not in agent_ids:
+            found = session.scalar(select(Agent.id).where(Agent.code == u.agent_code))
+            if found is None:
+                continue  # a HELPER_USERS agent before the synthetic data load
+            agent_ids = {**agent_ids, u.agent_code: found}
         password = _password_for(u.role, settings)
         if not password:
             log.warning("DEMO_%s_PASSWORD not set; skipping %s", u.role.value.upper(), u.email)
@@ -185,3 +207,23 @@ def run(session: Session, settings: Settings) -> dict[str, int]:
         "users_created": users_created,
         "users_skipped": users_skipped,
     }
+
+
+def ensure_helpers(session: Session, settings: Settings) -> int:
+    """Create the HELPER_USERS logins that are missing (agent present, password set), opted in
+    to help requests. Never changes an existing user or agent. Returns logins created."""
+    password = _password_for(UserRole.agent, settings)
+    if not password:
+        return 0
+    created = 0
+    for u in HELPER_USERS:
+        agent = session.scalar(select(Agent).where(Agent.code == u.agent_code))
+        if agent is None or session.scalar(select(User.id).where(User.email == u.email)):
+            continue
+        session.add(User(email=u.email, password_hash=hash_password(password),
+                         full_name=u.full_name, role=u.role, lang=u.lang, is_active=True,
+                         is_demo=False, agent_id=agent.id, distributor_id=agent.distributor_id))
+        agent.help_opt_out = False
+        created += 1
+    session.flush()
+    return created

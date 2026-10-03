@@ -190,6 +190,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/liquidity-requests/run-trigger": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Trigger
+         * @description One tick now, the same as the background scheduler: sweep timeouts, advance waves, run
+         *     the trigger. Under dry run or the kill switch nothing is created or sent and the response
+         *     lists what WOULD have been.
+         */
+        post: operations["run_trigger_api_v1_admin_liquidity_requests_run_trigger_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/liquidity-requests/settings": {
         parameters: {
             query?: never;
@@ -226,7 +248,8 @@ export interface paths {
         /**
          * Simulate Shortage
          * @description DEMO_MODE only. Forces one agent into a shortage for 30 minutes and runs the trigger
-         *     for that agent now. Audit logged; every request it makes is marked simulated.
+         *     for that agent now. Audit logged; every request it makes is marked simulated. Under dry
+         *     run or the kill switch nothing is sent and would_create says what would have been.
          */
         post: operations["simulate_shortage_api_v1_admin_liquidity_requests_simulate_shortage_post"];
         delete?: never;
@@ -264,7 +287,8 @@ export interface paths {
         };
         /**
          * Read Trigger Settings
-         * @description Horizon, buffer percentage, minimum shortfall, cap, lead margin, radius, waves, timeout.
+         * @description Horizon, buffer, minimum shortfall, cap, lead margin, radius, waves, timeout, deadline
+         *     floor, urgent wave multiplier.
          */
         get: operations["read_trigger_settings_api_v1_admin_liquidity_requests_trigger_settings_get"];
         /**
@@ -1150,11 +1174,21 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
+        /**
+         * Read Opt Out
+         * @description The caller's own choice. opted_out: true = never asked to help others.
+         */
+        get: operations["read_opt_out_api_v1_liquidity_requests_opt_out_get"];
+        /**
+         * Write Opt Out
+         * @description Change the caller's own choice (only their own agent; audited). Opted-out agents are
+         *     never ranked as helpers.
+         */
+        put: operations["write_opt_out_api_v1_liquidity_requests_opt_out_put"];
         /**
          * Opt Out
-         * @description An agent chooses whether they can be asked for help. Opted-out agents are never ranked.
+         * @deprecated
+         * @description Same as PUT /opt-out (kept for older clients).
          */
         post: operations["opt_out_api_v1_liquidity_requests_opt_out_post"];
         delete?: never;
@@ -1194,7 +1228,8 @@ export interface paths {
         put?: never;
         /**
          * Cancel
-         * @description The requester agent or an admin cancels an open or claimed request.
+         * @description The requester agent, their own distributor or an admin cancels an open or claimed
+         *     request. Anyone else is 403. Audited (actor, old and new status).
          */
         post: operations["cancel_api_v1_liquidity_requests__request_id__cancel_post"];
         delete?: never;
@@ -1237,6 +1272,28 @@ export interface paths {
          * @description The requester agent or their distributor confirms receipt.
          */
         post: operations["confirm_api_v1_liquidity_requests__request_id__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/liquidity-requests/{request_id}/confirm-late": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm Late
+         * @description The requester agent or their distributor confirms that the helper whose claim timed out
+         *     delivered after all. Only on a reopened request that had such a claim (409
+         *     no_lapsed_claim otherwise).
+         */
+        post: operations["confirm_late_api_v1_liquidity_requests__request_id__confirm_late_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1744,6 +1801,7 @@ export interface components {
              * Format: date-time
              */
             generated_at: string;
+            help_scheduler: components["schemas"]["SchedulerStatus"] | null;
             latest_job: components["schemas"]["JobOut"] | null;
             /** Llm Calls Today */
             llm_calls_today: number;
@@ -2828,6 +2886,12 @@ export interface components {
          */
         HelpOrigin: "system" | "user";
         /**
+         * HelpReasonCategory
+         * @description The only part of a help request's reason a helper sees (no numbers, no balances).
+         * @enum {string}
+         */
+        HelpReasonCategory: "salary_day" | "eid" | "holiday" | "market_day" | "weather" | "high_demand" | "unknown";
+        /**
          * HelpRecipientOut
          * @description Owner view only.
          */
@@ -2850,7 +2914,11 @@ export interface components {
             /** Wave Number */
             wave_number: number;
         };
-        /** HelpRequestItem */
+        /**
+         * HelpRequestItem
+         * @description Fields after `recipients` are owner-side extras: left unset, and so omitted from the
+         *     response (response_model_exclude_unset), for anyone not entitled to them.
+         */
         HelpRequestItem: {
             /**
              * Advisory
@@ -2860,6 +2928,8 @@ export interface components {
             advisory: true;
             /** Amount Needed */
             amount_needed: number;
+            /** Can Confirm Late */
+            can_confirm_late?: boolean | null;
             /** Claim Expires At */
             claim_expires_at: string | null;
             /** Claimed At */
@@ -2876,11 +2946,20 @@ export interface components {
              */
             created_at: string;
             created_by: components["schemas"]["HelpOrigin"];
+            /**
+             * Deadline Asap
+             * @default false
+             */
+            deadline_asap: boolean;
             float_type: components["schemas"]["FloatType"];
             /** Fulfilled At */
             fulfilled_at: string | null;
             /** Id */
             id: number;
+            /** Is Last Wave */
+            is_last_wave?: boolean | null;
+            /** Max Waves */
+            max_waves?: number | null;
             /** My Distance Km */
             my_distance_km?: number | null;
             my_response?: components["schemas"]["HelpResponse"] | null;
@@ -2889,6 +2968,8 @@ export interface components {
              * Format: date-time
              */
             needed_by: string;
+            /** @default unknown */
+            reason_category: components["schemas"]["HelpReasonCategory"];
             /** Reason Summary */
             reason_summary?: string | null;
             /** Recipients */
@@ -2900,18 +2981,25 @@ export interface components {
              */
             simulated: boolean;
             status: components["schemas"]["HelpStatus"];
+            /** Stockout At */
+            stockout_at?: string | null;
             /**
              * Updated At
              * Format: date-time
              */
             updated_at: string;
             /**
+             * Urgent
+             * @default false
+             */
+            urgent: boolean;
+            /**
              * View
              * @enum {string}
              */
             view: "owner" | "recipient";
             /** Wave Number */
-            wave_number: number;
+            wave_number?: number | null;
         };
         /** HelpRequestPage */
         HelpRequestPage: {
@@ -2958,6 +3046,8 @@ export interface components {
             dry_run?: boolean | null;
             /** Enabled */
             enabled?: boolean | null;
+            /** Late Confirm Grace H */
+            late_confirm_grace_h?: number | null;
             /** Max Recipients Per Wave */
             max_recipients_per_wave?: number | null;
         };
@@ -2973,6 +3063,8 @@ export interface components {
             dry_run: boolean;
             /** Enabled */
             enabled: boolean;
+            /** Late Confirm Grace H */
+            late_confirm_grace_h: number;
             /** Max Recipients Per Wave */
             max_recipients_per_wave: number;
         };
@@ -3683,6 +3775,8 @@ export interface components {
             asks: components["schemas"]["PlanAskOut"][];
             /** Buffer Bdt */
             buffer_bdt: number;
+            /** Deadline Asap */
+            deadline_asap: boolean;
             /** Fires */
             fires: boolean;
             float_type: components["schemas"]["FloatType"];
@@ -3692,12 +3786,17 @@ export interface components {
             projected_low_bdt: number;
             /** Reason */
             reason: string;
+            reason_category: components["schemas"]["HelpReasonCategory"] | null;
             /** Reason Summary */
             reason_summary: string | null;
             /** Simulated */
             simulated: boolean;
             /** Skipped */
             skipped: string | null;
+            /** Stockout At */
+            stockout_at: string | null;
+            /** Urgent */
+            urgent: boolean;
         };
         /**
          * PreferencesUpdate
@@ -3982,6 +4081,28 @@ export interface components {
             /** Van Trips */
             van_trips: number;
         };
+        /**
+         * SchedulerStatus
+         * @description The help-request scheduler as its leader last recorded it (read only).
+         */
+        SchedulerStatus: {
+            /** Interval S */
+            interval_s: number | null;
+            /** Last Error */
+            last_error: string | null;
+            /** Last Result */
+            last_result: {
+                [key: string]: number;
+            } | null;
+            /** Last Run At */
+            last_run_at: string | null;
+            /** Leader */
+            leader: string | null;
+            /** Next Run At */
+            next_run_at: string | null;
+            /** Stale */
+            stale: boolean;
+        };
         /** SearchHit */
         SearchHit: {
             /** Key */
@@ -4042,8 +4163,14 @@ export interface components {
             agent_id: number;
             /** Created Request Ids */
             created_request_ids: number[];
+            /** Dry Run */
+            dry_run: boolean;
+            /** Enabled */
+            enabled: boolean;
             float_type: components["schemas"]["FloatType"];
             plan: components["schemas"]["PlanItemOut"];
+            /** Sent */
+            sent: boolean;
             /**
              * Simulated
              * @default true
@@ -4055,6 +4182,8 @@ export interface components {
              * Format: date-time
              */
             until: string;
+            /** Would Create */
+            would_create: components["schemas"]["PlanItemOut"][];
         };
         /** StockoutFairness */
         StockoutFairness: {
@@ -4232,16 +4361,49 @@ export interface components {
             user: components["schemas"]["UserOut"];
         };
         /**
+         * TriggerRunOut
+         * @description One manual run of the trigger (sweep and wave advance included).
+         */
+        TriggerRunOut: {
+            /** Created Request Ids */
+            created_request_ids: number[];
+            /** Dry Run */
+            dry_run: boolean;
+            /** Enabled */
+            enabled: boolean;
+            /**
+             * Evaluated At
+             * Format: date-time
+             */
+            evaluated_at: string;
+            /** Expired */
+            expired: number;
+            /** Reopened */
+            reopened: number;
+            /** Sent */
+            sent: boolean;
+            /** Waves Advanced */
+            waves_advanced: number;
+            /** Waves Exhausted */
+            waves_exhausted: number;
+            /** Would Create */
+            would_create: components["schemas"]["PlanItemOut"][];
+        };
+        /**
          * TriggerSettingsIn
          * @description Partial update; omitted fields keep their value.
          */
         TriggerSettingsIn: {
             /** Buffer Pct */
             buffer_pct?: number | null;
+            /** Deadline Floor Min */
+            deadline_floor_min?: number | null;
             /** Horizon H */
             horizon_h?: number | null;
             /** Lead Margin H */
             lead_margin_h?: number | null;
+            /** Max New Per Tick */
+            max_new_per_tick?: number | null;
             /** Max Request Bdt */
             max_request_bdt?: number | null;
             /** Max Waves */
@@ -4252,6 +4414,8 @@ export interface components {
             radius_km?: number | null;
             /** Recent Ask H */
             recent_ask_h?: number | null;
+            /** Urgent Wave Multiplier */
+            urgent_wave_multiplier?: number | null;
             /** Wave Timeout Min */
             wave_timeout_min?: number | null;
         };
@@ -4259,10 +4423,14 @@ export interface components {
         TriggerSettingsOut: {
             /** Buffer Pct */
             buffer_pct: number;
+            /** Deadline Floor Min */
+            deadline_floor_min: number;
             /** Horizon H */
             horizon_h: number;
             /** Lead Margin H */
             lead_margin_h: number;
+            /** Max New Per Tick */
+            max_new_per_tick: number;
             /** Max Request Bdt */
             max_request_bdt: number;
             /** Max Waves */
@@ -4273,6 +4441,8 @@ export interface components {
             radius_km: number;
             /** Recent Ask H */
             recent_ask_h: number;
+            /** Urgent Wave Multiplier */
+            urgent_wave_multiplier: number;
             /** Wave Timeout Min */
             wave_timeout_min: number;
         };
@@ -4677,6 +4847,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_trigger_api_v1_admin_liquidity_requests_run_trigger_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TriggerRunOut"];
                 };
             };
         };
@@ -6284,6 +6474,59 @@ export interface operations {
             };
         };
     };
+    read_opt_out_api_v1_liquidity_requests_opt_out_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OptOutOut"];
+                };
+            };
+        };
+    };
+    write_opt_out_api_v1_liquidity_requests_opt_out_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OptOutIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OptOutOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     opt_out_api_v1_liquidity_requests_opt_out_post: {
         parameters: {
             query?: never;
@@ -6415,6 +6658,41 @@ export interface operations {
         };
     };
     confirm_api_v1_liquidity_requests__request_id__confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["HelpNoteIn"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HelpRequestItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    confirm_late_api_v1_liquidity_requests__request_id__confirm_late_post: {
         parameters: {
             query?: never;
             header?: never;

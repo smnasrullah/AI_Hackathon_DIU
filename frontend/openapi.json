@@ -51,6 +51,16 @@
       "title": "Generated At",
       "type": "string"
      },
+     "help_scheduler": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/SchedulerStatus"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
      "latest_job": {
       "anyOf": [
        {
@@ -109,6 +119,7 @@
      "active_models",
      "latest_job",
      "recent_audit",
+     "help_scheduler",
      "generated_at"
     ],
     "title": "AdminOverview",
@@ -2983,6 +2994,20 @@
     "title": "HelpOrigin",
     "type": "string"
    },
+   "HelpReasonCategory": {
+    "description": "The only part of a help request's reason a helper sees (no numbers, no balances).",
+    "enum": [
+     "salary_day",
+     "eid",
+     "holiday",
+     "market_day",
+     "weather",
+     "high_demand",
+     "unknown"
+    ],
+    "title": "HelpReasonCategory",
+    "type": "string"
+   },
    "HelpRecipientOut": {
     "description": "Owner view only.",
     "properties": {
@@ -3055,6 +3080,7 @@
     "type": "object"
    },
    "HelpRequestItem": {
+    "description": "Fields after `recipients` are owner-side extras: left unset, and so omitted from the\nresponse (response_model_exclude_unset), for anyone not entitled to them.",
     "properties": {
      "advisory": {
       "const": true,
@@ -3065,6 +3091,17 @@
      "amount_needed": {
       "title": "Amount Needed",
       "type": "number"
+     },
+     "can_confirm_late": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Can Confirm Late"
      },
      "claim_expires_at": {
       "anyOf": [
@@ -3113,6 +3150,11 @@
      "created_by": {
       "$ref": "#/components/schemas/HelpOrigin"
      },
+     "deadline_asap": {
+      "default": false,
+      "title": "Deadline Asap",
+      "type": "boolean"
+     },
      "float_type": {
       "$ref": "#/components/schemas/FloatType"
      },
@@ -3131,6 +3173,28 @@
      "id": {
       "title": "Id",
       "type": "integer"
+     },
+     "is_last_wave": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Is Last Wave"
+     },
+     "max_waves": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Max Waves"
      },
      "my_distance_km": {
       "anyOf": [
@@ -3157,6 +3221,10 @@
       "format": "date-time",
       "title": "Needed By",
       "type": "string"
+     },
+     "reason_category": {
+      "$ref": "#/components/schemas/HelpReasonCategory",
+      "default": "unknown"
      },
      "reason_summary": {
       "anyOf": [
@@ -3194,10 +3262,27 @@
      "status": {
       "$ref": "#/components/schemas/HelpStatus"
      },
+     "stockout_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Stockout At"
+     },
      "updated_at": {
       "format": "date-time",
       "title": "Updated At",
       "type": "string"
+     },
+     "urgent": {
+      "default": false,
+      "title": "Urgent",
+      "type": "boolean"
      },
      "view": {
       "enum": [
@@ -3208,8 +3293,15 @@
       "type": "string"
      },
      "wave_number": {
-      "title": "Wave Number",
-      "type": "integer"
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Wave Number"
      }
     },
     "required": [
@@ -3220,7 +3312,6 @@
      "amount_needed",
      "needed_by",
      "status",
-     "wave_number",
      "created_by",
      "created_at",
      "updated_at",
@@ -3378,6 +3469,19 @@
       ],
       "title": "Enabled"
      },
+     "late_confirm_grace_h": {
+      "anyOf": [
+       {
+        "maximum": 168.0,
+        "minimum": 0.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Late Confirm Grace H"
+     },
      "max_recipients_per_wave": {
       "anyOf": [
        {
@@ -3417,6 +3521,10 @@
       "title": "Enabled",
       "type": "boolean"
      },
+     "late_confirm_grace_h": {
+      "title": "Late Confirm Grace H",
+      "type": "integer"
+     },
      "max_recipients_per_wave": {
       "title": "Max Recipients Per Wave",
       "type": "integer"
@@ -3428,7 +3536,8 @@
      "claim_timeout_min",
      "cooldown_min",
      "daily_cap_per_agent",
-     "max_recipients_per_wave"
+     "max_recipients_per_wave",
+     "late_confirm_grace_h"
     ],
     "title": "HelpSettingsOut",
     "type": "object"
@@ -5321,6 +5430,10 @@
       "title": "Buffer Bdt",
       "type": "number"
      },
+     "deadline_asap": {
+      "title": "Deadline Asap",
+      "type": "boolean"
+     },
      "fires": {
       "title": "Fires",
       "type": "boolean"
@@ -5348,6 +5461,16 @@
       "title": "Reason",
       "type": "string"
      },
+     "reason_category": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/HelpReasonCategory"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
      "reason_summary": {
       "anyOf": [
        {
@@ -5373,6 +5496,22 @@
        }
       ],
       "title": "Skipped"
+     },
+     "stockout_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Stockout At"
+     },
+     "urgent": {
+      "title": "Urgent",
+      "type": "boolean"
      }
     },
     "required": [
@@ -5385,9 +5524,13 @@
      "buffer_bdt",
      "amount_bdt",
      "needed_by",
+     "stockout_at",
+     "urgent",
+     "deadline_asap",
      "skipped",
      "simulated",
      "reason_summary",
+     "reason_category",
      "asks"
     ],
     "title": "PlanItemOut",
@@ -6197,6 +6340,97 @@
     "title": "ScenarioTotals",
     "type": "object"
    },
+   "SchedulerStatus": {
+    "description": "The help-request scheduler as its leader last recorded it (read only).",
+    "properties": {
+     "interval_s": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Interval S"
+     },
+     "last_error": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Error"
+     },
+     "last_result": {
+      "anyOf": [
+       {
+        "additionalProperties": {
+         "type": "integer"
+        },
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Result"
+     },
+     "last_run_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Run At"
+     },
+     "leader": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Leader"
+     },
+     "next_run_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Next Run At"
+     },
+     "stale": {
+      "title": "Stale",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "interval_s",
+     "last_run_at",
+     "last_result",
+     "last_error",
+     "next_run_at",
+     "leader",
+     "stale"
+    ],
+    "title": "SchedulerStatus",
+    "type": "object"
+   },
    "SearchHit": {
     "properties": {
      "key": {
@@ -6368,11 +6602,23 @@
       "title": "Created Request Ids",
       "type": "array"
      },
+     "dry_run": {
+      "title": "Dry Run",
+      "type": "boolean"
+     },
+     "enabled": {
+      "title": "Enabled",
+      "type": "boolean"
+     },
      "float_type": {
       "$ref": "#/components/schemas/FloatType"
      },
      "plan": {
       "$ref": "#/components/schemas/PlanItemOut"
+     },
+     "sent": {
+      "title": "Sent",
+      "type": "boolean"
      },
      "simulated": {
       "const": true,
@@ -6384,6 +6630,13 @@
       "format": "date-time",
       "title": "Until",
       "type": "string"
+     },
+     "would_create": {
+      "items": {
+       "$ref": "#/components/schemas/PlanItemOut"
+      },
+      "title": "Would Create",
+      "type": "array"
      }
     },
     "required": [
@@ -6392,7 +6645,11 @@
      "float_type",
      "until",
      "created_request_ids",
-     "plan"
+     "plan",
+     "dry_run",
+     "enabled",
+     "sent",
+     "would_create"
     ],
     "title": "SimulateOut",
     "type": "object"
@@ -6900,6 +7157,72 @@
     "title": "TokenResponse",
     "type": "object"
    },
+   "TriggerRunOut": {
+    "description": "One manual run of the trigger (sweep and wave advance included).",
+    "properties": {
+     "created_request_ids": {
+      "items": {
+       "type": "integer"
+      },
+      "title": "Created Request Ids",
+      "type": "array"
+     },
+     "dry_run": {
+      "title": "Dry Run",
+      "type": "boolean"
+     },
+     "enabled": {
+      "title": "Enabled",
+      "type": "boolean"
+     },
+     "evaluated_at": {
+      "format": "date-time",
+      "title": "Evaluated At",
+      "type": "string"
+     },
+     "expired": {
+      "title": "Expired",
+      "type": "integer"
+     },
+     "reopened": {
+      "title": "Reopened",
+      "type": "integer"
+     },
+     "sent": {
+      "title": "Sent",
+      "type": "boolean"
+     },
+     "waves_advanced": {
+      "title": "Waves Advanced",
+      "type": "integer"
+     },
+     "waves_exhausted": {
+      "title": "Waves Exhausted",
+      "type": "integer"
+     },
+     "would_create": {
+      "items": {
+       "$ref": "#/components/schemas/PlanItemOut"
+      },
+      "title": "Would Create",
+      "type": "array"
+     }
+    },
+    "required": [
+     "evaluated_at",
+     "dry_run",
+     "enabled",
+     "sent",
+     "created_request_ids",
+     "would_create",
+     "reopened",
+     "expired",
+     "waves_advanced",
+     "waves_exhausted"
+    ],
+    "title": "TriggerRunOut",
+    "type": "object"
+   },
    "TriggerSettingsIn": {
     "description": "Partial update; omitted fields keep their value.",
     "properties": {
@@ -6915,6 +7238,19 @@
        }
       ],
       "title": "Buffer Pct"
+     },
+     "deadline_floor_min": {
+      "anyOf": [
+       {
+        "maximum": 240.0,
+        "minimum": 1.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Deadline Floor Min"
      },
      "horizon_h": {
       "anyOf": [
@@ -6941,6 +7277,19 @@
        }
       ],
       "title": "Lead Margin H"
+     },
+     "max_new_per_tick": {
+      "anyOf": [
+       {
+        "maximum": 100.0,
+        "minimum": 1.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Max New Per Tick"
      },
      "max_request_bdt": {
       "anyOf": [
@@ -7007,6 +7356,19 @@
       ],
       "title": "Recent Ask H"
      },
+     "urgent_wave_multiplier": {
+      "anyOf": [
+       {
+        "maximum": 5.0,
+        "minimum": 1.0,
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Urgent Wave Multiplier"
+     },
      "wave_timeout_min": {
       "anyOf": [
        {
@@ -7030,6 +7392,10 @@
       "title": "Buffer Pct",
       "type": "number"
      },
+     "deadline_floor_min": {
+      "title": "Deadline Floor Min",
+      "type": "integer"
+     },
      "horizon_h": {
       "title": "Horizon H",
       "type": "integer"
@@ -7037,6 +7403,10 @@
      "lead_margin_h": {
       "title": "Lead Margin H",
       "type": "number"
+     },
+     "max_new_per_tick": {
+      "title": "Max New Per Tick",
+      "type": "integer"
      },
      "max_request_bdt": {
       "title": "Max Request Bdt",
@@ -7058,6 +7428,10 @@
       "title": "Recent Ask H",
       "type": "number"
      },
+     "urgent_wave_multiplier": {
+      "title": "Urgent Wave Multiplier",
+      "type": "number"
+     },
      "wave_timeout_min": {
       "title": "Wave Timeout Min",
       "type": "integer"
@@ -7072,7 +7446,10 @@
      "radius_km",
      "wave_timeout_min",
      "max_waves",
-     "recent_ask_h"
+     "recent_ask_h",
+     "deadline_floor_min",
+     "urgent_wave_multiplier",
+     "max_new_per_tick"
     ],
     "title": "TriggerSettingsOut",
     "type": "object"
@@ -8011,6 +8388,33 @@
     ]
    }
   },
+  "/api/v1/admin/liquidity-requests/run-trigger": {
+   "post": {
+    "description": "One tick now, the same as the background scheduler: sweep timeouts, advance waves, run\nthe trigger. Under dry run or the kill switch nothing is created or sent and the response\nlists what WOULD have been.",
+    "operationId": "run_trigger_api_v1_admin_liquidity_requests_run_trigger_post",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TriggerRunOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Run Trigger",
+    "tags": [
+     "liquidity-requests"
+    ]
+   }
+  },
   "/api/v1/admin/liquidity-requests/settings": {
    "get": {
     "description": "Kill switch, dry run, claim timeout, cooldown, daily cap, recipients per wave.",
@@ -8085,7 +8489,7 @@
   },
   "/api/v1/admin/liquidity-requests/simulate-shortage": {
    "post": {
-    "description": "DEMO_MODE only. Forces one agent into a shortage for 30 minutes and runs the trigger\nfor that agent now. Audit logged; every request it makes is marked simulated.",
+    "description": "DEMO_MODE only. Forces one agent into a shortage for 30 minutes and runs the trigger\nfor that agent now. Audit logged; every request it makes is marked simulated. Under dry\nrun or the kill switch nothing is sent and would_create says what would have been.",
     "operationId": "simulate_shortage_api_v1_admin_liquidity_requests_simulate_shortage_post",
     "requestBody": {
      "content": {
@@ -8159,7 +8563,7 @@
   },
   "/api/v1/admin/liquidity-requests/trigger-settings": {
    "get": {
-    "description": "Horizon, buffer percentage, minimum shortfall, cap, lead margin, radius, waves, timeout.",
+    "description": "Horizon, buffer, minimum shortfall, cap, lead margin, radius, waves, timeout, deadline\nfloor, urgent wave multiplier.",
     "operationId": "read_trigger_settings_api_v1_admin_liquidity_requests_trigger_settings_get",
     "responses": {
      "200": {
@@ -10947,8 +11351,34 @@
    }
   },
   "/api/v1/liquidity-requests/opt-out": {
+   "get": {
+    "description": "The caller's own choice. opted_out: true = never asked to help others.",
+    "operationId": "read_opt_out_api_v1_liquidity_requests_opt_out_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/OptOutOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Read Opt Out",
+    "tags": [
+     "liquidity-requests"
+    ]
+   },
    "post": {
-    "description": "An agent chooses whether they can be asked for help. Opted-out agents are never ranked.",
+    "deprecated": true,
+    "description": "Same as PUT /opt-out (kept for older clients).",
     "operationId": "opt_out_api_v1_liquidity_requests_opt_out_post",
     "requestBody": {
      "content": {
@@ -10988,6 +11418,51 @@
      }
     ],
     "summary": "Opt Out",
+    "tags": [
+     "liquidity-requests"
+    ]
+   },
+   "put": {
+    "description": "Change the caller's own choice (only their own agent; audited). Opted-out agents are\nnever ranked as helpers.",
+    "operationId": "write_opt_out_api_v1_liquidity_requests_opt_out_put",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/OptOutIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/OptOutOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Write Opt Out",
     "tags": [
      "liquidity-requests"
     ]
@@ -11045,7 +11520,7 @@
   },
   "/api/v1/liquidity-requests/{request_id}/cancel": {
    "post": {
-    "description": "The requester agent or an admin cancels an open or claimed request.",
+    "description": "The requester agent, their own distributor or an admin cancels an open or claimed\nrequest. Anyone else is 403. Audited (actor, old and new status).",
     "operationId": "cancel_api_v1_liquidity_requests__request_id__cancel_post",
     "parameters": [
      {
@@ -11222,6 +11697,73 @@
      }
     ],
     "summary": "Confirm",
+    "tags": [
+     "liquidity-requests"
+    ]
+   }
+  },
+  "/api/v1/liquidity-requests/{request_id}/confirm-late": {
+   "post": {
+    "description": "The requester agent or their distributor confirms that the helper whose claim timed out\ndelivered after all. Only on a reopened request that had such a claim (409\nno_lapsed_claim otherwise).",
+    "operationId": "confirm_late_api_v1_liquidity_requests__request_id__confirm_late_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "request_id",
+      "required": true,
+      "schema": {
+       "maximum": 2147483647,
+       "minimum": 1,
+       "title": "Request Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "anyOf": [
+         {
+          "$ref": "#/components/schemas/HelpNoteIn"
+         },
+         {
+          "type": "null"
+         }
+        ],
+        "title": "Body"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HelpRequestItem"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "summary": "Confirm Late",
     "tags": [
      "liquidity-requests"
     ]

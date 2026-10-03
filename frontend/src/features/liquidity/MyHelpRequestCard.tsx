@@ -1,8 +1,8 @@
-import { Banknote, Users, XCircle } from "lucide-react";
+import { Banknote, Clock, PackageCheck, Users, XCircle } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { useCancelHelp, useConfirmHelp } from "../../api/hooks/helpRequests";
+import { useCancelHelp, useConfirmHelp, useConfirmLateHelp } from "../../api/hooks/helpRequests";
 import type { HelpRequestItem } from "../../api/types";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { LiquidButton } from "../../components/ui/LiquidButton";
@@ -17,16 +17,29 @@ export function MyHelpRequestCard({ item, now }: { item: HelpRequestItem; now: D
   const { t } = useTranslation();
   const { lang, digits } = useLocale();
   const confirm = useConfirmHelp();
+  const confirmLate = useConfirmLateHelp();
   const cancel = useCancelHelp();
   const [asking, setAsking] = useState(false);
   const active = isActive(item.status);
   const amount = formatMoney(item.amount_needed, digits, { lang });
   const float = t(`float.${item.float_type}`);
   const left = formatDuration(hoursUntil(item.needed_by, now), lang, digits);
+  // Same clock as needed_by: at request time this equals the forecast page's "stock-out in X".
+  const stockoutLeft = item.stockout_at ? hoursUntil(item.stockout_at, now) : null;
   const asked = askedCount(item);
 
   function onReceived(): void {
     confirm.mutate(
+      { id: item.id },
+      {
+        onSuccess: () => toast({ tone: "success", title: t("liquidity.agent.mine.receivedDone") }),
+        onError: () => toast({ tone: "error", title: t("liquidity.agent.card.failed") }),
+      },
+    );
+  }
+
+  function onReceivedLate(): void {
+    confirmLate.mutate(
       { id: item.id },
       {
         onSuccess: () => toast({ tone: "success", title: t("liquidity.agent.mine.receivedDone") }),
@@ -62,12 +75,19 @@ export function MyHelpRequestCard({ item, now }: { item: HelpRequestItem; now: D
         </p>
         {active ? (
           <time dateTime={item.needed_by} data-testid="my-help-left" className="num rounded-full bg-surface-2 px-3 py-1 text-small font-semibold">
-            {t("liquidity.agent.mine.left", { time: left })}
+            {item.deadline_asap ? t("liquidity.asap") : t("liquidity.agent.mine.left", { time: left })}
           </time>
         ) : null}
       </header>
 
       <HelpTimeline status={item.status} />
+
+      {active && stockoutLeft !== null && stockoutLeft > 0 ? (
+        <p className="num flex items-center gap-2 text-small text-muted" data-testid="my-help-stockout">
+          <Clock aria-hidden className="size-4" />
+          {t("liquidity.agent.mine.stockout", { time: formatDuration(stockoutLeft, lang, digits) })}
+        </p>
+      ) : null}
 
       <p className="flex items-center gap-2 text-small text-muted" data-testid="my-help-asked">
         <Users aria-hidden className="size-4" />
@@ -80,6 +100,15 @@ export function MyHelpRequestCard({ item, now }: { item: HelpRequestItem; now: D
             {t("liquidity.agent.mine.received")}
           </LiquidButton>
           <p className="text-xs text-muted">{t("liquidity.agent.mine.receivedHint")}</p>
+        </div>
+      ) : null}
+
+      {item.can_confirm_late ? (
+        <div className="space-y-2">
+          <LiquidButton data-testid="help-received-late" variant="secondary" icon={PackageCheck} loading={confirmLate.isPending} disabled={confirmLate.isPending} onClick={onReceivedLate} className="w-full">
+            {t("liquidity.agent.mine.receivedLate")}
+          </LiquidButton>
+          <p className="text-xs text-muted">{t("liquidity.agent.mine.receivedLateHint")}</p>
         </div>
       ) : null}
 

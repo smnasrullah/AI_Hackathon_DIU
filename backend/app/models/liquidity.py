@@ -6,6 +6,7 @@ Coordination only: nothing here moves money. States and rules: app/rules/help_re
 import uuid
 from datetime import datetime
 from decimal import Decimal
+from typing import Any
 
 from sqlalchemy import (
     Boolean,
@@ -21,8 +22,15 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.models.base import Base, BigIntPK, Money, TsTz, created_at_col, db_enum
-from app.models.enums import FloatType, HelpOrigin, HelpResponse, HelpStatus, UserRole
+from app.models.base import Base, BigIntPK, JsonDoc, Money, TsTz, created_at_col, db_enum
+from app.models.enums import (
+    FloatType,
+    HelpOrigin,
+    HelpReasonCategory,
+    HelpResponse,
+    HelpStatus,
+    UserRole,
+)
 
 ACTIVE_HELP = "status IN ('open', 'claimed')"
 
@@ -43,13 +51,31 @@ class LiquidityRequest(Base):
     float_type: Mapped[FloatType] = mapped_column(db_enum(FloatType))
     amount_needed: Mapped[Decimal] = mapped_column(Money)
     needed_by: Mapped[datetime] = mapped_column(TsTz)
+    # Free text from requests made before 0018; newer requests store reason_code + reason_params
+    # (rendered per reader language by app/services/help_reason.py).
     reason_summary: Mapped[str | None] = mapped_column(Text)
+    reason_code: Mapped[str | None] = mapped_column(Text)
+    reason_params: Mapped[dict[str, Any] | None] = mapped_column(JsonDoc)
+    # The only reason a helper sees.
+    reason_category: Mapped[HelpReasonCategory] = mapped_column(
+        db_enum(HelpReasonCategory), default=HelpReasonCategory.unknown,
+        server_default=HelpReasonCategory.unknown.value)
+    # Stock-out on the wall clock (app/core/clock.py) when the request was made; never moved.
+    stockout_at: Mapped[datetime | None] = mapped_column(TsTz)
+    urgent: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     status: Mapped[HelpStatus] = mapped_column(
         db_enum(HelpStatus), default=HelpStatus.open, server_default="open")
     claimed_by_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
     claimed_at: Mapped[datetime | None] = mapped_column(TsTz)
     claim_expires_at: Mapped[datetime | None] = mapped_column(TsTz)
+    # The helper whose claim last timed out; they may still deliver late (confirm_late).
+    lapsed_claimant_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
     fulfilled_at: Mapped[datetime | None] = mapped_column(TsTz)
+    # When it expired (timed out or every wave failed); starts the late-confirm grace window.
+    expired_at: Mapped[datetime | None] = mapped_column(TsTz)
+    # The deadline floor put needed_by after the forecast stock-out: "as soon as possible".
+    deadline_after_stockout: Mapped[bool] = mapped_column(Boolean, default=False,
+                                                          server_default=false())
     wave_number: Mapped[int] = mapped_column(SmallInteger, default=1, server_default="1")
     wave_started_at: Mapped[datetime | None] = mapped_column(TsTz)
     # True only for demo runs forced by the admin "simulate shortage" helper (DEMO_MODE only).

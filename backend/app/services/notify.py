@@ -8,13 +8,14 @@ Texts are i18n keys + params (numbers from the backend). Users with notify_in_ap
 
 import uuid
 from collections import Counter
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 
 from sqlalchemy import insert, select
 from sqlalchemy.orm import Session
 
 from app.models import Agent, Anomaly, Notification, RiskLevel, SwapSuggestion, User
 from app.models.enums import (
+    Lang,
     NotificationSeverity,
     NotificationType,
     RiskLevelCode,
@@ -182,13 +183,24 @@ def anomalies_new(session: Session, flags: list[Anomaly]) -> int:
 
 # --- liquidity help requests ------------------------------------------------------------------
 
+PerReader = Callable[[UserRole, Lang], dict[str, Param]]
+
+
 def help_event(session: Session, users: Iterable[uuid.UUID], key: str,
-               severity: NotificationSeverity, params: dict[str, Param], request_id: int) -> int:
-    """One help-request notification per opted-in active user (keys under notifications.help)."""
+               severity: NotificationSeverity, params: dict[str, Param], request_id: int,
+               per_reader: PerReader | None = None) -> int:
+    """One help-request notification per opted-in active user (keys under notifications.help).
+    per_reader adds what depends on the reader: text in their language, their deep link."""
     wanted = set(users)
     if not wanted:
         return 0
-    opted = session.scalars(select(User.id).where(
-        User.id.in_(wanted), User.is_active.is_(True), User.notify_in_app.is_(True))).all()
-    return _add(session, sorted(opted), NotificationType.help_request, severity,
-                f"notifications.help.{key}", params, ("liquidity_request", str(request_id)))
+    readers = session.execute(select(User.id, User.role, User.lang).where(
+        User.id.in_(wanted), User.is_active.is_(True), User.notify_in_app.is_(True))).tuples()
+    rows = [{"user_id": uid, "type": NotificationType.help_request, "severity": severity,
+             "title_key": f"notifications.help.{key}",
+             "params": params | (per_reader(role, lang) if per_reader else {}),
+             "entity_type": "liquidity_request", "entity_id": str(request_id)}
+            for uid, role, lang in sorted(readers, key=lambda r: str(r[0]))]
+    if rows:
+        session.execute(insert(Notification), rows)
+    return len(rows)

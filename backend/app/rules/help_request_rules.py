@@ -1,8 +1,11 @@
 """Liquidity help request rules: the state machine and the anti-abuse limits.
 
 States: open -> claimed -> fulfilled; claimed -> open (helper withdraws or the claim times out,
-"reopened"); open -> expired (nobody helped by needed_by); open | claimed -> cancelled.
-Every status change in the service goes through TRANSITIONS; anything else is a 409.
+"reopened"); open -> expired (nobody helped by needed_by); open | claimed -> cancelled;
+open | expired -> fulfilled ("confirm_late": the helper whose claim timed out delivered after
+all; only when the request had such a claim, and from expired only within the grace window).
+Never from cancelled. Every status change in the service goes through TRANSITIONS; anything
+else is a 409.
 """
 
 from collections.abc import Iterable
@@ -12,7 +15,8 @@ from typing import Literal
 
 from app.models.enums import HelpStatus
 
-Event = Literal["claim", "withdraw", "reopen", "confirm", "expire", "exhaust", "cancel"]
+Event = Literal["claim", "withdraw", "reopen", "confirm", "confirm_late", "expire", "exhaust",
+                "cancel"]
 
 # event -> (allowed from, new status). The one place the allowed transitions are written.
 TRANSITIONS: dict[Event, tuple[frozenset[HelpStatus], HelpStatus]] = {
@@ -20,6 +24,8 @@ TRANSITIONS: dict[Event, tuple[frozenset[HelpStatus], HelpStatus]] = {
     "withdraw": (frozenset({HelpStatus.claimed}), HelpStatus.open),
     "reopen": (frozenset({HelpStatus.claimed}), HelpStatus.open),  # claim timed out
     "confirm": (frozenset({HelpStatus.claimed}), HelpStatus.fulfilled),
+    # After a timed-out claim; from expired only within HelpPolicy.late_confirm_grace_h.
+    "confirm_late": (frozenset({HelpStatus.open, HelpStatus.expired}), HelpStatus.fulfilled),
     "expire": (frozenset({HelpStatus.open}), HelpStatus.expired),
     "exhaust": (frozenset({HelpStatus.open}), HelpStatus.expired),  # every wave failed
     "cancel": (frozenset({HelpStatus.open, HelpStatus.claimed}), HelpStatus.cancelled),
@@ -38,6 +44,13 @@ class HelpPolicy:
     cooldown_min: int = 30
     daily_cap_per_agent: int = 3
     max_recipients_per_wave: int = 5
+    late_confirm_grace_h: int = 24  # an expired request can be confirmed late this long after
+
+
+def late_confirm_open(expired_at: datetime | None, now: datetime, policy: HelpPolicy) -> bool:
+    """An expired request can still be confirmed late until the grace window closes."""
+    return expired_at is not None and now <= expired_at + timedelta(
+        hours=policy.late_confirm_grace_h)
 
 
 def can(event: Event, status: HelpStatus) -> bool:

@@ -21,7 +21,8 @@ scripts/.check-build-*.stamp
 
 # Local runtime artifacts (databases, logs, bootstrap state, check stamps)
 *.db
-*local-server.log
+# Local logs (dev servers, tools); no tracked file is a .log
+*.log
 bootstrap_state.txt
 *.stamp
 
