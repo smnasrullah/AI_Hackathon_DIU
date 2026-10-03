@@ -2,11 +2,19 @@ import { MessageCircleQuestion } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { useCopilotSuggestions } from "../../../api/hooks/copilot";
+import { Skeleton } from "../../../components/ui/Skeleton";
 import { useLocale } from "../../../lib/prefs";
 
+// Placeholder chips about as wide as the served questions (Bangla ones run ~50-90 characters),
+// so the chat sheet below does not jump when they arrive.
+const PLACEHOLDER_WIDTHS = {
+  bn: ["w-80", "w-72", "w-80", "w-72", "w-full"],
+  en: ["w-52", "w-44", "w-56", "w-52", "w-80"],
+} as const;
+
 /**
- * Suggested questions for the current language. Quiet by design: nothing renders while loading
- * or when the call fails. `onPick` gets the suggestion text exactly as served (replay matches
+ * Suggested questions for the current language. Quiet by design: chip-shaped placeholders while
+ * loading, nothing when the call fails. `onPick` gets the suggestion text exactly as served (replay matches
  * exact text only), never trimmed or translated.
  */
 export function SuggestionChips({ onPick, disabled = false }: { onPick: (question: string) => void; disabled?: boolean }) {
@@ -14,6 +22,15 @@ export function SuggestionChips({ onPick, disabled = false }: { onPick: (questio
   const { lang } = useLocale();
   const q = useCopilotSuggestions(lang);
   const items = q.data?.items ?? [];
+  if (q.isPending) {
+    return (
+      <div role="status" aria-busy="true" aria-label={t("common.loading")} className="flex flex-wrap gap-2">
+        {PLACEHOLDER_WIDTHS[lang].map((w, i) => (
+          <Skeleton key={i} className={`h-9 max-w-full rounded-full ${w}`} />
+        ))}
+      </div>
+    );
+  }
   if (q.isError || items.length === 0) return null;
 
   return (

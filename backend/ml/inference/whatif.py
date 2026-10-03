@@ -37,3 +37,23 @@ def run(b0: float, delta: float, drain_q: np.ndarray, inflow_q: np.ndarray,
     """(before, after) for one float. With the cache's rng seed, `before` equals the cache."""
     drain, inflow = sample_paths(drain_q, inflow_q, cfg, rng)
     return _scenario(b0, drain, inflow, cfg), _scenario(b0 + delta, drain, inflow, cfg)
+
+
+@dataclass(frozen=True)
+class Paths:
+    """Sampled demand paths and the no-change scenario: the slider-independent part of run()."""
+
+    drain: np.ndarray
+    inflow: np.ndarray
+    before: Scenario
+
+
+def prepare(b0: float, drain_q: np.ndarray, inflow_q: np.ndarray, cfg: StockoutConfig,
+            rng: np.random.Generator) -> Paths:
+    drain, inflow = sample_paths(drain_q, inflow_q, cfg, rng)
+    return Paths(drain, inflow, _scenario(b0, drain, inflow, cfg))
+
+
+def after(paths: Paths, delta: float, cfg: StockoutConfig) -> Scenario:
+    """Same as run()'s second result, reusing prepared paths."""
+    return _scenario(paths.before.balance + delta, paths.drain, paths.inflow, cfg)

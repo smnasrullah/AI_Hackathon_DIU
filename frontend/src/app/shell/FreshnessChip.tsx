@@ -31,9 +31,10 @@ export function FreshnessChip({ className }: { className?: string }) {
     ? t("freshness.label", { ago: formatRelative(new Date(q.data.last_forecast_at), now, lang, digits), model })
     : t("freshness.noForecast", { model });
   return (
-    <span className={cn(CHIP, "text-muted", className)} title={t("freshness.title")} data-testid="freshness-chip">
-      <Clock aria-hidden className="size-3.5" />
-      <span>{text}</span>
+    <span className={cn(CHIP, "text-muted", className)} title={`${t("freshness.title")}: ${text}`} data-testid="freshness-chip">
+      <Clock aria-hidden className="size-3.5 shrink-0" />
+      {/* One line, as tall as its skeleton: wrapping on a phone pushed the page down. */}
+      <span className="min-w-0 truncate">{text}</span>
     </span>
   );
 }

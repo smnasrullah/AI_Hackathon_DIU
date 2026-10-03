@@ -21,6 +21,7 @@ from app.models.predictions import (
     RiskLevel,
     StockoutPrediction,
 )
+from app.models.rate_limit import RateLimitHit
 from app.models.system_meta import SystemMeta
 from app.models.timeseries import Event, FloatSnapshot, Transaction, WeatherDaily
 
@@ -46,6 +47,7 @@ __all__ = [
     "ModelVersion",
     "Notification",
     "PasswordResetToken",
+    "RateLimitHit",
     "Recommendation",
     "RecommendationRequest",
     "RefreshToken",

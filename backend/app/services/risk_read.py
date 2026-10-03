@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 from sqlalchemy import or_, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, defer
 
 from app.core.deps import scoped_agents_query
 from app.models import Agent, FloatSnapshot, ModelVersion, RiskLevel, StockoutPrediction, User
@@ -43,7 +43,9 @@ class _Cached:
 def _load(session: Session, mv: ModelVersion, agent_ids: Sequence[int],
           horizon: int | None = None) -> dict[int, _Cached]:
     out: dict[int, _Cached] = {}
-    for s in session.scalars(select(StockoutPrediction).where(
+    # prob_by_hour (~1 KB JSON a row) is only for the map's time scrubber (services/risk_map).
+    for s in session.scalars(select(StockoutPrediction).options(
+            defer(StockoutPrediction.prob_by_hour, raiseload=True)).where(
             StockoutPrediction.model_version_id == mv.id,
             StockoutPrediction.agent_id.in_(agent_ids))):
         out.setdefault(s.agent_id, _Cached()).stockouts[s.float_type] = s

@@ -106,6 +106,22 @@ def test_login_rate_limit_spans_emails(monkeypatch: pytest.MonkeyPatch, seeded: 
     assert ok.status_code == 200
 
 
+def test_login_rate_limit_is_shared_by_workers(monkeypatch: pytest.MonkeyPatch,
+                                               seeded: Path) -> None:
+    """Two app instances stand in for two uvicorn workers: one budget per IP, not one each."""
+    a = _app_with(monkeypatch, LOGIN_RATE_PER_MIN="3", WEB_CONCURRENCY="2")
+    b = TestClient(create_app())
+    bad = {"email": "nobody@example.com", "password": "wrong-password"}
+    codes = [c.post(f"{API}/auth/login", json=bad).status_code for c in (a, b, a, b)]
+    assert codes == [401, 401, 401, 429]
+
+
+def test_request_cap_is_split_across_workers(monkeypatch: pytest.MonkeyPatch, env: Path) -> None:
+    c = _app_with(monkeypatch, API_RATE_PER_MIN="6", WEB_CONCURRENCY="2")
+    codes = [c.get(f"{API}/system/health").status_code for _ in range(4)]
+    assert codes == [200] * 3 + [429]
+
+
 def test_security_headers_on_api(client: TestClient) -> None:
     res = client.get(f"{API}/system/health")
     assert res.headers["x-content-type-options"] == "nosniff"

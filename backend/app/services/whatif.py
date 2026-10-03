@@ -3,8 +3,12 @@
 Same seed and Monte Carlo config as the risk cache, so `before` reproduces the cached numbers.
 """
 
+import hashlib
+import threading
+from collections import OrderedDict
 from datetime import UTC, datetime, timedelta
 
+import numpy as np
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -18,6 +22,30 @@ from app.services.model_registry import active_model
 from ml.inference import whatif
 from ml.inference.stockout import StockoutConfig
 from ml.registry import FORECAST_MODEL
+
+# Sampling 2,000 demand paths is most of a what-if call and does not depend on the slider, so
+# each worker keeps the last few agents' paths (~2.3 MB each). The key holds a digest of the
+# cached quantiles and the balance, so a new forecast or snapshot is a new entry.
+_PATHS_MAX = 8
+_paths: OrderedDict[tuple[object, ...], whatif.Paths] = OrderedDict()
+_paths_lock = threading.Lock()
+
+
+def _prepared(seed: int, agent_id: int, ft: FloatType, b0: float, drain: np.ndarray,
+              inflow: np.ndarray, cfg: StockoutConfig) -> whatif.Paths:
+    digest = hashlib.blake2b(drain.tobytes() + inflow.tobytes(), digest_size=16).hexdigest()
+    key = (seed, agent_id, ft, b0, digest, cfg)
+    with _paths_lock:
+        hit = _paths.get(key)
+        if hit is not None:
+            _paths.move_to_end(key)
+            return hit
+    prepared = whatif.prepare(b0, drain, inflow, cfg, risk.path_rng(seed, agent_id, ft))
+    with _paths_lock:
+        _paths[key] = prepared
+        while len(_paths) > _PATHS_MAX:
+            _paths.popitem(last=False)
+    return prepared
 
 
 class WhatIfError(Exception):
@@ -67,8 +95,9 @@ def run(session: Session, agent: Agent, req: WhatIfIn, cfg: RiskConfig, seed: in
     # A float may sit above its nominal capacity; it can then only be drawn down.
     if not 0 <= b0 + req.delta_amount <= max(capacity, b0):
         raise WhatIfError("delta_out_of_bounds")
-    before, after = whatif.run(b0, req.delta_amount, drain, inflow, StockoutConfig(),
-                               risk.path_rng(seed, agent.id, ft))
+    mc = StockoutConfig()
+    paths = _prepared(seed, agent.id, ft, b0, drain, inflow, mc)
+    before, after = paths.before, whatif.after(paths, req.delta_amount, mc)
     return WhatIfOut(
         agent_id=agent.id, float_type=ft, delta_amount=req.delta_amount, capacity=capacity,
         as_of=now, before=_scenario(before, now, cfg), after=_scenario(after, now, cfg),

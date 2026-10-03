@@ -66,6 +66,14 @@ class Settings(BaseSettings):
     api_rate_per_min: int = 1200
     login_rate_per_min: int = 60
     max_body_bytes: int = 1_048_576
+    # uvicorn worker processes (entrypoint.sh); the in-process request cap is split across them.
+    web_concurrency: int = 1
+    # SQLAlchemy pool per worker process. Connections above pool_size are closed when returned,
+    # so a pool smaller than the request concurrency reconnects (a Postgres fork) under load.
+    db_pool_size: int = 5
+    db_max_overflow: int = 10
+    # Server-Timing header with SQL query count/time per request (verify stack, -Perf only).
+    perf_headers: bool = False
 
     # Optional override of app/rules/risk_rules.DEFAULT_CUTS: {"6": [amber, red], ...}.
     risk_thresholds: dict[int, list[float]] = {}

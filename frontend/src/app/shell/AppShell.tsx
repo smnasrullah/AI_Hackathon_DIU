@@ -41,14 +41,22 @@ export function AppShell() {
 
   const subRow =
     crumbs.length > 1 || meta?.prediction ? (
-      <div className={cn("flex flex-wrap items-center justify-between gap-2", !agent && "lg:justify-end")}>
-        <Breadcrumbs crumbs={crumbs} className={cn(crumbs.length < 2 && "invisible", !agent && "lg:hidden")} />
-        {meta?.prediction ? <FreshnessChip /> : null}
+      // A single crumb is not rendered at all: kept invisible, it still took width and made the
+      // loaded freshness chip (wider than its skeleton) wrap to a second row: a layout shift.
+      <div className={cn("flex flex-wrap items-center gap-2", crumbs.length > 1 ? "justify-between" : "justify-end", !agent && "lg:justify-end")}>
+        {crumbs.length > 1 ? <Breadcrumbs crumbs={crumbs} className={cn(!agent && "lg:hidden")} /> : null}
+        {meta?.prediction ? <FreshnessChip className="max-w-full" /> : null}
       </div>
     ) : null;
 
   const page = (
-    <main id="main" tabIndex={-1} className={cn("flex-1 outline-none", agent ? "px-4 pb-8 pt-4" : "px-4 py-5 md:px-6 md:py-6 xl:px-8")}>
+    // While a block is still loading (aria-busy) the page reserves a full screen, so the footer
+    // starts below the fold instead of being shoved off-screen when the data lands (CLS 0.69).
+    <main
+      id="main"
+      tabIndex={-1}
+      className={cn("flex-1 outline-none has-[[aria-busy=true]]:min-h-dvh", agent ? "px-4 pb-8 pt-4" : "px-4 py-5 md:px-6 md:py-6 xl:px-8")}
+    >
       <div className={cn("mx-auto w-full", !agent && "max-w-(--page-max)")}>
         {subRow ? <div className="mb-4">{subRow}</div> : null}
         <RouteErrorBoundary resetKey={pathname}>

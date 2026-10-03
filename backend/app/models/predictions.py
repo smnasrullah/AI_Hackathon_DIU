@@ -47,6 +47,7 @@ class Forecast(Base):
     __table_args__ = (
         Index("ix_forecasts_agent_ts", "agent_id", "ts"),
         Index("ix_forecasts_agent_float_ts", "agent_id", "float_type", "ts"),
+        Index("ix_forecasts_version_generated", "model_version_id", "generated_at"),
     )
 
     id: Mapped[int] = mapped_column(BigIntPK, primary_key=True)
