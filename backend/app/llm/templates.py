@@ -16,13 +16,13 @@ NOTICE = {EN: "Advice only: a person must approve any money movement.",
           BN: "শুধু পরামর্শ: যেকোনো টাকা লেনদেনের আগে একজন মানুষের অনুমোদন লাগবে।"}
 LEVEL = {EN: {"red": "Red", "amber": "Amber", "green": "Green"},
          BN: {"red": "লাল", "amber": "হলুদ", "green": "সবুজ"}}
-FLOAT = {EN: {"cash": "Cash", "emoney": "E-money"}, BN: {"cash": "নগদ", "emoney": "ই-মানি"}}
+FLOAT = {EN: {"cash": "Cash", "emoney": "E-money"}, BN: {"cash": "ক্যাশ", "emoney": "ই-মানি"}}
 DAY = {EN: {"today": "today", "tomorrow": "tomorrow", "later": "later"},
        BN: {"today": "আজ", "tomorrow": "আগামীকাল", "later": "পরে"}}
 ACTION = {EN: {"add_cash": "add cash", "add_emoney": "top up e-money",
                "swap": "swap with a nearby agent", "van": "collect cash from the van"},
-          BN: {"add_cash": "নগদ যোগ করুন", "add_emoney": "ই-মানি টপ-আপ করুন",
-               "swap": "কাছের এজেন্টের সাথে অদল-বদল করুন", "van": "ভ্যান থেকে নগদ নিন"}}
+          BN: {"add_cash": "ক্যাশ যোগ করুন", "add_emoney": "ই-মানি টপ-আপ করুন",
+               "swap": "কাছের এজেন্টের সাথে অদল-বদল করুন", "van": "ভ্যান থেকে ক্যাশ নিন"}}
 FEATURE = {EN: {"cash_out_growth": "Cash-out growth", "hour_shift": "Shift in busy hours",
                 "refills_per_day": "Refills per day",
                 "out_in_log_ratio": "Cash-out to cash-in balance"},

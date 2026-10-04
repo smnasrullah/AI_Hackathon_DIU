@@ -78,14 +78,14 @@ export function CopilotPage() {
   }
 
   const notice = (
-    <p data-testid="copilot-notice" className="flex items-start gap-2 text-small">
+    <p data-testid="copilot-notice" className="flex items-start gap-2 text-small lg:mx-auto lg:max-w-3xl">
       <ShieldCheck aria-hidden className="mt-0.5 size-4 shrink-0 text-safe-fg" />
       {t("copilot.notice")}
     </p>
   );
 
   const composer = (
-    <form onSubmit={submit} className="space-y-2">
+    <form onSubmit={submit} className="space-y-2 lg:mx-auto lg:max-w-3xl">
       <div className="flex items-end gap-2">
         <MicButton listening={speech.listening} problem={speech.problem} disabled={busy} onStart={speech.start} onStop={speech.stop} />
         <label htmlFor="copilot-input" className="sr-only">
@@ -112,14 +112,15 @@ export function CopilotPage() {
   );
 
   return (
-    <div className="space-y-4 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:items-start lg:gap-6 lg:space-y-0">
-      <div className="space-y-4">
+    // Desktop: a side panel (title + suggestions as a list) and a wide chat panel with a reading-width column.
+    <div className="space-y-4 lg:grid lg:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)] lg:items-start lg:gap-6 lg:space-y-0">
+      <div className="space-y-4 lg:sticky lg:top-20 lg:max-h-[calc(100dvh-7rem)] lg:overflow-y-auto lg:rounded-[var(--radius-card)] lg:border lg:border-line lg:bg-surface lg:p-5 lg:shadow-soft">
         <PageHeader title={t("copilot.title")} description={t("copilot.lead")} />
         <SuggestionChips onPick={ask} disabled={busy} />
       </div>
 
       <CopilotSheet label={t("copilot.sheet")} header={notice} footer={composer}>
-        <div ref={log}>
+        <div ref={log} className="lg:mx-auto lg:max-w-3xl">
           {turns.length === 0 ? (
             <p className="text-small text-muted">{t("copilot.empty")}</p>
           ) : (

@@ -6,8 +6,9 @@
 #   -E2E       Playwright smoke against the running stack (start it with -Up)
 #   -Up        rebuild app images with the /dev/kit route and start the stack
 #   -Full      everything: ruff, all pytest, tsc, eslint, vitest, -Up, e2e
+#   -E2ETimeout <sec>  Playwright step limit (else env CHECK_E2E_TIMEOUT, else 900; suite ~7-8 min)
 param([switch]$Backend, [switch]$Frontend, [switch]$E2E, [switch]$Slow, [switch]$Full,
-      [switch]$Up)
+      [switch]$Up, [int]$E2ETimeout = 0)
 $ErrorActionPreference = 'Continue'
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
@@ -17,6 +18,7 @@ $runFrontend = $Full -or $Frontend -or -not ($Backend -or $E2E -or $Slow -or $Up
 $runSlow = $Full -or $Slow
 $runUp = $Full -or $Up
 $runE2E = $Full -or $E2E
+if ($E2ETimeout -le 0) { $E2ETimeout = if ($env:CHECK_E2E_TIMEOUT -match '^\d+$') { [int]$env:CHECK_E2E_TIMEOUT } else { 900 } }
 
 # --- concurrency lock ------------------------------------------------------------------------
 $lock = Join-Path $PSScriptRoot '.check.lock'
@@ -188,7 +190,7 @@ try {
       # Known state for reruns without a DB reset (bootstrap.py e2e-fixtures: inbox, lockout).
       $before = $failed
       Invoke-Step 'e2e-seed' 60 @('compose', 'exec', '-T', 'backend', 'python', 'bootstrap.py', 'e2e-fixtures')
-      if ($failed -eq $before) { Invoke-Tool 'e2e' 420 'e2e' @() }
+      if ($failed -eq $before) { Invoke-Tool 'e2e' $E2ETimeout 'e2e' @() }
     }
   }
 } finally {

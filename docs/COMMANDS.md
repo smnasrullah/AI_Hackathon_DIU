@@ -25,7 +25,7 @@ never run npm / tsc / pytest on the host.
 | `-Frontend` | tsc + eslint + vitest | ~55 s |
 | `-Slow` | `pytest -m slow` (ML gate, full synthetic set) | ~15 s |
 | `-Up` | rebuild app images with the `/dev/kit` route and start the stack | 15 s cached, minutes on first build |
-| `-E2E` | `secrets`, `bootstrap.py e2e-fixtures`, then Playwright: route smoke, axe a11y + 390/1440 layout, security, bundle budget | ~4.5 min |
+| `-E2E` | `secrets`, `bootstrap.py e2e-fixtures`, then Playwright: route smoke, axe a11y + 390/1440 layout, security, bundle budget | ~7-8 min (step limit 900 s; `-E2ETimeout <sec>` or env `CHECK_E2E_TIMEOUT` to change) |
 | `-Full` | everything: all pytest, frontend, `-Up`, e2e | |
 
 Behaviour:

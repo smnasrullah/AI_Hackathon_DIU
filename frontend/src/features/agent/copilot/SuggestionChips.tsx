@@ -24,9 +24,9 @@ export function SuggestionChips({ onPick, disabled = false }: { onPick: (questio
   const items = q.data?.items ?? [];
   if (q.isPending) {
     return (
-      <div role="status" aria-busy="true" aria-label={t("common.loading")} className="flex flex-wrap gap-2">
+      <div role="status" aria-busy="true" aria-label={t("common.loading")} className="flex flex-wrap gap-2 lg:flex-col">
         {PLACEHOLDER_WIDTHS[lang].map((w, i) => (
-          <Skeleton key={i} className={`h-9 max-w-full rounded-full ${w}`} />
+          <Skeleton key={i} className={`h-9 max-w-full rounded-full lg:h-11 lg:w-full lg:rounded-xl ${w}`} />
         ))}
       </div>
     );
@@ -34,16 +34,16 @@ export function SuggestionChips({ onPick, disabled = false }: { onPick: (questio
   if (q.isError || items.length === 0) return null;
 
   return (
-    <div role="group" aria-label={t("copilot.suggestions")} data-testid="copilot-suggestions" className="flex flex-wrap gap-2">
+    <div role="group" aria-label={t("copilot.suggestions")} data-testid="copilot-suggestions" className="flex flex-wrap gap-2 lg:flex-col">
       {items.map((item) => (
         <button
           key={item}
           type="button"
           disabled={disabled}
           onClick={() => onPick(item)}
-          className="ap-press inline-flex min-h-9 items-center gap-1.5 rounded-full border border-line bg-surface-2 px-3 text-left text-small font-semibold text-fg hover:bg-surface-3 disabled:opacity-50"
+          className="ap-press inline-flex min-h-9 items-center gap-1.5 rounded-full border border-line bg-surface-2 px-3 text-left text-small font-semibold text-fg hover:bg-surface-3 disabled:opacity-50 lg:min-h-11 lg:w-full lg:items-start lg:gap-2 lg:rounded-xl lg:py-2.5"
         >
-          <MessageCircleQuestion aria-hidden className="size-4 shrink-0 text-pulse-fg" />
+          <MessageCircleQuestion aria-hidden className="size-4 shrink-0 text-pulse-fg lg:mt-0.5" />
           {item}
         </button>
       ))}
