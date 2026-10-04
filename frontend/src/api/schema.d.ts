@@ -4777,6 +4777,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     export_audit_log_api_v1_admin_audit_log_export_csv_get: {
@@ -4876,6 +4885,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     get_data_api_v1_admin_data_get: {
@@ -4961,6 +4979,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5060,6 +5087,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     get_drift_api_v1_admin_drift_get: {
@@ -5152,6 +5188,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     list_jobs_api_v1_admin_jobs_get: {
@@ -5237,6 +5282,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5349,6 +5403,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     get_job_api_v1_admin_jobs__job_id__get: {
@@ -5436,6 +5499,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5539,6 +5611,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     demo_info_api_v1_admin_liquidity_requests_demo_get: {
@@ -5624,6 +5705,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5725,6 +5815,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5837,6 +5936,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     run_trigger_api_v1_admin_liquidity_requests_run_trigger_post: {
@@ -5938,6 +6046,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     read_settings_api_v1_admin_liquidity_requests_settings_get: {
@@ -6023,6 +6140,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -6135,6 +6261,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     simulate_shortage_api_v1_admin_liquidity_requests_simulate_shortage_post: {
@@ -6233,6 +6368,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -6341,6 +6485,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     read_trigger_settings_api_v1_admin_liquidity_requests_trigger_settings_get: {
@@ -6426,6 +6579,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -6538,6 +6700,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     llm_logs_api_v1_admin_llm_logs_get: {
@@ -6630,6 +6801,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -6731,6 +6911,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     get_models_api_v1_admin_models_get: {
@@ -6816,6 +7005,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -6915,6 +7113,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     get_overview_api_v1_admin_overview_get: {
@@ -7000,6 +7207,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -7105,6 +7321,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     create_user_api_v1_admin_users_post: {
@@ -7203,6 +7428,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -7317,6 +7551,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     reject_user_api_v1_admin_users__user_id__reject_post: {
@@ -7424,6 +7667,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     list_agents_api_v1_agents_get: {
@@ -7509,6 +7761,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -7616,6 +7877,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     export_risk_api_v1_agents_risk_export_csv_get: {
@@ -7707,6 +7977,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -7808,6 +8087,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     agent_briefing_api_v1_agents__agent_id__briefing_get: {
@@ -7898,6 +8186,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -8004,6 +8301,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     get_forecast_api_v1_agents__agent_id__forecast_get: {
@@ -8093,6 +8399,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -8194,6 +8509,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     get_risk_api_v1_agents__agent_id__risk_get: {
@@ -8281,6 +8605,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -8382,6 +8715,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     get_summary_api_v1_agents__agent_id__summary_get: {
@@ -8469,6 +8811,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -8583,6 +8934,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     list_anomalies_api_v1_anomalies_get: {
@@ -8672,6 +9032,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -8773,6 +9142,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     anomaly_narrative_api_v1_anomalies__anomaly_id__narrative_get: {
@@ -8863,6 +9241,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -8977,6 +9364,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     change_password_api_v1_auth_change_password_post: {
@@ -9084,6 +9480,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     demo_login_api_v1_auth_demo_login_post: {
@@ -9164,6 +9569,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -9258,6 +9672,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     login_api_v1_auth_login_post: {
@@ -9345,6 +9768,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     logout_api_v1_auth_logout_post: {
@@ -9421,6 +9853,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -9520,6 +9961,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     refresh_api_v1_auth_refresh_post: {
@@ -9598,6 +10048,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -9692,6 +10151,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     create_signup_api_v1_auth_signup_post: {
@@ -9772,6 +10240,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -9884,6 +10361,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     copilot_suggestions_api_v1_copilot_suggestions_get: {
@@ -9971,6 +10457,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -10066,6 +10561,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -10172,6 +10676,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     create_event_api_v1_events_post: {
@@ -10270,6 +10783,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -10384,6 +10906,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     delete_event_api_v1_events__event_id__delete: {
@@ -10478,6 +11009,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -10590,6 +11130,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     health_api_v1_health_get: {
@@ -10648,6 +11197,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -10754,6 +11312,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     get_summary_api_v1_impact_summary_get: {
@@ -10842,6 +11409,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -10945,6 +11521,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     list_mine_api_v1_liquidity_requests_mine_get: {
@@ -11041,6 +11626,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     read_opt_out_api_v1_liquidity_requests_opt_out_get: {
@@ -11126,6 +11720,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -11238,6 +11841,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     opt_out_api_v1_liquidity_requests_opt_out_post: {
@@ -11343,6 +11955,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     get_request_api_v1_liquidity_requests__request_id__get: {
@@ -11430,6 +12051,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -11544,6 +12174,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     claim_api_v1_liquidity_requests__request_id__claim_post: {
@@ -11640,6 +12279,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -11754,6 +12402,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     confirm_late_api_v1_liquidity_requests__request_id__confirm_late_post: {
@@ -11854,6 +12511,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -11968,6 +12634,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     withdraw_api_v1_liquidity_requests__request_id__withdraw_post: {
@@ -12075,6 +12750,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     get_llm_status_api_v1_llm_status_get: {
@@ -12160,6 +12844,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -12254,6 +12947,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -12360,6 +13062,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     read_all_api_v1_notifications_read_all_post: {
@@ -12454,6 +13165,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -12564,6 +13284,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     list_requests_api_v1_recommendation_requests_get: {
@@ -12653,6 +13382,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -12767,6 +13505,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     decide_api_v1_recommendation_requests__request_id__decision_post: {
@@ -12874,6 +13621,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     fulfil_api_v1_recommendation_requests__request_id__fulfil_post: {
@@ -12974,6 +13730,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -13093,6 +13858,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     get_fairness_api_v1_responsible_ai_fairness_get: {
@@ -13180,6 +13954,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -13282,6 +14065,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     search_api_v1_search_get: {
@@ -13369,6 +14161,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -13472,6 +14273,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     export_swaps_api_v1_swaps_export_csv_get: {
@@ -13559,6 +14369,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -13673,6 +14492,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     respond_api_v1_swaps__swap_id__respond_post: {
@@ -13780,6 +14608,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     system_freshness_api_v1_system_freshness_get: {
@@ -13872,6 +14709,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     health_api_v1_system_health_get: {
@@ -13937,6 +14783,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     system_status_api_v1_system_status_get: {
@@ -13995,6 +14850,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -14107,6 +14971,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     get_profile_api_v1_users_me_profile_get: {
@@ -14192,6 +15065,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -14297,6 +15179,15 @@ export interface operations {
             };
             /** @description Server error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Database unavailable, retry shortly (Retry-After) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -101,8 +101,17 @@ def run_train() -> int:
 
 
 def precompute() -> int:
-    """Register the active models and precompute every cache (app/services/pipeline.py)."""
-    pipeline.precompute(get_settings())
+    """Register the active models and precompute every cache (app/services/pipeline.py).
+    Logs how long each stage took (slow first starts are diagnosed from these lines)."""
+    current: list[Any] = [time.perf_counter(), ""]
+
+    def timed(name: str) -> None:
+        if current[1]:
+            log.info("precompute %s took %.1fs", current[1], time.perf_counter() - current[0])
+        current[:] = [time.perf_counter(), name]
+
+    pipeline.precompute(get_settings(), timed)
+    timed("")
     return 0
 
 

@@ -15,10 +15,12 @@ step() {
   name="$1"
   shift
   state "$name"
+  started=$(date +%s)
   if ! "$@"; then
     state failed
     exit 1
   fi
+  echo "[bootstrap] $name took $(( $(date +%s) - started ))s"
 }
 
 cd "$(dirname "$0")/.." || exit 1

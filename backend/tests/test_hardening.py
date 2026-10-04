@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy.exc import DataError
+from sqlalchemy.exc import DataError, OperationalError
 
 from app.core.config import get_settings
 from app.core.params import MAX_ID
@@ -96,6 +96,18 @@ def test_value_the_database_rejects_is_422_not_500(env: Path) -> None:
 
     res = TestClient(app, raise_server_exceptions=False).get("/api/v1/nul")
     assert (res.status_code, res.json()) == (422, {"detail": "invalid_value"})
+
+
+def test_database_down_is_503_with_retry_after(env: Path) -> None:
+    app = create_app()
+
+    @app.get("/api/v1/dbdown")
+    def dbdown() -> None:
+        raise OperationalError("SELECT 1", {}, ConnectionRefusedError("db restarting"))
+
+    res = TestClient(app, raise_server_exceptions=False).get("/api/v1/dbdown")
+    assert (res.status_code, res.json()) == (503, {"detail": "database_unavailable"})
+    assert res.headers["retry-after"] == "5"
 
 
 def test_api_rate_limit_per_client(monkeypatch: pytest.MonkeyPatch, env: Path) -> None:

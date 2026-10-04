@@ -32,6 +32,7 @@ _DESCRIPTIONS = {
     "400": "Malformed request", "401": "Not signed in or session expired", "403": "Not allowed",
     "404": "Not found", "409": "Conflict with the current state", "413": "Body too large",
     "422": "Invalid input", "429": "Rate limited (Retry-After)", "500": "Server error",
+    "503": "Database unavailable, retry shortly (Retry-After)",
 }
 _WRITES = {"post", "put", "patch", "delete"}
 
@@ -42,7 +43,7 @@ def _error(code: str) -> dict[str, Any]:
 
 
 def _statuses(path: str, method: str, op: dict[str, Any]) -> list[str]:
-    codes = ["400", "413", "422", "429", "500"]
+    codes = ["400", "413", "422", "429", "500", "503"]
     secured = bool(op.get("security"))
     if secured or path.startswith("/api/v1/auth/"):
         codes += ["401", "403"]

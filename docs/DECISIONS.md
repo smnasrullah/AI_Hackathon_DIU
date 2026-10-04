@@ -114,3 +114,24 @@ Format: what, why, alternative considered.
 - What: `SELECT ... FOR UPDATE` on the user in update/approve and reject.
 - Why: reproduced on Postgres: two admins approving and rejecting the same pending signup at once
   both succeeded, leaving an active-and-rejected account with two contradictory audit entries.
+
+## D15. Database outage is a 503, not a 500
+- What: SQLAlchemy `OperationalError` (database unreachable or restarting) answers
+  503 `database_unavailable` with `Retry-After: 5`; the frontend's reconnect banner treats 502,
+  503, 504 and network errors as "server unreachable", pings /health and refetches when back.
+- Liveness vs readiness: `/health` = the process answers (no database); `/system/status` = the
+  database, migrations and bootstrap are ready. Docker's healthcheck uses liveness.
+
+## D16. nginx re-resolves the backend name
+- What: `resolver 127.0.0.11 valid=10s` and a variable `proxy_pass`.
+- Why: reproduced: with the original config, recreating the backend container with a new IP
+  left nginx answering 502 until nginx itself restarted. Now it follows within 10 s.
+
+## D17. Postgres ends sessions of vanished clients
+- What: `client_connection_check_interval=5s`, TCP keepalives 20 s / 5 s / 3 probes.
+- Why: reproduced: killing the backend during the first seeding left its COPY session
+  "active" for 10+ minutes; the restarted bootstrap waited on its locks and never got ready.
+
+## D18. No statement_timeout on API connections
+- The API process also runs admin background jobs (retraining) on the same engine; a timeout
+  could kill those. No request-path query took more than ~70 ms under fuzzing or 50-user load.

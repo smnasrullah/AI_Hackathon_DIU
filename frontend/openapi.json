@@ -8120,6 +8120,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -8316,6 +8326,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -8423,6 +8443,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -8530,6 +8560,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -8637,6 +8677,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -8744,6 +8794,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -8869,6 +8929,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -8988,6 +9058,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -9137,6 +9217,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -9244,6 +9334,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -9361,6 +9461,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -9488,6 +9598,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -9605,6 +9725,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -9712,6 +9842,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -9837,6 +9977,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -9964,6 +10114,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -10081,6 +10241,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -10188,6 +10358,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -10313,6 +10493,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -10510,6 +10700,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -10631,6 +10831,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -10738,6 +10948,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -10845,6 +11065,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -10952,6 +11182,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -11140,6 +11380,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -11265,6 +11515,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -11404,6 +11664,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -11543,6 +11813,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -11653,6 +11933,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -11847,6 +12137,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -12017,6 +12317,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -12136,6 +12446,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -12274,6 +12594,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -12423,6 +12753,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -12555,6 +12895,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -12675,6 +13025,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -12795,6 +13155,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -12915,6 +13285,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -13035,6 +13415,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -13175,6 +13565,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -13324,6 +13724,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -13444,6 +13854,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -13582,6 +14002,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -13722,6 +14152,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -13867,6 +14307,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -13974,6 +14424,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "summary": "Demo Login",
@@ -14076,6 +14536,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "summary": "Forgot Password",
@@ -14177,6 +14647,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "summary": "Login",
@@ -14281,6 +14761,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "summary": "Logout",
@@ -14382,6 +14872,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -14497,6 +14997,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "summary": "Refresh",
@@ -14599,6 +15109,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "summary": "Reset Password",
@@ -14701,6 +15221,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "summary": "Create Signup",
@@ -14819,6 +15349,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -14945,6 +15485,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -15072,6 +15622,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -15272,6 +15832,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -15397,6 +15967,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -15520,6 +16100,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -15658,6 +16248,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -15785,6 +16385,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -15861,6 +16471,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "summary": "Health",
@@ -16023,6 +16643,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -16152,6 +16782,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -16301,6 +16941,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -16450,6 +17100,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -16557,6 +17217,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -16683,6 +17353,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -16808,6 +17488,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -16928,6 +17618,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -17075,6 +17775,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -17205,6 +17915,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -17352,6 +18072,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -17499,6 +18229,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -17646,6 +18386,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -17793,6 +18543,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -17900,6 +18660,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -18021,6 +18791,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -18192,6 +18972,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -18308,6 +19098,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -18437,6 +19237,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -18586,6 +19396,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -18733,6 +19553,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -18873,6 +19703,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -19020,6 +19860,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -19160,6 +20010,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -19278,6 +20138,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -19405,6 +20275,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -19525,6 +20405,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -19674,6 +20564,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -19799,6 +20699,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -19939,6 +20849,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -20079,6 +20999,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -20186,6 +21116,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -20262,6 +21202,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "summary": "Health",
@@ -20333,6 +21283,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "summary": "System Status",
@@ -20455,6 +21415,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -20561,6 +21531,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [
@@ -20686,6 +21666,16 @@
        }
       },
       "description": "Server error"
+     },
+     "503": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      },
+      "description": "Database unavailable, retry shortly (Retry-After)"
      }
     },
     "security": [

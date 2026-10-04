@@ -9,7 +9,7 @@ from http import HTTPStatus
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from sqlalchemy.exc import DataError
+from sqlalchemy.exc import DataError, OperationalError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 log = logging.getLogger("app.errors")
@@ -56,6 +56,14 @@ async def _data_error(request: Request, exc: DataError) -> JSONResponse:
     return error_response(422, "invalid_value")
 
 
+async def _db_unavailable(request: Request, exc: OperationalError) -> JSONResponse:
+    """The database is unreachable or restarting: a temporary 503 (the app shows its reconnect
+    banner and retries), not a 500."""
+    log.warning("database unavailable on %s %s: %s", request.method, request.url.path,
+                type(exc.orig).__name__)
+    return error_response(503, "database_unavailable", headers={"Retry-After": "5"})
+
+
 async def _unhandled(request: Request, exc: Exception) -> JSONResponse:
     log.exception("unhandled error on %s %s", request.method, request.url.path, exc_info=exc)
     return error_response(500, "internal_error")
@@ -65,4 +73,5 @@ def install_error_handlers(app: FastAPI) -> None:
     app.add_exception_handler(StarletteHTTPException, _http_error)
     app.add_exception_handler(RequestValidationError, _validation_error)
     app.add_exception_handler(DataError, _data_error)
+    app.add_exception_handler(OperationalError, _db_unavailable)
     app.add_exception_handler(Exception, _unhandled)
